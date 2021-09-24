@@ -1,0 +1,4 @@
+networkx>=2.3
+numpy>=1.16
+torch>=1.1.0
+torch-scatter>=1.2
