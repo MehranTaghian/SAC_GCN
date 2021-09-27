@@ -63,4 +63,4 @@ class RobotGraph:
 
 if __name__ == '__main__':
     g = RobotGraph(
-        '/home/mehran/Documents/SAC_GCN/custom_gym_envs/envs/fetchreach/FetchReachEnv_v0_Normal/assets/fetch/')
+        '/CustomGymEnvs/envs/fetchreach/FetchReachEnv_v0_Normal/assets/fetch/')

@@ -1,6 +1,6 @@
 import gym
 
-import custom_gym_envs
+import CustomGymEnvs
 
 env = gym.make("FetchReachEnv-v0")
 # env = gym.make("Ant-v2")
