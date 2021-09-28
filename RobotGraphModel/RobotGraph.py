@@ -11,6 +11,23 @@ class RobotGraph:
         Using this definition, we parsed the XML file and generate the graph of nodes (bodies) and edges (joints).
         ATTENTION: the graph might be a directed graph (from one point, it is attached to a body, and from the other
         point, another body is attached to it)
+
+        For node and edge features, I used the following link to a complete reference of the bodies and joints:
+        http://www.mujoco.org/book/XMLreference.html
+
+        Node features:
+            Each node is a body which contains inertial features along with geometric features. For a complete reference
+            of what inertial and geom tags show, refer to the link above.
+            Node features consist of diaginertia, mass, pos, quat which are all attributes of the <inertial> tag
+            inside the body. Also they include the attributes of the body tag itself.
+
+        Edge features:
+            Edges are joints, therefore edge features are selected among <joint> attributes. These include axis, range,
+            armature, damping, frictionloss, stiffness, etc. Some of these attributes are set to default values in
+            <default> tag (e.g. for fetchreach, the default values are in the shared.xml file).
+
+
+
         :param model_path: path to the robot's xml file
         """
         self.parser = ModelParser(model_path)

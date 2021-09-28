@@ -88,7 +88,7 @@
                                     <body name="robot0:wrist_roll_link" pos="0.1385 0 0">
                                         <inertial diaginertia="0.0001 0.0001 0.0001" mass="0.1354"
                                                   pos="0.0095 0.0004 -0.0002"></inertial>
-                                        <joint axis="1 0 0" limited="false" name="robot0:wrist_roll_joint"></joint>
+                                        <joint axis="1 0 0" limited="f0alse" name="robot0:wrist_roll_joint"></joint>
                                         <geom mesh="robot0:wrist_roll_link" name="robot0:wrist_roll_link"
                                               material="robot0:arm_mat"></geom>
                                         <body euler="0 0 0" name="robot0:gripper_link" pos="0.1664 0 0">

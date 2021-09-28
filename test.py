@@ -10,4 +10,6 @@ env.reset()
 # print(env.sim.data.qpos)
 
 while True:
+    action = env.action_space.sample()
+    env.step(action)
     env.render()
