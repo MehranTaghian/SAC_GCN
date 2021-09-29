@@ -49,7 +49,6 @@ class RobotGraph:
         """
         self.fill_node_edge_lists()
         self.generate_adjacency_matrix()
-        # TODO generate feature vectors for nodes and edges
         self.extract_node_features()
         self.extract_edge_features()
 
@@ -82,10 +81,26 @@ class RobotGraph:
 
     def extract_node_features(self):
         """
-        For extracting node features which are body featuers, we use accessor functions to access each body feature
+        For extracting node features which are body features, we use accessor functions to access each body feature
         by name. This data can be accessed through PyMjModel and PyMjData in env.sim.model and env.sim.data. These are
-        static features like mass, inertia, etc.
-        :return:
+        static features like mass, inertia, etc, in addition to dynamic features like xvelp, xvelr, xpos, and xquat that
+        change during the run time and by doing forward kinematics.
+
+        The body features according to the http://www.mujoco.org/book/APIreference.html are as follows:
+
+        mass: mass of the body [1]
+        pos: position offset rel. to parent body [3]
+        quat: orientation offset rel. to parent body [4]
+        xpos: Cartesian position of body frame (the value is stored in this variable after
+                doing forward kinematics) [3]
+        xquat: Cartesian orientation of body frame (the value is stored in this variable after
+                doing forward kinematics) [4]
+        ipos: local position of center of mass [3]
+        iquat: local orientation of center of mass [4]
+        inertia: diagonal inertia in ipos/iquat frame [3]
+        xvelp: positional velocity [3]
+        xvelr: rotational velocity [3]
+
         """
         mask = [env.sim.model.body_name2id(body_name.attrib['name']) for body_name in self.node_list]
 
@@ -97,7 +112,6 @@ class RobotGraph:
         bodies_xquat = env.sim.data.body_xquat[mask, :]
         bodies_xvelp = env.sim.data.body_xvelp[mask, :]
         bodies_xvelr = env.sim.data.body_xvelr[mask, :]
-        bodies_xmat = env.sim.data.body_xmat[mask, :]
         bodies_ipos = env.sim.model.body_ipos[mask, :]
         bodies_iquat = env.sim.model.body_iquat[mask, :]
 
@@ -108,24 +122,50 @@ class RobotGraph:
         # print(bodies_quat.shape)
         # print(bodies_xpos.shape)
         # print(bodies_xquat.shape)
-        print(bodies_xvelp.shape)
-        # print(bodies_xmat.shape)
+        # print(bodies_xvelp.shape)
+        # print(bodies_xvelr.shape)
         # print(bodies_ipos.shape)
         # print(bodies_iquat.shape)
         # END DEBUG
-        self.node_features = np.concatenate([bodies_mass, bodies_inertia, bodies_pos, bodies_quat, bodies_xpos,
-                                            bodies_xquat, bodies_xmat, bodies_ipos, bodies_iquat], axis=1)
+        self.node_features = np.concatenate(
+            [bodies_mass, bodies_inertia, bodies_pos, bodies_quat, bodies_xpos, bodies_xquat,
+             bodies_xvelp, bodies_xvelr, bodies_ipos, bodies_iquat], axis=1)
 
     def extract_edge_features(self):
-        pass
+        """
+        For extracting edge features which are joint features, we use accessor functions to access each joint feature
+        by name. This data can be accessed through PyMjModel and PyMjData in env.sim.model and env.sim.data. These are
+        static features like range of freedom, , etc.
+
+        TODO: write the detailed documentation of each feature
+        Returns:
+
+        """
+        mask = [env.sim.model.joint_name2id(joint_name.attrib['name']) for joint_name in self.edge_list]
+
+        jnt_ranges = self.env.sim.model.jnt_range[mask, :]
+        jnt_axis = self.env.sim.model.jnt_axis[mask, :]
+        jnt_xaxis = self.env.sim.data.xaxis[mask, :]
+        jnt_xanchor = self.env.sim.data.xanchor[mask]
+        jnt_qpos = self.env.sim.data.qpos[mask]
+        jnt_qvel = self.env.sim.data.qvel[mask]
+
+        print(jnt_ranges.shape)
+        print(jnt_axis.shape)
+        print(jnt_xaxis.shape)
+        print(jnt_xanchor.shape)
+        print(jnt_qpos.shape)
+        print(jnt_qvel.shape)
 
 
 if __name__ == '__main__':
     import gym
+    from pathlib import Path
 
     env = gym.make('FetchReachEnv-v0')
+    home = str(Path.home())
     g = RobotGraph(env,
-                   '/home/mehran/Documents/SAC_GCN/CustomGymEnvs/envs/fetchreach/FetchReachEnv_v0_Normal/assets/fetch/')
+                   home + '/Documents/SAC_GCN/CustomGymEnvs/envs/fetchreach/FetchReachEnv_v0_Normal/assets/fetch/')
     # print(env.sim.data.get_body_xpos("robot0:forearm_roll_link"))
     # print(env.sim.model.body_name2id("robot0:forearm_roll_link"))
     # id = env.sim.model.body_name2id("robot0:forearm_roll_link")
