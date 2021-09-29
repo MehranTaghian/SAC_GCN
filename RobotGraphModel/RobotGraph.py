@@ -88,18 +88,18 @@ class RobotGraph:
 
         The body features according to the http://www.mujoco.org/book/APIreference.html are as follows:
 
-        mass: mass of the body [1]
-        pos: position offset rel. to parent body [3]
-        quat: orientation offset rel. to parent body [4]
-        xpos: Cartesian position of body frame (the value is stored in this variable after
-                doing forward kinematics) [3]
-        xquat: Cartesian orientation of body frame (the value is stored in this variable after
-                doing forward kinematics) [4]
-        ipos: local position of center of mass [3]
-        iquat: local orientation of center of mass [4]
-        inertia: diagonal inertia in ipos/iquat frame [3]
-        xvelp: positional velocity [3]
-        xvelr: rotational velocity [3]
+        mass [1]: mass of the body
+        pos [3]: position offset rel. to parent body
+        quat [4]: orientation offset rel. to parent body
+        xpos [3]: Cartesian position of body frame (the value is stored in this variable after
+                doing forward kinematics)
+        xquat [4]: Cartesian orientation of body frame (the value is stored in this variable after
+                doing forward kinematics)
+        ipos [3]: local position of center of mass
+        iquat [4]: local orientation of center of mass
+        inertia [3]: diagonal inertia in ipos/iquat frame
+        xvelp [3]: positional velocity
+        xvelr [3]: rotational velocity
 
         """
         mask = [env.sim.model.body_name2id(body_name.attrib['name']) for body_name in self.node_list]
@@ -138,6 +138,8 @@ class RobotGraph:
         static features like range of freedom, , etc.
 
         TODO: write the detailed documentation of each feature
+        ranges [2]: joint limits in range of motion form range[0] to range[1]
+        axis [3]: local joint axis
         Returns:
 
         """
