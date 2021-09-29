@@ -6,7 +6,7 @@ modified _sample_goal method to eliminate unreachable goals in table
 """
 import numpy as np
 
-from CustomGymEnvs.envs.fetchreach.FetchReachEnv_v0_Normal import robot_env, rotations, utils  # modification here
+from CustomGymEnvs.envs.fetchreach.CustomFetchReach import robot_env, rotations, utils  # modification here
 
 
 def goal_distance(goal_a, goal_b):
@@ -19,9 +19,9 @@ class FetchEnv(robot_env.RobotEnv):
     """
 
     def __init__(
-        self, model_path, n_substeps, gripper_extra_height, block_gripper,
-        has_object, target_in_the_air, target_offset, obj_range, target_range,
-        distance_threshold, initial_qpos, reward_type,
+            self, model_path, n_substeps, gripper_extra_height, block_gripper,
+            has_object, target_in_the_air, target_offset, obj_range, target_range,
+            distance_threshold, initial_qpos, reward_type,
     ):
         """Initializes a new Fetch environment.
 
@@ -74,6 +74,8 @@ class FetchEnv(robot_env.RobotEnv):
             self.sim.forward()
 
     def _set_action(self, action):
+        # TODO: we might want to change the action space so that it applies actions to each joint, changing the
+        #   angular position (velocity) of each joint.
         assert action.shape == (4,)
         action = action.copy()  # ensure that we don't change the action outside of this scope
         pos_ctrl, gripper_ctrl = action[:3], action[3]
@@ -120,8 +122,14 @@ class FetchEnv(robot_env.RobotEnv):
             object_velp.ravel(), object_velr.ravel(), grip_velp, gripper_vel
         ])
 
+        # return {
+        #     'observation': obs.copy(),
+        #     'achieved_goal': achieved_goal.copy(),
+        #     'desired_goal': self.goal.copy(),
+        # }
+
         return {
-            'observation': obs.copy(),
+            'observation': self.robot_graph.get_graph_obs(),
             'achieved_goal': achieved_goal.copy(),
             'desired_goal': self.goal.copy(),
         }
@@ -149,7 +157,8 @@ class FetchEnv(robot_env.RobotEnv):
         if self.has_object:
             object_xpos = self.initial_gripper_xpos[:2]
             while np.linalg.norm(object_xpos - self.initial_gripper_xpos[:2]) < 0.1:
-                object_xpos = self.initial_gripper_xpos[:2] + self.np_random.uniform(-self.obj_range, self.obj_range, size=2)
+                object_xpos = self.initial_gripper_xpos[:2] + self.np_random.uniform(-self.obj_range, self.obj_range,
+                                                                                     size=2)
             object_qpos = self.sim.data.get_joint_qpos('object0:joint')
             assert object_qpos.shape == (7,)
             object_qpos[:2] = object_xpos
@@ -173,7 +182,8 @@ class FetchEnv(robot_env.RobotEnv):
             goal = None
             reachable = False
             while not reachable:
-                goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
+                goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range,
+                                                                              size=3)
                 if goal[2] >= 0.42:
                     reachable = True
 
@@ -192,7 +202,8 @@ class FetchEnv(robot_env.RobotEnv):
         self.sim.forward()
 
         # Move end effector into position.
-        gripper_target = np.array([-0.498, 0.005, -0.431 + self.gripper_extra_height]) + self.sim.data.get_site_xpos('robot0:grip')
+        gripper_target = np.array([-0.498, 0.005, -0.431 + self.gripper_extra_height]) + self.sim.data.get_site_xpos(
+            'robot0:grip')
         gripper_rotation = np.array([1., 0., 1., 0.])
         self.sim.data.set_mocap_pos('robot0:mocap', gripper_target)
         self.sim.data.set_mocap_quat('robot0:mocap', gripper_rotation)

@@ -22,7 +22,7 @@ class ModelParser:
 
 if __name__ == "__main__":
     p = ModelParser(
-        '/home/mehran/Documents/SAC_GCN/CustomGymEnvs/envs/fetchreach/FetchReachEnv_v0_Normal/assets/fetch/')
+        '/home/mehran/Documents/SAC_GCN/CustomGymEnvs/envs/fetchreach/CustomFetchReach/assets/fetch/')
 
     # env = gym.make('FetchReachEnv-v0')
     # print(env.sim.data.qpos)

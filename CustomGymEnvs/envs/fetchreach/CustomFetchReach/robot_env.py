@@ -5,13 +5,18 @@ import numpy as np
 import gym
 from gym import error, spaces
 from gym.utils import seeding
+import RobotGraphModel as rgm
+from pathlib import Path
 
 try:
     import mujoco_py
 except ImportError as e:
-    raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
+    raise error.DependencyNotInstalled(
+        "{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(
+            e))
 
 DEFAULT_SIZE = 500
+
 
 class RobotEnv(gym.GoalEnv):
     def __init__(self, model_path, initial_qpos, n_actions, n_substeps):
@@ -24,6 +29,11 @@ class RobotEnv(gym.GoalEnv):
 
         model = mujoco_py.load_model_from_path(fullpath)
         self.sim = mujoco_py.MjSim(model, nsubsteps=n_substeps)
+
+        # Modification: robot_graph model added. This model will be used as the observation space.
+        self.robot_graph = rgm.RobotGraph(self.sim, str(Path(fullpath).parent) + '/')
+        # End modification
+
         self.viewer = None
         self._viewers = {}
 
@@ -39,10 +49,22 @@ class RobotEnv(gym.GoalEnv):
         self.goal = self._sample_goal()
         obs = self._get_obs()
         self.action_space = spaces.Box(-1., 1., shape=(n_actions,), dtype='float32')
+
+        # self.observation_space = spaces.Dict(dict(
+        #     desired_goal=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),
+        #     achieved_goal=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),
+        #     observation=spaces.Box(-np.inf, np.inf, shape=obs['observation'].shape, dtype='float32'),
+        # ))
+
         self.observation_space = spaces.Dict(dict(
             desired_goal=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),
             achieved_goal=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),
-            observation=spaces.Box(-np.inf, np.inf, shape=obs['observation'].shape, dtype='float32'),
+            observation=spaces.Box(-np.inf, np.inf, shape=obs['observation']['node_features'].shape,
+                                   dtype='float32'),
+            observation_nodes=spaces.Box(-np.inf, np.inf, shape=obs['observation']['node_features'].shape,
+                                         dtype='float32'),
+            observation_edges=spaces.Box(-np.inf, np.inf, shape=obs['observation']['edge_features'].shape,
+                                         dtype='float32'),
         ))
 
     @property

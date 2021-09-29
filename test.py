@@ -9,7 +9,11 @@ env.reset()
 
 # print(env.sim.data.qpos)
 
+# TODO: write a code that portraits the changing features (show dynamic features)
+
 while True:
     action = env.action_space.sample()
-    env.step(action)
+    obs, _, _, _ = env.step(action)
+    # print('node_features', obs['observation']['node_features'])
+    # print('edge_features', obs['observation']['edge_features'])
     env.render()

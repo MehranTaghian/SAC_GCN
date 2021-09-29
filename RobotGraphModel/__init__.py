@@ -1,2 +1,2 @@
-from ModelParser import ModelParser
-from RobotGraph import RobotGraph
+from RobotGraphModel.ModelParser import ModelParser
+from RobotGraphModel.RobotGraph import RobotGraph
