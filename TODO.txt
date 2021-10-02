@@ -1,0 +1,6 @@
+TODO are as follows:
+1) change the action space to apply actions on each joint, instead of the gripper.
+2) We should modify the graph. There are also static links between bodies that are not joints. Such as there should
+be an edge between robot0:gripper_link and the main body.
+3) Remove redundant edges. The second for-loop adds redundant edges (welded despite having a joint)
+4) Think about an algorithm to remove redundant parts like cameras from the graph.

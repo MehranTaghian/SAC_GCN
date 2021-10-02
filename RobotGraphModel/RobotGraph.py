@@ -9,9 +9,13 @@ class RobotGraph:
         Based on the definition in the MuJoCo documentation:
         This element creates a joint. As explained in Kinematic tree, a joint creates motion degrees of freedom
         between the body where it is defined and the body's parent.
-        Using this definition, we parsed the XML file and generate the graph of nodes (bodies) and edges (joints).
-        ATTENTION: the graph might be a directed graph (from one point, it is attached to a body, and from the other
-        point, another body is attached to it)
+        Using this definition, we parsed the XML file and generate the graph of nodes (bodies) and edges (joints or
+        welded). As mentioned in the documentation, the link between two bodies is specified with parent and
+        child relationships in the xml file. If a joint is defined in the child body, then there is a motion
+        between the parent and child. If there is no joint defined, then the child is welded to the parent. We should
+        consider a specific feature vector for welded links. One way is to set it to all zero vector.
+        ATTENTION: the graph might be a directed graph (from one point, it is attached to a body, and from the
+        other point, another body is attached to it)
 
         For node and edge features, I used the following link to a complete reference of the bodies and joints:
         http://www.mujoco.org/book/XMLreference.html
@@ -40,6 +44,7 @@ class RobotGraph:
         self.parser = ModelParser(model_path)
         self.node_list = set()
         self.edge_list = set()
+        # edges_from and edges_to are based on the index of the node in the node_list, not the joint_id or body_id
         self.edges_from = []
         self.edges_to = []
         self.node_features = None
@@ -91,10 +96,8 @@ class RobotGraph:
         self.extract_edge_features()
 
         self.plot_itr_counter += 1
-        print(self.plot_itr_counter)
         if self.plot_itr_counter == self.plot_itr:
             self.log_plot()
-            self.plot_itr_counter = 0
 
         return {'node_features': self.node_features.copy(),
                 'edge_features': self.edge_features.copy()}
@@ -105,18 +108,18 @@ class RobotGraph:
         #     print(i, self.node_list[i].attrib)
         # END DEBUG
 
-        for n1, n2 in self.parser.joints_connections.values():
+        for n1, n2, _ in self.parser.joints_connections:
             edge_from = self.node_list.index(n1)
             edge_to = self.node_list.index(n2)
             self.edges_from.append(edge_from)
             self.edges_to.append(edge_to)
 
     def fill_node_edge_lists(self):
-        for joint, parents in self.parser.joints_connections.items():
-            node1, node2 = parents
+        for node1, node2, joint in self.parser.joints_connections:
             self.node_list.add(node1)
             self.node_list.add(node2)
-            self.edge_list.add(joint)
+            if joint is not None:
+                self.edge_list.add(joint)
             # DEBUG
             # print('node1: ' + node1.attrib['name'],
             #       'node2: ' + node2.attrib['name'],
@@ -133,7 +136,6 @@ class RobotGraph:
         static features like mass, inertia, etc, in addition to dynamic features like xvelp, xvelr, xpos, and xquat that
         change during the run time and by doing forward kinematics.
 
-        TODO: check dynamic features in runtime.
         The body features according to the http://www.mujoco.org/book/APIreference.html are as follows:
 
         mass [1]: mass of the body
@@ -153,26 +155,29 @@ class RobotGraph:
         mask = [self.sim.model.body_name2id(body_name.attrib['name']) for body_name in self.node_list]
 
         bodies_mass = self.sim.model.body_mass[mask, np.newaxis]
+        # The following features were constant. Instead of using static features for pos and quat, we use dynamic
+        # features xpos and xquat which change during the runtime. You can see them in the log
         bodies_inertia = self.sim.model.body_inertia[mask, :]
         bodies_pos = self.sim.model.body_pos[mask, :]
         bodies_quat = self.sim.model.body_quat[mask, :]
+        bodies_ipos = self.sim.model.body_ipos[mask, :]
+        bodies_iquat = self.sim.model.body_iquat[mask, :]
         bodies_xpos = self.sim.data.body_xpos[mask, :]
         bodies_xquat = self.sim.data.body_xquat[mask, :]
         bodies_xvelp = self.sim.data.body_xvelp[mask, :]
         bodies_xvelr = self.sim.data.body_xvelr[mask, :]
-        bodies_ipos = self.sim.model.body_ipos[mask, :]
-        bodies_iquat = self.sim.model.body_iquat[mask, :]
 
-        self.log['node']['mass'].append(bodies_mass.copy())
-        self.log['node']['inertia'].append(bodies_inertia.copy())
-        self.log['node']['pos'].append(bodies_pos.copy())
-        self.log['node']['quat'].append(bodies_quat.copy())
-        self.log['node']['xpos'].append(bodies_xpos.copy())
-        self.log['node']['xquat'].append(bodies_xquat.copy())
-        self.log['node']['xvelp'].append(bodies_xvelp.copy())
-        self.log['node']['xvelr'].append(bodies_xvelr.copy())
-        self.log['node']['ipos'].append(bodies_ipos.copy())
-        self.log['node']['iquat'].append(bodies_iquat.copy())
+        if self.save_log:
+            self.log['node']['mass'].append(bodies_mass.copy())
+            self.log['node']['inertia'].append(bodies_inertia.copy())
+            self.log['node']['pos'].append(bodies_pos.copy())
+            self.log['node']['quat'].append(bodies_quat.copy())
+            self.log['node']['xpos'].append(bodies_xpos.copy())
+            self.log['node']['xquat'].append(bodies_xquat.copy())
+            self.log['node']['xvelp'].append(bodies_xvelp.copy())
+            self.log['node']['xvelr'].append(bodies_xvelr.copy())
+            self.log['node']['ipos'].append(bodies_ipos.copy())
+            self.log['node']['iquat'].append(bodies_iquat.copy())
 
         # DEBUG
         # print(bodies_mass.shape)
@@ -188,8 +193,16 @@ class RobotGraph:
         # END DEBUG
 
         self.node_features = np.concatenate(
-            [bodies_mass.copy(), bodies_inertia.copy(), bodies_pos.copy(), bodies_quat.copy(), bodies_xpos.copy(),
-             bodies_xquat.copy(), bodies_xvelp.copy(), bodies_xvelr.copy(), bodies_ipos.copy(), bodies_iquat.copy()],
+            [bodies_mass.copy(),
+             # bodies_inertia.copy(),
+             # bodies_pos.copy(),
+             # bodies_quat.copy(),
+             # bodies_ipos.copy(),
+             # bodies_iquat.copy(),
+             bodies_xpos.copy(),
+             bodies_xquat.copy(),
+             bodies_xvelp.copy(),
+             bodies_xvelr.copy()],
             axis=1)
 
     def extract_edge_features(self):
@@ -198,7 +211,6 @@ class RobotGraph:
         by name. This data can be accessed through PyMjModel and PyMjData in env.sim.model and env.sim.data. These are
         static features like range of freedom, , etc.
 
-        TODO: write the detailed documentation of each feature
         TODO: check dynamic features in runtime. Also compare xaxis and axis features during runtime
         ranges [2]: joint limits in range of motion form range[0] to range[1]
         axis [3]: local joint axis
@@ -208,6 +220,9 @@ class RobotGraph:
         qvel [1]: open or close velocity of each joint
         """
         mask = [self.sim.model.joint_name2id(joint_name.attrib['name']) for joint_name in self.edge_list]
+
+        # axis is a static constant feature which does not change during the runtime. Thus we remove it and use
+        # dynamic features instead.
 
         jnt_ranges = self.sim.model.jnt_range[mask, :]
         jnt_axis = self.sim.model.jnt_axis[mask, :]
@@ -232,8 +247,12 @@ class RobotGraph:
         # print('jnt_qvel', jnt_qvel.shape)
         # END DEBUG
 
-        self.edge_features = np.concatenate([jnt_ranges.copy(), jnt_axis.copy(), jnt_xaxis.copy(),
-                                             jnt_xanchor.copy(), jnt_qpos.copy(), jnt_qvel.copy()], axis=1)
+        self.edge_features = np.concatenate([jnt_ranges.copy(),
+                                             # jnt_axis.copy(),
+                                             jnt_xaxis.copy(),
+                                             jnt_xanchor.copy(),
+                                             jnt_qpos.copy(),
+                                             jnt_qvel.copy()], axis=1)
 
     def log_plot(self):
         for n in self.log['node'].keys():
@@ -243,7 +262,6 @@ class RobotGraph:
                 for j in range(y.shape[2]):
                     plt.plot(y[:, i, j])
             plt.title(n)
-            # print(y.shape)
 
         for n in self.log['edge'].keys():
             y = np.array(self.log['edge'][n])
@@ -252,7 +270,6 @@ class RobotGraph:
                 for j in range(y.shape[2]):
                     plt.plot(y[:, i, j])
             plt.title(n)
-            # print(y.shape)
         plt.show()
 
 
@@ -264,6 +281,13 @@ if __name__ == '__main__':
     home = str(Path.home())
     g = RobotGraph(env.sim,
                    home + '/Documents/SAC_GCN/CustomGymEnvs/envs/fetchreach/CustomFetchReach/assets/fetch/')
+
+    for n in g.node_list:
+        print(env.sim.model.body_name2id(n.attrib['name']), n.attrib['name'])
+    print('#' * 100)
+    for e in g.edge_list:
+        print(env.sim.model.joint_name2id(e.attrib['name']), e.attrib['name'])
+
     # print(env.sim.data.get_body_xpos("robot0:forearm_roll_link"))
     # print(env.sim.model.body_name2id("robot0:forearm_roll_link"))
     # id = env.sim.model.body_name2id("robot0:forearm_roll_link")

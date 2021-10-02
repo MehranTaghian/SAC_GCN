@@ -11,13 +11,21 @@ class ModelParser:
 
         # Fill joints list with xml objects of <joint> tag. This list shows the edges of the graph
         self.joints = [j for j in self.root.iter() if j.tag == 'joint']
+        self.bodies = [b for b in self.root.iter() if b.tag == 'body']
 
         # This dictionary represents a joint along with two separate bodies whom it attached together.
         # Those nodes whose super parent is 'mujoco' element, they are not connected to another body. So just ignore
         # them
         # TODO this way, robot0:slide0, robot0:slide1, and robot0:slide2 are being ignored
-        self.joints_connections = {j: (self.parent_map[j], self.parent_map[self.parent_map[j]]) for j in self.joints
-                                   if self.parent_map[self.parent_map[j]].tag != 'mujoco'}
+        # Here we have two types of connections, one is a connection between two bodies with a joint between them
+        # and another is the second body (child body) is welded to the parent body. Each connection is shown using
+        # a triple (n1, n2, e) where n1 is the child body, n2 is the parent body and e is the edge which can be either
+        # a joint or welded.
+        # TODO remove redundant edges. The second for-loop adds redundant edges (welded despite having a joint)
+        self.joints_connections = [(self.parent_map[j], self.parent_map[self.parent_map[j]], j) for j in self.joints
+                                   if self.parent_map[self.parent_map[j]].tag != 'mujoco']
+        self.joints_connections += [(b, self.parent_map[b], None) for b in self.bodies if
+                                    self.parent_map[b].tag != 'mujoco']
 
 
 if __name__ == "__main__":
