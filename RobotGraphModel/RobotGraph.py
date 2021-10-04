@@ -25,11 +25,14 @@ class RobotGraph:
             of what inertial and geom tags show, refer to the link above.
             Node features consist of diaginertia, mass, pos, quat which are all attributes of the <inertial> tag
             inside the body. Also they include the attributes of the body tag itself.
+            The node_features list contains the features of edges in the order the came in the node_list.
 
         Edge features:
             Edges are joints, therefore edge features are selected among <joint> attributes. These include axis, range,
             armature, damping, frictionloss, stiffness, etc. Some of these attributes are set to default values in
             <default> tag (e.g. for fetchreach, the default values are in the shared.xml file).
+            The edge_features list contains the features of edges in the order the came in the edge_list. (also
+            in the order they came in edge_from and edge_to)
 
         TODO: add gripper as a node which is a leaf node attached to a body. And also check the
          gripper coordinate with the robot0:r_gripper_finger_joint and robot0:l_gripper_finger_joint.
@@ -43,7 +46,7 @@ class RobotGraph:
         self.sim = sim
         self.parser = ModelParser(model_path)
         self.node_list = set()
-        self.edge_list = set()
+        self.edge_list = []
         # edges_from and edges_to are based on the index of the node in the node_list, not the joint_id or body_id
         self.edges_from = []
         self.edges_to = []
@@ -108,18 +111,17 @@ class RobotGraph:
         #     print(i, self.node_list[i].attrib)
         # END DEBUG
 
-        for n1, n2, _ in self.parser.joints_connections:
+        for n1, n2, _ in self.parser.connections:
             edge_from = self.node_list.index(n1)
             edge_to = self.node_list.index(n2)
             self.edges_from.append(edge_from)
             self.edges_to.append(edge_to)
 
     def fill_node_edge_lists(self):
-        for node1, node2, joint in self.parser.joints_connections:
+        for node1, node2, joint in self.parser.connections:
             self.node_list.add(node1)
             self.node_list.add(node2)
-            if joint is not None:
-                self.edge_list.add(joint)
+            self.edge_list.append(joint)
             # DEBUG
             # print('node1: ' + node1.attrib['name'],
             #       'node2: ' + node2.attrib['name'],
@@ -127,7 +129,6 @@ class RobotGraph:
             # END DEBUG
 
         self.node_list = list(self.node_list)
-        self.edge_list = list(self.edge_list)
 
     def extract_node_features(self):
         """
@@ -213,17 +214,51 @@ class RobotGraph:
 
         TODO: check dynamic features in runtime. Also compare xaxis and axis features during runtime
         ranges [2]: joint limits in range of motion form range[0] to range[1]
-        axis [3]: local joint axis
+        # axis [3]: local joint axis (removed for now)
         xaxis [3]: Cartesian joint axis
         xanchor [3]: Cartesian position of joint anchor
         qpos [1]: angle of each joint
         qvel [1]: open or close velocity of each joint
         """
-        mask = [self.sim.model.joint_name2id(joint_name.attrib['name']) for joint_name in self.edge_list]
+        mask = [self.sim.model.joint_name2id(joint_name.attrib['name']) for joint_name in self.edge_list if joint_name
+                is not None]
 
         # axis is a static constant feature which does not change during the runtime. Thus we remove it and use
         # dynamic features instead.
 
+        feature_list = []
+
+        for edge in self.edge_list:
+            if edge is not None:
+                id = self.sim.model.joint_name2id(edge.attrib['name'])
+                jnt_ranges = self.sim.model.jnt_range[id]
+                # jnt_axis = self.sim.model.jnt_axis[id]
+                jnt_xaxis = self.sim.data.xaxis[id]
+                jnt_xanchor = self.sim.data.xanchor[id]
+                jnt_qpos = self.sim.data.qpos[id]
+                jnt_qvel = self.sim.data.qvel[id]
+
+                # DEBUG
+                # print('jnt_ranges', jnt_ranges)
+                # # print('jnt_axis', jnt_axis.shape)
+                # print('jnt_xaxis', jnt_xaxis)
+                # print('jnt_xanchor', jnt_xanchor)
+                # print('jnt_qpos', jnt_qpos)
+                # print('jnt_qvel', jnt_qvel)
+                # END DEBUG
+
+                edge_feature = np.concatenate([jnt_ranges.copy(),
+                                               # jnt_axis.copy(),
+                                               jnt_xaxis.copy(),
+                                               jnt_xanchor.copy(),
+                                               [jnt_qpos.copy()],
+                                               [jnt_qvel.copy()]])
+            else:
+                edge_feature = np.zeros(10)
+
+            feature_list.append(edge_feature)
+
+        # LOGGING
         jnt_ranges = self.sim.model.jnt_range[mask, :]
         jnt_axis = self.sim.model.jnt_axis[mask, :]
         jnt_xaxis = self.sim.data.xaxis[mask, :]
@@ -237,22 +272,9 @@ class RobotGraph:
         self.log['edge']['xanchor'].append(jnt_xanchor.copy())
         self.log['edge']['qpos'].append(jnt_qpos.copy())
         self.log['edge']['qvel'].append(jnt_qvel.copy())
+        # END OF LOGGING
 
-        # DEBUG
-        # print('jnt_ranges', jnt_ranges.shape)
-        # print('jnt_axis', jnt_axis.shape)
-        # print('jnt_xaxis', jnt_xaxis.shape)
-        # print('jnt_xanchor', jnt_xanchor.shape)
-        # print('jnt_qpos', jnt_qpos.shape)
-        # print('jnt_qvel', jnt_qvel.shape)
-        # END DEBUG
-
-        self.edge_features = np.concatenate([jnt_ranges.copy(),
-                                             # jnt_axis.copy(),
-                                             jnt_xaxis.copy(),
-                                             jnt_xanchor.copy(),
-                                             jnt_qpos.copy(),
-                                             jnt_qvel.copy()], axis=1)
+        self.edge_features = np.array(feature_list)
 
     def log_plot(self):
         for n in self.log['node'].keys():
@@ -282,11 +304,21 @@ if __name__ == '__main__':
     g = RobotGraph(env.sim,
                    home + '/Documents/SAC_GCN/CustomGymEnvs/envs/fetchreach/CustomFetchReach/assets/fetch/')
 
+    node_id_list = []
     for n in g.node_list:
-        print(env.sim.model.body_name2id(n.attrib['name']), n.attrib['name'])
+        node_id_list.append(env.sim.model.body_name2id(n.attrib['name']))
+
+    for id in sorted(node_id_list):
+        print(id, env.sim.model.body_id2name(id))
     print('#' * 100)
+
+    edge_id_list = []
     for e in g.edge_list:
-        print(env.sim.model.joint_name2id(e.attrib['name']), e.attrib['name'])
+        if e is not None:
+            edge_id_list.append(int(env.sim.model.joint_name2id(e.attrib['name'])))
+
+    for id in sorted(edge_id_list):
+        print(id, env.sim.model.joint_id2name(id))
 
     # print(env.sim.data.get_body_xpos("robot0:forearm_roll_link"))
     # print(env.sim.model.body_name2id("robot0:forearm_roll_link"))

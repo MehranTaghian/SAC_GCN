@@ -22,10 +22,17 @@ class ModelParser:
         # a triple (n1, n2, e) where n1 is the child body, n2 is the parent body and e is the edge which can be either
         # a joint or welded.
         # TODO remove redundant edges. The second for-loop adds redundant edges (welded despite having a joint)
-        self.joints_connections = [(self.parent_map[j], self.parent_map[self.parent_map[j]], j) for j in self.joints
-                                   if self.parent_map[self.parent_map[j]].tag != 'mujoco']
-        self.joints_connections += [(b, self.parent_map[b], None) for b in self.bodies if
-                                    self.parent_map[b].tag != 'mujoco']
+        self.connections_joint = [(self.parent_map[j], self.parent_map[self.parent_map[j]], j) for j in self.joints
+                                  if self.parent_map[self.parent_map[j]].tag != 'mujoco']
+        self.connections_welded = [(b, self.parent_map[b], None) for b in self.bodies
+                                   if self.parent_map[b].tag != 'mujoco']
+
+        for p1, p2, _ in self.connections_joint:
+            con = (p1, p2, None)
+            if con in self.connections_welded:
+                self.connections_welded.remove(con)
+
+        self.connections = self.connections_joint + self.connections_welded
 
 
 if __name__ == "__main__":
