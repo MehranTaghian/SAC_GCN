@@ -2,3 +2,7 @@ TODO are as follows:
 1) change the action space to apply actions on each joint, instead of the gripper.
 2) Think about an algorithm to remove redundant parts like cameras from the graph.
 3) Perhaps deciding a feature vector for welded joints can be helpful
+4) What is a mocap? in the mocap_set_action function, we set the action to move the end-effector to a specific position.
+But we only have one mocap. Let's see how to define mocaps for moving joints. The mocap is for positioning the end-effector
+as used in the fetch_env _env_setup function. It is also used in the mocap_set_action function in the utils. Instead of
+that, you could consider using joints' qpos for moving the end-effector.

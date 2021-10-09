@@ -8,9 +8,8 @@ env = gym.make("FetchReachEnv-v0")
 env.reset()
 
 # print(env.sim.data.qpos)
-
-# TODO: write a code that portraits the changing features (show dynamic features)
-
+print(env.sim.model.nmocap)
+print(env.sim.model.njnt)
 while True:
     action = env.action_space.sample()
     obs, _, _, _ = env.step(action)

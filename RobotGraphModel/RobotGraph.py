@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 class RobotGraph:
-    def __init__(self, sim, model_path, save_log=False):
+    def __init__(self, sim, model_path, plot_log=False):
         """
         Based on the definition in the MuJoCo documentation:
         This element creates a joint. As explained in Kinematic tree, a joint creates motion degrees of freedom
@@ -52,29 +52,30 @@ class RobotGraph:
         self.edges_to = []
         self.node_features = None
         self.edge_features = None
-        self.save_log = save_log
-        self.plot_itr = 100
-        self.plot_itr_counter = 0
-        self.log = {
-            'node': {
-                'mass': [],
-                'pos': [],
-                'quat': [],
-                'xpos': [],
-                'xquat': [],
-                'ipos': [],
-                'iquat': [],
-                'inertia': [],
-                'xvelp': [],
-                'xvelr': []},
-            'edge': {
-                'ranges': [],
-                'axis': [],
-                'xaxis': [],
-                'xanchor': [],
-                'qpos': [],
-                'qvel': []}
-        }
+        self.plot_log = plot_log
+        if self.plot_log:
+            self.plot_itr = 100
+            self.plot_itr_counter = 0
+            self.log = {
+                'node': {
+                    'mass': [],
+                    'pos': [],
+                    'quat': [],
+                    'xpos': [],
+                    'xquat': [],
+                    'ipos': [],
+                    'iquat': [],
+                    'inertia': [],
+                    'xvelp': [],
+                    'xvelr': []},
+                'edge': {
+                    'ranges': [],
+                    'axis': [],
+                    'xaxis': [],
+                    'xanchor': [],
+                    'qpos': [],
+                    'qvel': []}
+            }
 
         self.generate_graph()
 
@@ -98,9 +99,10 @@ class RobotGraph:
         self.extract_node_features()
         self.extract_edge_features()
 
-        self.plot_itr_counter += 1
-        if self.plot_itr_counter == self.plot_itr:
-            self.log_plot()
+        if self.plot_log:
+            self.plot_itr_counter += 1
+            if self.plot_itr_counter == self.plot_itr:
+                self.log_plot()
 
         return {'node_features': self.node_features.copy(),
                 'edge_features': self.edge_features.copy()}
@@ -168,7 +170,7 @@ class RobotGraph:
         bodies_xvelp = self.sim.data.body_xvelp[mask, :]
         bodies_xvelr = self.sim.data.body_xvelr[mask, :]
 
-        if self.save_log:
+        if self.plot_log:
             self.log['node']['mass'].append(bodies_mass.copy())
             self.log['node']['inertia'].append(bodies_inertia.copy())
             self.log['node']['pos'].append(bodies_pos.copy())
@@ -266,12 +268,13 @@ class RobotGraph:
         jnt_qpos = self.sim.data.qpos[mask, np.newaxis]
         jnt_qvel = self.sim.data.qvel[mask, np.newaxis]
 
-        self.log['edge']['ranges'].append(jnt_ranges.copy())
-        self.log['edge']['axis'].append(jnt_axis.copy())
-        self.log['edge']['xaxis'].append(jnt_xaxis.copy())
-        self.log['edge']['xanchor'].append(jnt_xanchor.copy())
-        self.log['edge']['qpos'].append(jnt_qpos.copy())
-        self.log['edge']['qvel'].append(jnt_qvel.copy())
+        if self.plot_log:
+            self.log['edge']['ranges'].append(jnt_ranges.copy())
+            self.log['edge']['axis'].append(jnt_axis.copy())
+            self.log['edge']['xaxis'].append(jnt_xaxis.copy())
+            self.log['edge']['xanchor'].append(jnt_xanchor.copy())
+            self.log['edge']['qpos'].append(jnt_qpos.copy())
+            self.log['edge']['qvel'].append(jnt_qvel.copy())
         # END OF LOGGING
 
         self.edge_features = np.array(feature_list)

@@ -21,7 +21,6 @@ class ModelParser:
         # and another is the second body (child body) is welded to the parent body. Each connection is shown using
         # a triple (n1, n2, e) where n1 is the child body, n2 is the parent body and e is the edge which can be either
         # a joint or welded.
-        # TODO remove redundant edges. The second for-loop adds redundant edges (welded despite having a joint)
         self.connections_joint = [(self.parent_map[j], self.parent_map[self.parent_map[j]], j) for j in self.joints
                                   if self.parent_map[self.parent_map[j]].tag != 'mujoco']
         self.connections_welded = [(b, self.parent_map[b], None) for b in self.bodies

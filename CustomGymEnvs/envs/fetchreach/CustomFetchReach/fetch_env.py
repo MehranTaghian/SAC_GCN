@@ -89,7 +89,10 @@ class FetchEnv(robot_env.RobotEnv):
         action = np.concatenate([pos_ctrl, rot_ctrl, gripper_ctrl])
 
         # Apply action to simulation.
+        # For fetchreach, this one sets the position of the gripper (gripper_ctrl)
         utils.ctrl_set_action(self.sim, action)
+        # The mocap is controlled by position and rotation control first of which has 3 elements, second of which
+        # has 4 elements and in total, 7 elements
         utils.mocap_set_action(self.sim, action)
 
     def _get_obs(self):
