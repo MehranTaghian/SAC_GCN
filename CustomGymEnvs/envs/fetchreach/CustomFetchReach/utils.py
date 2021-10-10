@@ -27,8 +27,8 @@ def ctrl_set_action(sim, action):
     """For torque actuators it copies the action into mujoco ctrl field.
     For position actuators it sets the target relative to the current qpos.
     """
-    if sim.model.nmocap > 0:
-        _, action = np.split(action, (sim.model.nmocap * 7,))
+    # if sim.model.nmocap > 0:
+    # _, action = np.split(action, (sim.model.nmocap * 7,))
     if sim.data.ctrl is not None:
         for i in range(action.shape[0]):
             if sim.model.actuator_biastype[i] == 0:
@@ -38,7 +38,7 @@ def ctrl_set_action(sim, action):
                 sim.data.ctrl[i] = sim.data.qpos[idx] + action[i]
 
 
-def mocap_set_action(sim, action):
+def mocap_set_action(sim, action, joint_list):
     """The action controls the robot using mocaps. Specifically, bodies
     on the robot (for example the gripper wrist) is controlled with
     mocap bodies. In this case the action is the desired difference
@@ -50,16 +50,24 @@ def mocap_set_action(sim, action):
     if sim.model.nmocap > 0:
         # For each mocap, we have a vector of length 7 for control, 3 of which are for setting the pos and last for
         # for quaternion or orientation. Specifically for featchreach, we have 1 mocap.
-        action, _ = np.split(action, (sim.model.nmocap * 7,))
-        action = action.reshape(sim.model.nmocap, 7)
+        # MODIFICATION
+        for j in range(len(joint_list)):
+            joint_qpos = sim.data.get_joint_qpos(joint_list[j].attrib['name'])
+            delta = action[j]
+            sim.data.set_joint_qpos(joint_list[j].attrib['name'], joint_qpos + delta)
 
-        pos_delta = action[:, :3]
-        quat_delta = action[:, 3:]
+        # END MODIFICATION
 
-        print(sim.data.mocap_pos)
-        reset_mocap2body_xpos(sim)
-        sim.data.mocap_pos[:] = sim.data.mocap_pos + pos_delta
-        sim.data.mocap_quat[:] = sim.data.mocap_quat + quat_delta
+        # action, _ = np.split(action, (sim.model.nmocap * 7,))
+        # action = action.reshape(sim.model.nmocap, 7)
+        #
+        # pos_delta = action[:, :3]
+        # quat_delta = action[:, 3:]
+        #
+        # print(sim.data.mocap_pos)
+        # reset_mocap2body_xpos(sim)
+        # sim.data.mocap_pos[:] = sim.data.mocap_pos + pos_delta
+        # sim.data.mocap_quat[:] = sim.data.mocap_quat + quat_delta
 
 
 def reset_mocap_welds(sim):

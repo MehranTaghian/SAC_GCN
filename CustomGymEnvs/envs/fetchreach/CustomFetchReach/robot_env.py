@@ -19,7 +19,7 @@ DEFAULT_SIZE = 500
 
 
 class RobotEnv(gym.GoalEnv):
-    def __init__(self, model_path, initial_qpos, n_actions, n_substeps):
+    def __init__(self, model_path, initial_qpos, weld_joints, n_substeps):
         if model_path.startswith('/'):
             fullpath = model_path
         else:
@@ -31,7 +31,9 @@ class RobotEnv(gym.GoalEnv):
         self.sim = mujoco_py.MjSim(model, nsubsteps=n_substeps)
 
         # Modification: robot_graph model added. This model will be used as the observation space.
-        self.robot_graph = rgm.RobotGraph(self.sim, str(Path(fullpath).parent) + '/')
+        self.robot_graph = rgm.RobotGraph(sim=self.sim,
+                                          model_path=str(Path(fullpath).parent) + '/',
+                                          weld_joints=weld_joints)
         # End modification
 
         self.viewer = None
@@ -46,9 +48,18 @@ class RobotEnv(gym.GoalEnv):
         self._env_setup(initial_qpos=initial_qpos)
         self.initial_state = copy.deepcopy(self.sim.get_state())
 
+        # MODIFICATION
+        # None joints are welded connections
+        self.joint_list = [j for j in self.robot_graph.edge_list if j is not None]
+        # First we remove the gripper joints from the joint list. Only one element suffices to change the
+        # opening and closing of the gripper.
+        self.joint_list = [j for j in self.joint_list if (j.attrib['name'] != 'robot0:r_gripper_finger_joint' and
+                                                          j.attrib['name'] != 'robot0:l_gripper_finger_joint')]
+        self.n_actions = len(self.joint_list) + 1
+        # END MODIFICATION
         self.goal = self._sample_goal()
         obs = self._get_obs()
-        self.action_space = spaces.Box(-1., 1., shape=(n_actions,), dtype='float32')
+        self.action_space = spaces.Box(-1., 1., shape=(self.n_actions,), dtype='float32')
 
         # self.observation_space = spaces.Dict(dict(
         #     desired_goal=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),

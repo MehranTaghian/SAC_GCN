@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 class RobotGraph:
-    def __init__(self, sim, model_path, plot_log=False):
+    def __init__(self, sim, model_path, weld_joints, plot_log=False):
         """
         Based on the definition in the MuJoCo documentation:
         This element creates a joint. As explained in Kinematic tree, a joint creates motion degrees of freedom
@@ -16,6 +16,11 @@ class RobotGraph:
         consider a specific feature vector for welded links. One way is to set it to all zero vector.
         ATTENTION: the graph might be a directed graph (from one point, it is attached to a body, and from the
         other point, another body is attached to it)
+        There is also a weld_joints argument to this class which shows the list of joints in the original robot that
+        we want them not to move. For example, in the FetchReach environment, we don't want the list of joints:
+        ['robot0:torso_lift_joint', 'robot0:head_pan_joint', 'robot0:head_tilt_joint', 'robot0:shoulder_pan_joint']
+        to move. Therefore, when we are adding joints into the edge_list, we replace their object with None
+        in the fill_node_edge_lists function.
 
         For node and edge features, I used the following link to a complete reference of the bodies and joints:
         http://www.mujoco.org/book/XMLreference.html
@@ -41,8 +46,10 @@ class RobotGraph:
 
         :@param sim simulator of the environment
         :@param model_path path to the robot's xml file
+        :@param weld_joints weld some specific joints in order to prevent them from moving
         :@param save_log if true, a log of the change in node and edge features would be saved.
         """
+        self.weld_joints = weld_joints
         self.sim = sim
         self.parser = ModelParser(model_path)
         self.node_list = set()
@@ -93,8 +100,8 @@ class RobotGraph:
 
     def get_graph_obs(self):
         """
-        TODO: check if static features don't change, remove the call to reclaiming those values like range in joint.
-        Returns:
+
+        :return:
         """
         self.extract_node_features()
         self.extract_edge_features()
@@ -123,6 +130,7 @@ class RobotGraph:
         for node1, node2, joint in self.parser.connections:
             self.node_list.add(node1)
             self.node_list.add(node2)
+            joint = joint if (joint is not None and joint.attrib['name'] not in self.weld_joints) else None
             self.edge_list.append(joint)
             # DEBUG
             # print('node1: ' + node1.attrib['name'],
@@ -305,7 +313,9 @@ if __name__ == '__main__':
     env = gym.make('FetchReachEnv-v0')
     home = str(Path.home())
     g = RobotGraph(env.sim,
-                   home + '/Documents/SAC_GCN/CustomGymEnvs/envs/fetchreach/CustomFetchReach/assets/fetch/')
+                   home + '/Documents/SAC_GCN/CustomGymEnvs/envs/fetchreach/CustomFetchReach/assets/fetch/',
+                   ['robot0:torso_lift_joint', 'robot0:head_pan_joint', 'robot0:head_tilt_joint',
+                    'robot0:shoulder_pan_joint'])
 
     node_id_list = []
     for n in g.node_list:
