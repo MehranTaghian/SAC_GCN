@@ -2,7 +2,6 @@ from collections import OrderedDict
 import torch.nn as nn
 import torchgraphs as tg
 
-tg.GraphBatch
 class RobotGraphNetwork(nn.Module):
     def __init__(self, output_dim, in_node_features=14, in_edge_features=10):
         super(RobotGraphNetwork, self).__init__()
