@@ -6,3 +6,8 @@ TODO are as follows:
 But we only have one mocap. Let's see how to define mocaps for moving joints. The mocap is for positioning the end-effector
 as used in the fetch_env _env_setup function. It is also used in the mocap_set_action function in the utils. Instead of
 that, you could consider using joints' qpos for moving the end-effector.
+
+5) Create batch of graphs
+6) change model structure of value and policy network to graph
+
+7) for action value function, consider the state as the grpah, and the action as the global features of the graph.

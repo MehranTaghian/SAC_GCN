@@ -76,6 +76,10 @@ class RobotEnv(gym.GoalEnv):
                                          dtype='float32'),
             observation_edges=spaces.Box(-np.inf, np.inf, shape=obs['observation']['edge_features'].shape,
                                          dtype='float32'),
+            observation_edges_from=spaces.Box(-np.inf, np.inf, shape=obs['observation']['edges_from'].shape,
+                                         dtype='float32'),
+            observation_edges_to=spaces.Box(-np.inf, np.inf, shape=obs['observation']['edges_to'].shape,
+                                         dtype='float32'),
         ))
 
     @property

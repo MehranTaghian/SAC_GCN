@@ -1,6 +1,9 @@
 import numpy as np
 
 from gym import error
+import torchgraphs as tg
+import torch
+
 
 try:
     import mujoco_py
@@ -108,3 +111,17 @@ def reset_mocap2body_xpos(sim):
         assert (mocap_id != -1)
         sim.data.mocap_pos[mocap_id][:] = sim.data.body_xpos[body_idx]
         sim.data.mocap_quat[mocap_id][:] = sim.data.body_xquat[body_idx]
+
+
+def state2graph(state):
+    node_features = state['node_features']
+    edge_features = state['edge_features']
+    edges_from = state['edges_from']
+    edges_to = state['edges_to']
+    g = tg.Graph(
+        node_features=torch.tensor(node_features),
+        edge_features=torch.tensor(edge_features),
+        senders=torch.tensor(edges_from),
+        receivers=torch.tensor(edges_to)
+    )
+    return g

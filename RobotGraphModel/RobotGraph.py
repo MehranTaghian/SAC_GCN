@@ -112,7 +112,9 @@ class RobotGraph:
                 self.log_plot()
 
         return {'node_features': self.node_features.copy(),
-                'edge_features': self.edge_features.copy()}
+                'edge_features': self.edge_features.copy(),
+                'edges_from': self.edges_from,
+                'edges_to': self.edges_to}
 
     def generate_adjacency_matrix(self):
         # DEBUG
@@ -125,6 +127,9 @@ class RobotGraph:
             edge_to = self.node_list.index(n2)
             self.edges_from.append(edge_from)
             self.edges_to.append(edge_to)
+
+        self.edges_from = np.array(self.edges_from)
+        self.edges_to = np.array(self.edges_to)
 
     def fill_node_edge_lists(self):
         for node1, node2, joint in self.parser.connections:
@@ -317,6 +322,8 @@ if __name__ == '__main__':
                    ['robot0:torso_lift_joint', 'robot0:head_pan_joint', 'robot0:head_tilt_joint',
                     'robot0:shoulder_pan_joint'])
 
+    print(g.node_features.shape)
+    print(g.edge_features.shape)
     node_id_list = []
     for n in g.node_list:
         node_id_list.append(env.sim.model.body_name2id(n.attrib['name']))
