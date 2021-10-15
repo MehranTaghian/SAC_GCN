@@ -1,5 +1,9 @@
+import os
+import pickle
 import random
 import numpy as np
+import torchgraphs as tg
+
 
 class ReplayMemory:
     def __init__(self, capacity, seed):
@@ -16,7 +20,14 @@ class ReplayMemory:
 
     def sample(self, batch_size):
         batch = random.sample(self.buffer, batch_size)
-        state, action, reward, next_state, done = map(np.stack, zip(*batch))
+
+        state, action, reward, next_state, done = zip(*batch)
+        state = tg.GraphBatch.collate(state)
+        action = np.stack(action)
+        reward = np.stack(reward)
+        next_state = tg.GraphBatch.collate(next_state)
+        done = np.stack(done)
+
         return state, action, reward, next_state, done
 
     def __len__(self):

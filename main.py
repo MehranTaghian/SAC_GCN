@@ -7,7 +7,7 @@ import torch
 from SAC.sac import SAC
 from torch.utils.tensorboard import SummaryWriter
 from SAC.replay_memory import ReplayMemory
-from utils import state2graph
+from utils import state_2_graph
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="HalfCheetah-v2",
@@ -75,7 +75,7 @@ for i_episode in itertools.count(1):
     episode_reward = 0
     episode_steps = 0
     done = False
-    state = state2graph(env.reset())
+    state = state_2_graph(env.reset())
 
     while not done:
         if args.start_steps > total_numsteps:
@@ -99,7 +99,7 @@ for i_episode in itertools.count(1):
                 updates += 1
 
         next_state, reward, done, _ = env.step(action)  # Step
-        next_state = state2graph(next_state)
+        next_state = state_2_graph(next_state)
         episode_steps += 1
         total_numsteps += 1
         episode_reward += reward
@@ -124,13 +124,13 @@ for i_episode in itertools.count(1):
         avg_reward = 0.
         episodes = 10
         for _ in range(episodes):
-            state = state2graph(env.reset())
+            state = state_2_graph(env.reset())
             episode_reward = 0
             done = False
             while not done:
                 action = agent.select_action(state, evaluate=True)
                 next_state, reward, done, _ = env.step(action)
-                next_state = state2graph(next_state)
+                next_state = state_2_graph(next_state)
                 episode_reward += reward
 
                 state = next_state

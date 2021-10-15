@@ -179,7 +179,7 @@ class GraphBatch(_BaseGraph):
                 senders=self.senders[edge_slice] - node_slice.start,
                 receivers=self.receivers[edge_slice] - node_slice.start
             )
-    
+
     def __repr__(self):
         return (f"{self.__class__.__name__}("
                 f"#{self.num_graphs}, "
@@ -231,7 +231,8 @@ class GraphBatch(_BaseGraph):
             receivers.append(g.receivers + node_offset)
             node_offset += g.num_nodes
 
-        from torch.utils.data._utils.collate import _use_shared_memory
+        # from torch.utils.data._utils.collate import _use_shared_memory
+        _use_shared_memory = True
 
         if len(node_features) > 0:
             out = None
