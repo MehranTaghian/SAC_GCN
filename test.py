@@ -7,6 +7,8 @@ env = gym.make("FetchReachEnv-v0")
 
 env.reset()
 
+print(env.action_space.shape[0])
+
 print([j.attrib['name'] for j in env.joint_list])
 print(len(env.joint_list))
 while True:

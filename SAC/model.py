@@ -130,6 +130,7 @@ class QNetwork(nn.Module):
 
 class DoubleQNetwork(nn.Module):
     def __init__(self, num_node_features, num_edge_features, num_actions):
+        super(DoubleQNetwork, self).__init__()
         self.Q1 = QNetwork(num_node_features, num_edge_features, num_actions)
         self.Q2 = QNetwork(num_node_features, num_edge_features, num_actions)
 
@@ -170,8 +171,9 @@ class DoubleQNetwork(nn.Module):
 
 
 class GaussianPolicy(nn.Module):
-    def __init__(self, num_node_features, num_edge_features, num_actions, action_space=None):
+    def __init__(self, num_node_features, num_edge_features, action_space):
         super(GaussianPolicy, self).__init__()
+        num_actions = action_space.shape[0]
 
         self.edge1 = tg.EdgeLinear(256,
                                    edge_features=num_edge_features,

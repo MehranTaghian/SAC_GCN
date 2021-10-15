@@ -1,0 +1,1 @@
+python main.py --env-name "FetchReachEnv-v0" --automatic_entropy_tuning True --num_steps 10000 --cuda

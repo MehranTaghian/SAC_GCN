@@ -1,13 +1,14 @@
 import argparse
 import datetime
 import gym
+import CustomGymEnvs
 import numpy as np
 import itertools
 import torch
 from SAC.sac import SAC
 from torch.utils.tensorboard import SummaryWriter
 from SAC.replay_memory import ReplayMemory
-from utils import state_2_graph
+from utils import state_2_graph, state_2_graphbatch
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="HalfCheetah-v2",
@@ -53,11 +54,16 @@ env = gym.make(args.env_name)
 env.seed(args.seed)
 env.action_space.seed(args.seed)
 
+num_nodes = env.observation_space['observation_nodes'].shape[0]
+num_edges = env.observation_space['observation_edges'].shape[0]
+num_node_features = env.observation_space['observation_nodes'].shape[1]
+num_edge_features = env.observation_space['observation_edges'].shape[1]
+
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 
 # Agent
-agent = SAC(env.observation_space.shape[0], env.action_space, args)
+agent = SAC(num_node_features, num_edge_features, env.action_space, args)
 
 # Tesnorboard
 writer = SummaryWriter(
@@ -70,6 +76,8 @@ memory = ReplayMemory(args.replay_size, args.seed)
 # Training Loop
 total_numsteps = 0
 updates = 0
+
+device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
 
 for i_episode in itertools.count(1):
     episode_reward = 0
@@ -124,13 +132,13 @@ for i_episode in itertools.count(1):
         avg_reward = 0.
         episodes = 10
         for _ in range(episodes):
-            state = state_2_graph(env.reset())
+            state = state_2_graphbatch(env.reset()).to(device)
             episode_reward = 0
             done = False
             while not done:
                 action = agent.select_action(state, evaluate=True)
                 next_state, reward, done, _ = env.step(action)
-                next_state = state_2_graph(next_state)
+                next_state = state_2_graphbatch(next_state).to(device)
                 episode_reward += reward
 
                 state = next_state
