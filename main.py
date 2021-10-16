@@ -83,13 +83,13 @@ for i_episode in itertools.count(1):
     episode_reward = 0
     episode_steps = 0
     done = False
-    state = state_2_graph(env.reset())
+    state = env.reset()
 
     while not done:
         if args.start_steps > total_numsteps:
             action = env.action_space.sample()  # Sample random action
         else:
-            action = agent.select_action(state.to(device))  # Sample action from policy
+            action = agent.select_action(state_2_graphbatch(state).to(device))  # Sample action from policy
 
         if len(memory) > args.batch_size:
             # Number of updates per step in environment
@@ -107,7 +107,6 @@ for i_episode in itertools.count(1):
                 updates += 1
 
         next_state, reward, done, _ = env.step(action)  # Step
-        next_state = state_2_graph(next_state)
         episode_steps += 1
         total_numsteps += 1
         episode_reward += reward
@@ -116,7 +115,8 @@ for i_episode in itertools.count(1):
         # (https://github.com/openai/spinningup/blob/master/spinup/algos/sac/sac.py)
         mask = 1 if episode_steps == env._max_episode_steps else float(not done)
 
-        memory.push(state, action, reward, next_state, mask)  # Append transition to memory
+        memory.push(state_2_graph(state), action, reward, state_2_graph(next_state),
+                    mask)  # Append transition to memory
 
         state = next_state
 
