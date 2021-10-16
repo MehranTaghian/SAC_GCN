@@ -89,7 +89,7 @@ for i_episode in itertools.count(1):
         if args.start_steps > total_numsteps:
             action = env.action_space.sample()  # Sample random action
         else:
-            action = agent.select_action(state)  # Sample action from policy
+            action = agent.select_action(state.to(device))  # Sample action from policy
 
         if len(memory) > args.batch_size:
             # Number of updates per step in environment
