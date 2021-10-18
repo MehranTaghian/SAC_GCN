@@ -3,6 +3,7 @@ import CustomGymEnvs
 import gym
 
 
+# TODO: receive a list of keywords to extract those bodies containing that keyword in their name
 class ModelParser:
     def __init__(self, robot_directory):
         self.root = et.parse(robot_directory + 'robot.xml').getroot()
@@ -22,9 +23,17 @@ class ModelParser:
         # a triple (n1, n2, e) where n1 is the child body, n2 is the parent body and e is the edge which can be either
         # a joint or welded.
         self.connections_joint = [(self.parent_map[j], self.parent_map[self.parent_map[j]], j) for j in self.joints
-                                  if self.parent_map[self.parent_map[j]].tag != 'mujoco']
+                                  if self.parent_map[self.parent_map[j]].tag != 'mujoco'
+                                  and 'camera' not in self.parent_map[self.parent_map[j]].attrib['name']
+                                  and 'camera' not in self.parent_map[j].attrib['name']
+                                  and 'laser' not in self.parent_map[self.parent_map[j]].attrib['name']
+                                  and 'laser' not in self.parent_map[j].attrib['name']]
         self.connections_welded = [(b, self.parent_map[b], None) for b in self.bodies
-                                   if self.parent_map[b].tag != 'mujoco']
+                                   if self.parent_map[b].tag != 'mujoco'
+                                   and 'camera' not in b.attrib['name']
+                                   and 'camera' not in self.parent_map[b].attrib['name']
+                                   and 'laser' not in b.attrib['name']
+                                   and 'laser' not in self.parent_map[b].attrib['name']]
 
         for p1, p2, _ in self.connections_joint:
             con = (p1, p2, None)

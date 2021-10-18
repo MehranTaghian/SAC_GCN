@@ -21,6 +21,7 @@ class RobotGraph:
         ['robot0:torso_lift_joint', 'robot0:head_pan_joint', 'robot0:head_tilt_joint', 'robot0:shoulder_pan_joint']
         to move. Therefore, when we are adding joints into the edge_list, we replace their object with None
         in the fill_node_edge_lists function.
+        Furthermore, we remove those body parts that contain 'camera' or 'laser' in their name.
 
         For node and edge features, I used the following link to a complete reference of the bodies and joints:
         http://www.mujoco.org/book/XMLreference.html

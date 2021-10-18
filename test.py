@@ -12,8 +12,8 @@ print(env.action_space.shape[0])
 print([j.attrib['name'] for j in env.joint_list])
 print(len(env.joint_list))
 while True:
-    action = env.action_space.sample()
-    # action = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
+    # action = env.action_space.sample()
+    action = np.array([1, 0, 0, 0, 0, 0, 0])
     # action[:4] = [0, 0, 0, 0]
     # print(action)
     obs, _, _, _ = env.step(action)

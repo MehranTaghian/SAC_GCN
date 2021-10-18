@@ -32,28 +32,33 @@ class ValueNetwork(nn.Module):
                                    aggregation='avg')
         self.node_relu1 = tg.NodeReLU()
 
-        self.edge2 = tg.EdgeLinear(128,
-                                   edge_features=256,
-                                   sender_features=256,
-                                   receiver_features=256)
-        self.edge_relu2 = tg.EdgeReLU()
+        # self.edge2 = tg.EdgeLinear(128,
+        #                            edge_features=256,
+        #                            sender_features=256,
+        #                            receiver_features=256)
+        # self.edge_relu2 = tg.EdgeReLU()
+        #
+        # self.node2 = tg.NodeLinear(128,
+        #                            node_features=256,
+        #                            incoming_features=128,
+        #                            aggregation='avg')
+        # self.node_relu2 = tg.NodeReLU()
 
-        self.node2 = tg.NodeLinear(128,
-                                   node_features=256,
-                                   incoming_features=128,
-                                   aggregation='avg')
-        self.node_relu2 = tg.NodeReLU()
+        # self.global_output = tg.GlobalLinear(1,
+        #                                      node_features=128,
+        #                                      edge_features=128,
+        #                                      aggregation='avg')
 
         self.global_output = tg.GlobalLinear(1,
-                                             node_features=128,
-                                             edge_features=128,
+                                             node_features=256,
+                                             edge_features=256,
                                              aggregation='avg')
 
     def forward(self, g):
         g = self.edge_relu1(self.edge1(g))
         g = self.node_relu1(self.node1(g))
-        g = self.edge_relu2(self.edge2(g))
-        g = self.node_relu2(self.node2(g))
+        # g = self.edge_relu2(self.edge2(g))
+        # g = self.node_relu2(self.node2(g))
         return self.global_output(g).global_features
 
 
@@ -92,39 +97,45 @@ class QNetwork(nn.Module):
                                    aggregation='avg')
         self.node_relu1 = tg.NodeReLU()
 
-        self.global1 = tg.GlobalLinear(int(num_actions / 2),
-                                       node_features=256,
-                                       edge_features=256,
-                                       global_features=num_actions,
-                                       aggregation='avg')
-        self.global_relu = tg.GlobalReLU()
+        # self.global1 = tg.GlobalLinear(int(num_actions / 2),
+        #                                node_features=256,
+        #                                edge_features=256,
+        #                                global_features=num_actions,
+        #                                aggregation='avg')
+        # self.global_relu = tg.GlobalReLU()
 
-        self.edge2 = tg.EdgeLinear(128,
-                                   edge_features=256,
-                                   sender_features=256,
-                                   receiver_features=256,
-                                   global_features=int(num_actions / 2))
-        self.edge_relu2 = tg.EdgeReLU()
-
-        self.node2 = tg.NodeLinear(128,
-                                   node_features=256,
-                                   incoming_features=128,
-                                   global_features=int(num_actions / 2),
-                                   aggregation='avg')
-        self.node_relu2 = tg.NodeReLU()
+        # self.edge2 = tg.EdgeLinear(128,
+        #                            edge_features=256,
+        #                            sender_features=256,
+        #                            receiver_features=256,
+        #                            global_features=int(num_actions / 2))
+        # self.edge_relu2 = tg.EdgeReLU()
+        #
+        # self.node2 = tg.NodeLinear(128,
+        #                            node_features=256,
+        #                            incoming_features=128,
+        #                            global_features=int(num_actions / 2),
+        #                            aggregation='avg')
+        # self.node_relu2 = tg.NodeReLU()
+        #
+        # self.global_output = tg.GlobalLinear(1,
+        #                                      node_features=128,
+        #                                      edge_features=128,
+        #                                      global_features=int(num_actions / 2),
+        #                                      aggregation='avg')
 
         self.global_output = tg.GlobalLinear(1,
-                                             node_features=128,
-                                             edge_features=128,
-                                             global_features=int(num_actions / 2),
+                                             node_features=256,
+                                             edge_features=256,
+                                             global_features=num_actions,
                                              aggregation='avg')
 
     def forward(self, g):
         g = self.edge_relu1(self.edge1(g))
         g = self.node_relu1(self.node1(g))
-        g = self.global_relu(self.global1(g))
-        g = self.edge_relu2(self.edge2(g))
-        g = self.node_relu2(self.node2(g))
+        # g = self.global_relu(self.global1(g))
+        # g = self.edge_relu2(self.edge2(g))
+        # g = self.node_relu2(self.node2(g))
         return self.global_output(g).global_features
 
 
@@ -187,20 +198,24 @@ class GaussianPolicy(nn.Module):
                                    aggregation='avg')
         self.node_relu1 = tg.NodeReLU()
 
-        self.edge2 = tg.EdgeLinear(128,
-                                   edge_features=256,
-                                   sender_features=256,
-                                   receiver_features=256)
-        self.edge_relu2 = tg.EdgeReLU()
+        # self.edge2 = tg.EdgeLinear(128,
+        #                            edge_features=256,
+        #                            sender_features=256,
+        #                            receiver_features=256)
+        # self.edge_relu2 = tg.EdgeReLU()
+        #
+        # self.node2 = tg.NodeLinear(128,
+        #                            node_features=256,
+        #                            incoming_features=128,
+        #                            aggregation='avg')
+        # self.node_relu2 = tg.NodeReLU()
 
-        self.node2 = tg.NodeLinear(128,
-                                   node_features=256,
-                                   incoming_features=128,
-                                   aggregation='avg')
-        self.node_relu2 = tg.NodeReLU()
+        # self.mean_linear = tg.GlobalLinear(num_actions, node_features=128, edge_features=128, aggregation='avg')
+        # self.log_std_linear = tg.GlobalLinear(num_actions, node_features=128, edge_features=128, aggregation='avg')
 
-        self.mean_linear = tg.GlobalLinear(num_actions, node_features=128, edge_features=128, aggregation='avg')
-        self.log_std_linear = tg.GlobalLinear(num_actions, node_features=128, edge_features=128, aggregation='avg')
+        self.mean_linear = tg.GlobalLinear(num_actions, node_features=256, edge_features=256, aggregation='avg')
+        self.log_std_linear = tg.GlobalLinear(num_actions, node_features=256, edge_features=256, aggregation='avg')
+
 
         # action rescaling
         if action_space is None:
@@ -215,8 +230,8 @@ class GaussianPolicy(nn.Module):
     def forward(self, g):
         g = self.edge_relu1(self.edge1(g))
         g = self.node_relu1(self.node1(g))
-        g = self.edge_relu2(self.edge2(g))
-        g = self.node_relu2(self.node2(g))
+        # g = self.edge_relu2(self.edge2(g))
+        # g = self.node_relu2(self.node2(g))
 
         mean = self.mean_linear(g).global_features
         log_std = self.log_std_linear(g).global_features
