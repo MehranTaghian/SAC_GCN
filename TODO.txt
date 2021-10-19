@@ -9,6 +9,8 @@ that, you could consider using joints' qpos for moving the end-effector.
 5) for improving the performance of the algorithm, consider using a better feature vector for welded joints,
 changing the structure of graph networks, body or joints feature vectors.
 
+6) Design the state of the environment based on the previous observation (the original fetch reach)
+
 
 Runs:
 screen: 94543.pts-2.mehran
@@ -17,5 +19,16 @@ This one all is the same except we removed cameras and laser from the original r
 screen: 94920.pts-2.mehran
 This experiments we removed the last layer with 128 size outputs + the ones in the previous screen
 
+#### None of the above worked properly
 
+screen: 107568.pts-2.mehran
+Changed the total number of steps to 500
 
+screen: 109264.pts-2.mehran
+Commenting out xpos and xquat and using pos and quat instead
+
+screen: 112123.pts-5.mehran
+changing joint features removing xaxis and xanchor. Reducing the episode length to 100
+
+screen:
+Now lets remove all the static parts and welded parts from the robot.

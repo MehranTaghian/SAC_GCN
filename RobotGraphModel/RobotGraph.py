@@ -118,31 +118,39 @@ class RobotGraph:
                 'edges_to': self.edges_to}
 
     def generate_adjacency_matrix(self):
-        # DEBUG
-        # for i in range(len(self.node_list)):
-        #     print(i, self.node_list[i].attrib)
-        # END DEBUG
 
-        for n1, n2, _ in self.parser.connections:
-            edge_from = self.node_list.index(n1)
-            edge_to = self.node_list.index(n2)
-            self.edges_from.append(edge_from)
-            self.edges_to.append(edge_to)
+        # removing welded parts
+        for n1, n2, j in self.parser.connections:
+            if j.attrib['name'] not in self.weld_joints:
+                edge_from = self.node_list.index(n1)
+                edge_to = self.node_list.index(n2)
+                self.edges_from.append(edge_from)
+                self.edges_to.append(edge_to)
+
+        # with welded parts
+        # for n1, n2, _ in self.parser.connections:
+        #     edge_from = self.node_list.index(n1)
+        #     edge_to = self.node_list.index(n2)
+        #     self.edges_from.append(edge_from)
+        #     self.edges_to.append(edge_to)
 
         self.edges_from = np.array(self.edges_from)
         self.edges_to = np.array(self.edges_to)
 
     def fill_node_edge_lists(self):
+        # removing welded joints
         for node1, node2, joint in self.parser.connections:
-            self.node_list.add(node1)
-            self.node_list.add(node2)
-            joint = joint if (joint is not None and joint.attrib['name'] not in self.weld_joints) else None
-            self.edge_list.append(joint)
-            # DEBUG
-            # print('node1: ' + node1.attrib['name'],
-            #       'node2: ' + node2.attrib['name'],
-            #       'joint: ' + joint.attrib['name'])
-            # END DEBUG
+            if joint.attrib['name'] not in self.weld_joints:
+                self.node_list.add(node1)
+                self.node_list.add(node2)
+                self.edge_list.append(joint)
+
+        # with welded parts
+        # for node1, node2, joint in self.parser.connections:
+        #     self.node_list.add(node1)
+        #     self.node_list.add(node2)
+        #     joint = joint if (joint is not None and joint.attrib['name'] not in self.weld_joints) else None
+        #     self.edge_list.append(joint)
 
         self.node_list = list(self.node_list)
 
@@ -243,6 +251,7 @@ class RobotGraph:
         # dynamic features instead.
 
         feature_list = []
+        len_features = None
 
         for edge in self.edge_list:
             if edge is not None:
@@ -269,10 +278,18 @@ class RobotGraph:
                                                jnt_xanchor.copy(),
                                                [jnt_qpos.copy()],
                                                [jnt_qvel.copy()]])
+
+                if len_features is None:
+                    len_features = edge_feature.shape[0]
+
             else:
-                edge_feature = np.zeros(10)
+                edge_feature = None
 
             feature_list.append(edge_feature)
+
+        for i in range(len(feature_list)):
+            if feature_list[i] is None:
+                feature_list[i] = np.zeros(len_features)
 
         # LOGGING
         jnt_ranges = self.sim.model.jnt_range[mask, :]

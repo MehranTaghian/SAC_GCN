@@ -40,8 +40,8 @@ class ModelParser:
             if con in self.connections_welded:
                 self.connections_welded.remove(con)
 
-        self.connections = self.connections_joint + self.connections_welded
-
+        # self.connections = self.connections_joint + self.connections_welded
+        self.connections = self.connections_joint
 
 if __name__ == "__main__":
     p = ModelParser(
