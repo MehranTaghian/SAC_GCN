@@ -7,7 +7,8 @@ from SAC.model import GaussianPolicy, DoubleQNetwork, DeterministicPolicy
 
 
 class SAC(object):
-    def __init__(self, num_node_features, num_edge_features, action_space, args):
+    def __init__(self, num_node_features, num_edge_features, num_global_features, action_space,
+                 args):
 
         self.gamma = args.gamma
         self.tau = args.tau
@@ -19,10 +20,18 @@ class SAC(object):
 
         self.device = torch.device("cuda" if args.cuda else "cpu")
 
-        self.critic = DoubleQNetwork(num_node_features, num_edge_features, action_space.shape[0]).to(device=self.device)
+        self.critic = DoubleQNetwork(num_node_features,
+                                     num_edge_features,
+                                     num_global_features,
+                                     action_space.shape[0],
+                                     args.hidden_action_size).to(device=self.device)
         self.critic_optim = Adam(self.critic.parameters(), lr=args.lr)
 
-        self.critic_target = DoubleQNetwork(num_node_features, num_edge_features, action_space.shape[0]).to(self.device)
+        self.critic_target = DoubleQNetwork(num_node_features,
+                                            num_edge_features,
+                                            num_global_features,
+                                            action_space.shape[0],
+                                            args.hidden_action_size).to(self.device)
         hard_update(self.critic_target, self.critic)
 
         if self.policy_type == "Gaussian":
@@ -32,7 +41,7 @@ class SAC(object):
                 self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
                 self.alpha_optim = Adam([self.log_alpha], lr=args.lr)
 
-            self.policy = GaussianPolicy(num_node_features, num_edge_features, action_space).to(
+            self.policy = GaussianPolicy(num_node_features, num_edge_features, num_global_features, action_space).to(
                 self.device)
             self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
 
@@ -63,14 +72,12 @@ class SAC(object):
 
         with torch.no_grad():
             next_state_action, next_state_log_pi, _ = self.policy.sample(next_state_batch)
-            next_state_batch.global_features = next_state_action
-            qf1_next_target, qf2_next_target = self.critic_target(next_state_batch)
+            qf1_next_target, qf2_next_target = self.critic_target(next_state_batch, next_state_action)
             min_qf_next_target = torch.min(qf1_next_target, qf2_next_target) - self.alpha * next_state_log_pi
             next_q_value = reward_batch + mask_batch * self.gamma * (min_qf_next_target)
 
         # Two Q-functions to mitigate positive bias in the policy improvement step
-        state_batch.global_features = action_batch
-        qf1, qf2 = self.critic(state_batch)
+        qf1, qf2 = self.critic(state_batch, action_batch)
         # JQ = 𝔼(st,at)~D[0.5(Q1(st,at) - r(st,at) - γ(𝔼st+1~p[V(st+1)]))^2]
         qf1_loss = F.mse_loss(qf1, next_q_value)
         # JQ = 𝔼(st,at)~D[0.5(Q1(st,at) - r(st,at) - γ(𝔼st+1~p[V(st+1)]))^2]
@@ -82,8 +89,7 @@ class SAC(object):
         self.critic_optim.step()
 
         pi, log_pi, _ = self.policy.sample(state_batch)
-        state_batch.global_features = pi
-        qf1_pi, qf2_pi = self.critic(state_batch)
+        qf1_pi, qf2_pi = self.critic(state_batch, pi)
         min_qf_pi = torch.min(qf1_pi, qf2_pi)
 
         # Jπ = 𝔼st∼D,εt∼N[α * logπ(f(εt;st)|st) − Q(st,f(εt;st))]

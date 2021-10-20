@@ -36,6 +36,8 @@ parser.add_argument('--num_steps', type=int, default=1000001, metavar='N',
                     help='maximum number of steps (default: 1000000)')
 parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
                     help='hidden size (default: 256)')
+parser.add_argument('--hidden_action_size', type=int, default=32, metavar='N',
+                    help='hidden size for action layer in Q-function (default: 32)')
 parser.add_argument('--updates_per_step', type=int, default=1, metavar='N',
                     help='model updates per simulator step (default: 1)')
 parser.add_argument('--start_steps', type=int, default=10000, metavar='N',
@@ -58,12 +60,13 @@ num_nodes = env.observation_space['observation_nodes'].shape[0]
 num_edges = env.observation_space['observation_edges'].shape[0]
 num_node_features = env.observation_space['observation_nodes'].shape[1]
 num_edge_features = env.observation_space['observation_edges'].shape[1]
+num_global_features = env.observation_space['achieved_goal'].shape[0]
 
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 
 # Agent
-agent = SAC(num_node_features, num_edge_features, env.action_space, args)
+agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, args)
 
 # Tesnorboard
 writer = SummaryWriter(

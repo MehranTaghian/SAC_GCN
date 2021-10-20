@@ -11,6 +11,8 @@ changing the structure of graph networks, body or joints feature vectors.
 
 6) Design the state of the environment based on the previous observation (the original fetch reach)
 
+7) add achieved goal and desired goal as global features. Therefore, we should change the model of Q-function
+and remove action from global features.
 
 Runs:
 screen: 94543.pts-2.mehran

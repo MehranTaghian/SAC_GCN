@@ -1,0 +1,5 @@
+1) The model architecture has changed for both Q-network and policy network. The global features for the state space includes the achieved goal.
+2) The feature for nodes and edges have also changed according to the original observations of the environment
+   which contain the qpos and qvel of the joint (TODO: double check).
+3) The utils state_2_graph and state_2_graphbatch also changed to reflect the global features
+4) The model architecture for Q-function changed and a linear layer added to estimate the state-action value.

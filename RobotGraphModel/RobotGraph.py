@@ -218,16 +218,17 @@ class RobotGraph:
         # END DEBUG
 
         self.node_features = np.concatenate(
-            [bodies_mass.copy(),
-             # bodies_inertia.copy(),
-             # bodies_pos.copy(),
-             # bodies_quat.copy(),
-             # bodies_ipos.copy(),
-             # bodies_iquat.copy(),
-             bodies_xpos.copy(),
-             bodies_xquat.copy(),
-             bodies_xvelp.copy(),
-             bodies_xvelr.copy()],
+            [
+                # bodies_mass.copy(),
+                # bodies_inertia.copy(),
+                # bodies_pos.copy(),
+                # bodies_quat.copy(),
+                # bodies_ipos.copy(),
+                # bodies_iquat.copy(),
+                bodies_xpos.copy(),
+                bodies_xquat.copy(),
+                bodies_xvelp.copy(),
+                bodies_xvelr.copy()],
             axis=1)
 
     def extract_edge_features(self):
@@ -255,29 +256,27 @@ class RobotGraph:
 
         for edge in self.edge_list:
             if edge is not None:
+                dt = self.sim.nsubsteps * self.sim.model.opt.timestep
                 id = self.sim.model.joint_name2id(edge.attrib['name'])
                 jnt_ranges = self.sim.model.jnt_range[id]
                 # jnt_axis = self.sim.model.jnt_axis[id]
                 jnt_xaxis = self.sim.data.xaxis[id]
                 jnt_xanchor = self.sim.data.xanchor[id]
                 jnt_qpos = self.sim.data.qpos[id]
-                jnt_qvel = self.sim.data.qvel[id]
+                jnt_qvel = self.sim.data.qvel[id] * dt
 
-                # DEBUG
-                # print('jnt_ranges', jnt_ranges)
-                # # print('jnt_axis', jnt_axis.shape)
-                # print('jnt_xaxis', jnt_xaxis)
-                # print('jnt_xanchor', jnt_xanchor)
                 # print('jnt_qpos', jnt_qpos)
                 # print('jnt_qvel', jnt_qvel)
-                # END DEBUG
+                # print('get_joint_qpos', self.sim.data.get_joint_qpos(edge.attrib['name']))
+                # print('get_joint_qvel', self.sim.data.get_joint_qvel(edge.attrib['name']))
 
-                edge_feature = np.concatenate([jnt_ranges.copy(),
-                                               # jnt_axis.copy(),
-                                               jnt_xaxis.copy(),
-                                               jnt_xanchor.copy(),
-                                               [jnt_qpos.copy()],
-                                               [jnt_qvel.copy()]])
+                edge_feature = np.concatenate([
+                    # jnt_ranges.copy(),
+                    # jnt_axis.copy(),
+                    # jnt_xaxis.copy(),
+                    # jnt_xanchor.copy(),
+                    [jnt_qpos.copy()],
+                    [jnt_qvel.copy()]])
 
                 if len_features is None:
                     len_features = edge_feature.shape[0]

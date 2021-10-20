@@ -80,20 +80,20 @@ class ValueNetwork(nn.Module):
 
 
 class QNetwork(nn.Module):
-    def __init__(self, num_node_features, num_edge_features, num_actions):
+    def __init__(self, num_node_features, num_edge_features, num_global_features, num_actions, hidden_action_size):
         # For the action value function, we consider the action as the graph's global features
         super(QNetwork, self).__init__()
         self.edge1 = tg.EdgeLinear(256,
                                    edge_features=num_edge_features,
                                    sender_features=num_node_features,
                                    receiver_features=num_node_features,
-                                   global_features=num_actions)
+                                   global_features=num_global_features)
         self.edge_relu1 = tg.EdgeReLU()
 
         self.node1 = tg.NodeLinear(256,
                                    node_features=num_node_features,
                                    incoming_features=256,
-                                   global_features=num_actions,
+                                   global_features=num_global_features,
                                    aggregation='avg')
         self.node_relu1 = tg.NodeReLU()
 
@@ -127,27 +127,34 @@ class QNetwork(nn.Module):
         self.global_output = tg.GlobalLinear(1,
                                              node_features=256,
                                              edge_features=256,
-                                             global_features=num_actions,
+                                             global_features=num_global_features,
                                              aggregation='avg')
 
-    def forward(self, g):
+        self.hidden_action_layer = nn.Linear(1 + num_actions, hidden_action_size)
+        self.action_out_layer = nn.Linear(hidden_action_size, 1)
+
+    def forward(self, g, a):
         g = self.edge_relu1(self.edge1(g))
         g = self.node_relu1(self.node1(g))
         # g = self.global_relu(self.global1(g))
         # g = self.edge_relu2(self.edge2(g))
         # g = self.node_relu2(self.node2(g))
-        return self.global_output(g).global_features
+        state_value = self.global_output(g).global_features
+        state_action = torch.cat((state_value, a), 1)
+        action_value = F.relu(self.hidden_action_layer(state_action))
+        action_value = F.relu(self.action_out_layer(action_value))
+        return action_value
 
 
 class DoubleQNetwork(nn.Module):
-    def __init__(self, num_node_features, num_edge_features, num_actions):
+    def __init__(self, num_node_features, num_edge_features, num_global_features, num_actions, hidden_action_size):
         super(DoubleQNetwork, self).__init__()
-        self.Q1 = QNetwork(num_node_features, num_edge_features, num_actions)
-        self.Q2 = QNetwork(num_node_features, num_edge_features, num_actions)
+        self.Q1 = QNetwork(num_node_features, num_edge_features, num_global_features, num_actions, hidden_action_size)
+        self.Q2 = QNetwork(num_node_features, num_edge_features, num_global_features, num_actions, hidden_action_size)
 
-    def forward(self, g):
-        out_q1 = self.Q1(g)
-        out_q2 = self.Q2(g)
+    def forward(self, g, a):
+        out_q1 = self.Q1(g, a)
+        out_q2 = self.Q2(g, a)
         return out_q1, out_q2
 
 
@@ -182,19 +189,21 @@ class DoubleQNetwork(nn.Module):
 
 
 class GaussianPolicy(nn.Module):
-    def __init__(self, num_node_features, num_edge_features, action_space):
+    def __init__(self, num_node_features, num_edge_features, num_global_features, action_space):
         super(GaussianPolicy, self).__init__()
         num_actions = action_space.shape[0]
 
         self.edge1 = tg.EdgeLinear(256,
                                    edge_features=num_edge_features,
                                    sender_features=num_node_features,
-                                   receiver_features=num_node_features)
+                                   receiver_features=num_node_features,
+                                   global_features=num_global_features)
         self.edge_relu1 = tg.EdgeReLU()
 
         self.node1 = tg.NodeLinear(256,
                                    node_features=num_node_features,
                                    incoming_features=256,
+                                   global_features=num_global_features,
                                    aggregation='avg')
         self.node_relu1 = tg.NodeReLU()
 
@@ -213,9 +222,16 @@ class GaussianPolicy(nn.Module):
         # self.mean_linear = tg.GlobalLinear(num_actions, node_features=128, edge_features=128, aggregation='avg')
         # self.log_std_linear = tg.GlobalLinear(num_actions, node_features=128, edge_features=128, aggregation='avg')
 
-        self.mean_linear = tg.GlobalLinear(num_actions, node_features=256, edge_features=256, aggregation='avg')
-        self.log_std_linear = tg.GlobalLinear(num_actions, node_features=256, edge_features=256, aggregation='avg')
-
+        self.mean_linear = tg.GlobalLinear(num_actions,
+                                           node_features=256,
+                                           edge_features=256,
+                                           global_features=num_global_features,
+                                           aggregation='avg')
+        self.log_std_linear = tg.GlobalLinear(num_actions,
+                                              node_features=256,
+                                              edge_features=256,
+                                              global_features=num_global_features,
+                                              aggregation='avg')
 
         # action rescaling
         if action_space is None:
