@@ -20,18 +20,20 @@ class SAC(object):
 
         self.device = torch.device("cuda" if args.cuda else "cpu")
 
-        self.critic = DoubleQNetwork(num_node_features,
-                                     num_edge_features,
-                                     num_global_features,
-                                     action_space.shape[0],
-                                     args.hidden_action_size).to(device=self.device)
+        self.critic = DoubleQNetwork(num_node_features=num_node_features,
+                                     num_edge_features=num_edge_features,
+                                     num_global_features=num_global_features,
+                                     num_actions=action_space.shape[0],
+                                     hidden_action_size=args.hidden_action_size,
+                                     aggregation=args.aggregation).to(device=self.device)
         self.critic_optim = Adam(self.critic.parameters(), lr=args.lr)
 
-        self.critic_target = DoubleQNetwork(num_node_features,
-                                            num_edge_features,
-                                            num_global_features,
-                                            action_space.shape[0],
-                                            args.hidden_action_size).to(self.device)
+        self.critic_target = DoubleQNetwork(num_node_features=num_node_features,
+                                            num_edge_features=num_edge_features,
+                                            num_global_features=num_global_features,
+                                            num_actions=action_space.shape[0],
+                                            hidden_action_size=args.hidden_action_size,
+                                            aggregation=args.aggregation).to(self.device)
         hard_update(self.critic_target, self.critic)
 
         if self.policy_type == "Gaussian":

@@ -3,3 +3,4 @@
    which contain the qpos and qvel of the joint (TODO: double check).
 3) The utils state_2_graph and state_2_graphbatch also changed to reflect the global features
 4) The model architecture for Q-function changed and a linear layer added to estimate the state-action value.
+5) Two direction edges added to the graph (and also feature vectors are duplicated)

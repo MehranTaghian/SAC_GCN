@@ -1,18 +1,11 @@
 TODO are as follows:
-2) Think about an algorithm to remove redundant parts like cameras from the graph.
-3) Perhaps deciding a feature vector for welded joints can be helpful
-4) What is a mocap? in the mocap_set_action function, we set the action to move the end-effector to a specific position.
-But we only have one mocap. Let's see how to define mocaps for moving joints. The mocap is for positioning the end-effector
-as used in the fetch_env _env_setup function. It is also used in the mocap_set_action function in the utils. Instead of
-that, you could consider using joints' qpos for moving the end-effector.
 
-5) for improving the performance of the algorithm, consider using a better feature vector for welded joints,
-changing the structure of graph networks, body or joints feature vectors.
+1) Design the state of the environment based on the previous observation (the original fetch reach)
 
-6) Design the state of the environment based on the previous observation (the original fetch reach)
-
-7) add achieved goal and desired goal as global features. Therefore, we should change the model of Q-function
+2) add achieved goal and desired goal as global features. Therefore, we should change the model of Q-function
 and remove action from global features.
+
+3) we should double check the observation space and action space to see if they are correct.
 
 Runs:
 screen: 94543.pts-2.mehran
@@ -34,3 +27,10 @@ changing joint features removing xaxis and xanchor. Reducing the episode length 
 
 screen:
 Now lets remove all the static parts and welded parts from the robot.
+
+screen 103076.pts-2.mehran:
+changed the size of layers from 256 to 128 and the aggregation to sum
+
+screen 107143.pts-3.mehran
+directed graphs
+

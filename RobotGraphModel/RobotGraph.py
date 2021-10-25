@@ -117,26 +117,6 @@ class RobotGraph:
                 'edges_from': self.edges_from,
                 'edges_to': self.edges_to}
 
-    def generate_adjacency_matrix(self):
-
-        # removing welded parts
-        for n1, n2, j in self.parser.connections:
-            if j.attrib['name'] not in self.weld_joints:
-                edge_from = self.node_list.index(n1)
-                edge_to = self.node_list.index(n2)
-                self.edges_from.append(edge_from)
-                self.edges_to.append(edge_to)
-
-        # with welded parts
-        # for n1, n2, _ in self.parser.connections:
-        #     edge_from = self.node_list.index(n1)
-        #     edge_to = self.node_list.index(n2)
-        #     self.edges_from.append(edge_from)
-        #     self.edges_to.append(edge_to)
-
-        self.edges_from = np.array(self.edges_from)
-        self.edges_to = np.array(self.edges_to)
-
     def fill_node_edge_lists(self):
         # removing welded joints
         for node1, node2, joint in self.parser.connections:
@@ -153,6 +133,28 @@ class RobotGraph:
         #     self.edge_list.append(joint)
 
         self.node_list = list(self.node_list)
+
+    def generate_adjacency_matrix(self):
+
+        # removing welded parts
+        for n1, n2, j in self.parser.connections:
+            if j.attrib['name'] not in self.weld_joints:
+                edge_from = self.node_list.index(n1)
+                edge_to = self.node_list.index(n2)
+                self.edges_from.append(edge_from)
+                self.edges_to.append(edge_to)
+                self.edges_from.append(edge_to)
+                self.edges_to.append(edge_from)
+
+        # with welded parts
+        # for n1, n2, _ in self.parser.connections:
+        #     edge_from = self.node_list.index(n1)
+        #     edge_to = self.node_list.index(n2)
+        #     self.edges_from.append(edge_from)
+        #     self.edges_to.append(edge_to)
+
+        self.edges_from = np.array(self.edges_from)
+        self.edges_to = np.array(self.edges_to)
 
     def extract_node_features(self):
         """
@@ -284,6 +286,7 @@ class RobotGraph:
             else:
                 edge_feature = None
 
+            feature_list.append(edge_feature)
             feature_list.append(edge_feature)
 
         for i in range(len(feature_list)):
