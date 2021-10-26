@@ -51,8 +51,9 @@ class FetchEnv(robot_env.RobotEnv):
 
         super(FetchEnv, self).__init__(
             model_path=model_path, n_substeps=n_substeps,
-            weld_joints=['robot0:torso_lift_joint', 'robot0:head_pan_joint', 'robot0:head_tilt_joint',
-                         'robot0:shoulder_pan_joint'], initial_qpos=initial_qpos)
+            weld_joints=['robot0:torso_lift_joint', 'robot0:head_pan_joint', 'robot0:head_tilt_joint']
+            # 'robot0:shoulder_pan_joint']
+            , initial_qpos=initial_qpos)
 
     # GoalEnv methods
     # ----------------------------
