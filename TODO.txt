@@ -34,3 +34,6 @@ changed the size of layers from 256 to 128 and the aggregation to sum
 screen 117154.pts-3.mehran:
 action space modified and the change is in LOG.txt number 6
 
+screen 117261.pts-3.mehran:
+action space modified to its original form
+
