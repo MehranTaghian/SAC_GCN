@@ -7,10 +7,15 @@ env = gym.make("FetchReachEnv-v0")
 
 env.reset()
 
-print(env.observation_space['achieved_goal'].shape)
+print(env.action_space.shape[0])
+
+# print([j.attrib['name'] for j in env.joint_list])
+# print(len(env.joint_list))
+print(env.sim.data.qpos)
+print(env.robot_graph.edge_features)
 # while True:
 #     action = env.action_space.sample()
-#     # action = np.array([0, 0, 0, 0, 0, 0, 0])
+#     # action = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
 #     # action[:4] = [0, 0, 0, 0]
 #     # print(action)
 #     obs, _, _, _ = env.step(action)

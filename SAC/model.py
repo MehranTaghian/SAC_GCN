@@ -17,68 +17,6 @@ def weights_init_(m):
         torch.nn.init.constant_(m.bias, 0)
 
 
-class ValueNetwork(nn.Module):
-    def __init__(self, num_node_features, num_edge_features):
-        super(ValueNetwork, self).__init__()
-        self.edge1 = tg.EdgeLinear(128,
-                                   edge_features=num_edge_features,
-                                   sender_features=num_node_features,
-                                   receiver_features=num_node_features)
-        self.edge_relu1 = tg.EdgeReLU()
-
-        self.node1 = tg.NodeLinear(128,
-                                   node_features=num_node_features,
-                                   incoming_features=128,
-                                   aggregation='avg')
-        self.node_relu1 = tg.NodeReLU()
-
-        # self.edge2 = tg.EdgeLinear(128,
-        #                            edge_features=256,
-        #                            sender_features=256,
-        #                            receiver_features=256)
-        # self.edge_relu2 = tg.EdgeReLU()
-        #
-        # self.node2 = tg.NodeLinear(128,
-        #                            node_features=256,
-        #                            incoming_features=128,
-        #                            aggregation='avg')
-        # self.node_relu2 = tg.NodeReLU()
-
-        # self.global_output = tg.GlobalLinear(1,
-        #                                      node_features=128,
-        #                                      edge_features=128,
-        #                                      aggregation='avg')
-
-        self.global_output = tg.GlobalLinear(1,
-                                             node_features=128,
-                                             edge_features=128,
-                                             aggregation='avg')
-
-    def forward(self, g):
-        g = self.edge_relu1(self.edge1(g))
-        g = self.node_relu1(self.node1(g))
-        # g = self.edge_relu2(self.edge2(g))
-        # g = self.node_relu2(self.node2(g))
-        return self.global_output(g).global_features
-
-
-# class ValueNetwork(nn.Module):
-#     def __init__(self, num_inputs, hidden_dim):
-#         super(ValueNetwork, self).__init__()
-#
-#         self.linear1 = nn.Linear(num_inputs, hidden_dim)
-#         self.linear2 = nn.Linear(hidden_dim, hidden_dim)
-#         self.linear3 = nn.Linear(hidden_dim, 1)
-#
-#         self.apply(weights_init_)
-#
-#     def forward(self, state):
-#         x = F.relu(self.linear1(state))
-#         x = F.relu(self.linear2(x))
-#         x = self.linear3(x)
-#         return x
-
-
 class QNetwork(nn.Module):
     def __init__(self, num_node_features, num_edge_features, num_global_features, num_actions, hidden_action_size,
                  aggregation='avg'):
@@ -86,14 +24,14 @@ class QNetwork(nn.Module):
         super(QNetwork, self).__init__()
         self.edge1 = tg.EdgeLinear(128,
                                    edge_features=num_edge_features,
-                                   sender_features=num_node_features,
-                                   receiver_features=num_node_features,
+                                   # sender_features=num_node_features,
+                                   # receiver_features=num_node_features,
                                    global_features=num_global_features)
         self.edge_relu1 = tg.EdgeReLU()
 
         self.node1 = tg.NodeLinear(128,
                                    node_features=num_node_features,
-                                   incoming_features=128,
+                                   # incoming_features=128,
                                    global_features=num_global_features,
                                    aggregation=aggregation)
         self.node_relu1 = tg.NodeReLU()
@@ -128,7 +66,7 @@ class QNetwork(nn.Module):
         self.global_output = tg.GlobalLinear(1,
                                              node_features=128,
                                              edge_features=128,
-                                             global_features=num_global_features,
+                                             # global_features=num_global_features,
                                              aggregation=aggregation)
 
         self.hidden_action_layer = nn.Linear(1 + num_actions, hidden_action_size)
@@ -199,14 +137,14 @@ class GaussianPolicy(nn.Module):
 
         self.edge1 = tg.EdgeLinear(128,
                                    edge_features=num_edge_features,
-                                   sender_features=num_node_features,
-                                   receiver_features=num_node_features,
+                                   # sender_features=num_node_features,
+                                   # receiver_features=num_node_features,
                                    global_features=num_global_features)
         self.edge_relu1 = tg.EdgeReLU()
 
         self.node1 = tg.NodeLinear(128,
                                    node_features=num_node_features,
-                                   incoming_features=128,
+                                   # incoming_features=128,
                                    global_features=num_global_features,
                                    aggregation='avg')
         self.node_relu1 = tg.NodeReLU()
@@ -229,12 +167,12 @@ class GaussianPolicy(nn.Module):
         self.mean_linear = tg.GlobalLinear(num_actions,
                                            node_features=128,
                                            edge_features=128,
-                                           global_features=num_global_features,
+                                           # global_features=num_global_features,
                                            aggregation='avg')
         self.log_std_linear = tg.GlobalLinear(num_actions,
                                               node_features=128,
                                               edge_features=128,
-                                              global_features=num_global_features,
+                                              # global_features=num_global_features,
                                               aggregation='avg')
 
         # action rescaling

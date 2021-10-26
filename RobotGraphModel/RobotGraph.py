@@ -143,8 +143,8 @@ class RobotGraph:
                 edge_to = self.node_list.index(n2)
                 self.edges_from.append(edge_from)
                 self.edges_to.append(edge_to)
-                self.edges_from.append(edge_to)
-                self.edges_to.append(edge_from)
+                # self.edges_from.append(edge_to)
+                # self.edges_to.append(edge_from)
 
         # with welded parts
         # for n1, n2, _ in self.parser.connections:
@@ -206,19 +206,6 @@ class RobotGraph:
             self.log['node']['ipos'].append(bodies_ipos.copy())
             self.log['node']['iquat'].append(bodies_iquat.copy())
 
-        # DEBUG
-        # print(bodies_mass.shape)
-        # print(bodies_inertia.shape)
-        # print(bodies_pos.shape)
-        # print(bodies_quat.shape)
-        # print(bodies_xpos.shape)
-        # print(bodies_xquat.shape)
-        # print(bodies_xvelp.shape)
-        # print(bodies_xvelr.shape)
-        # print(bodies_ipos.shape)
-        # print(bodies_iquat.shape)
-        # END DEBUG
-
         self.node_features = np.concatenate(
             [
                 # bodies_mass.copy(),
@@ -267,11 +254,6 @@ class RobotGraph:
                 jnt_qpos = self.sim.data.qpos[id]
                 jnt_qvel = self.sim.data.qvel[id] * dt
 
-                # print('jnt_qpos', jnt_qpos)
-                # print('jnt_qvel', jnt_qvel)
-                # print('get_joint_qpos', self.sim.data.get_joint_qpos(edge.attrib['name']))
-                # print('get_joint_qvel', self.sim.data.get_joint_qvel(edge.attrib['name']))
-
                 edge_feature = np.concatenate([
                     # jnt_ranges.copy(),
                     # jnt_axis.copy(),
@@ -287,7 +269,7 @@ class RobotGraph:
                 edge_feature = None
 
             feature_list.append(edge_feature)
-            feature_list.append(edge_feature)
+            # feature_list.append(edge_feature)
 
         for i in range(len(feature_list)):
             if feature_list[i] is None:
@@ -358,7 +340,8 @@ if __name__ == '__main__':
             edge_id_list.append(int(env.sim.model.joint_name2id(e.attrib['name'])))
 
     for id in sorted(edge_id_list):
-        print(id, env.sim.model.joint_id2name(id))
+        name = env.sim.model.joint_id2name(id)
+        print(id, name, round(env.sim.data.get_joint_qpos(name), 3))
 
     # print(env.sim.data.get_body_xpos("robot0:forearm_roll_link"))
     # print(env.sim.model.body_name2id("robot0:forearm_roll_link"))
