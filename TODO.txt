@@ -31,6 +31,6 @@ Now lets remove all the static parts and welded parts from the robot.
 screen 103076.pts-2.mehran:
 changed the size of layers from 256 to 128 and the aggregation to sum
 
-screen 107143.pts-3.mehran
-directed graphs
+screen 117154.pts-3.mehran:
+action space modified and the change is in LOG.txt number 6
 
