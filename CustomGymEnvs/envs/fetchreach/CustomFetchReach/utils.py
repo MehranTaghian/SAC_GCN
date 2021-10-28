@@ -40,8 +40,7 @@ def ctrl_set_action(sim, action):
                 sim.data.ctrl[i] = sim.data.qpos[idx] + action[i]
 
 
-def mocap_set_action(sim, action, joint_list):
-    # def mocap_set_action(sim, action):
+def mocap_set_action(sim, action, joint_list=None):
     """The action controls the robot using mocaps. Specifically, bodies
     on the robot (for example the gripper wrist) is controlled with
     mocap bodies. In this case the action is the desired difference

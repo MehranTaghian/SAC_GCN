@@ -37,3 +37,6 @@ action space modified and the change is in LOG.txt number 6
 screen 117261.pts-3.mehran:
 action space modified to its original form
 
+screen 142396.pts-5.mehran:
+after removing the relu layer from last layer of the q-network
+

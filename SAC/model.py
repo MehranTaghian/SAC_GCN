@@ -5,16 +5,25 @@ from torch.distributions import Normal
 import torchgraphs as tg
 from collections import OrderedDict
 
+from torch.utils.tensorboard import SummaryWriter
+
 LOG_SIG_MAX = 2
 LOG_SIG_MIN = -20
 epsilon = 1e-6
 
+tb = SummaryWriter()
+tb_step_policy = 0
+tb_step_q = 0
+
 
 # Initialize Policy weights
 def weights_init_(m):
-    if isinstance(m, nn.Linear):
-        torch.nn.init.xavier_uniform_(m.weight, gain=1)
-        torch.nn.init.constant_(m.bias, 0)
+    if len(m.shape) > 1:
+        torch.nn.init.xavier_uniform_(m, gain=1)
+
+    # if isinstance(m, nn.Linear):
+    #     torch.nn.init.xavier_uniform_(m.weight, gain=1)
+    #     torch.nn.init.constant_(m.bias, 0)
 
 
 class QNetwork(nn.Module):
@@ -22,67 +31,83 @@ class QNetwork(nn.Module):
                  aggregation='avg'):
         # For the action value function, we consider the action as the graph's global features
         super(QNetwork, self).__init__()
-        self.edge1 = tg.EdgeLinear(128,
+        self.edge1 = tg.EdgeLinear(256,
                                    edge_features=num_edge_features,
-                                   # sender_features=num_node_features,
-                                   # receiver_features=num_node_features,
+                                   sender_features=num_node_features,
+                                   receiver_features=num_node_features,
                                    global_features=num_global_features)
         self.edge_relu1 = tg.EdgeReLU()
 
-        self.node1 = tg.NodeLinear(128,
+        self.node1 = tg.NodeLinear(256,
                                    node_features=num_node_features,
-                                   # incoming_features=128,
+                                   incoming_features=256,
                                    global_features=num_global_features,
                                    aggregation=aggregation)
         self.node_relu1 = tg.NodeReLU()
 
-        # self.global1 = tg.GlobalLinear(int(num_actions / 2),
-        #                                node_features=256,
-        #                                edge_features=256,
-        #                                global_features=num_actions,
-        #                                aggregation='avg')
-        # self.global_relu = tg.GlobalReLU()
+        self.edge2 = tg.EdgeLinear(128,
+                                   edge_features=256,
+                                   sender_features=256,
+                                   receiver_features=256,
+                                   global_features=num_global_features)
+        self.edge_relu2 = tg.EdgeReLU()
 
-        # self.edge2 = tg.EdgeLinear(128,
-        #                            edge_features=256,
-        #                            sender_features=256,
-        #                            receiver_features=256,
-        #                            global_features=int(num_actions / 2))
-        # self.edge_relu2 = tg.EdgeReLU()
-        #
-        # self.node2 = tg.NodeLinear(128,
-        #                            node_features=256,
-        #                            incoming_features=128,
-        #                            global_features=int(num_actions / 2),
-        #                            aggregation='avg')
-        # self.node_relu2 = tg.NodeReLU()
-        #
-        # self.global_output = tg.GlobalLinear(1,
-        #                                      node_features=128,
-        #                                      edge_features=128,
-        #                                      global_features=int(num_actions / 2),
-        #                                      aggregation='avg')
+        self.node2 = tg.NodeLinear(128,
+                                   node_features=256,
+                                   incoming_features=128,
+                                   global_features=num_global_features,
+                                   aggregation='avg')
+        self.node_relu2 = tg.NodeReLU()
 
         self.global_output = tg.GlobalLinear(1,
                                              node_features=128,
                                              edge_features=128,
-                                             # global_features=num_global_features,
-                                             aggregation=aggregation)
+                                             global_features=num_global_features,
+                                             aggregation='avg')
+
+        # self.edge1 = tg.EdgeLinear(128,
+        #                            edge_features=num_edge_features,
+        #                            # sender_features=num_node_features,
+        #                            # receiver_features=num_node_features,
+        #                            global_features=num_global_features)
+        # self.edge_relu1 = tg.EdgeReLU()
+        #
+        # self.node1 = tg.NodeLinear(128,
+        #                            node_features=num_node_features,
+        #                            # incoming_features=128,
+        #                            global_features=num_global_features,
+        #                            aggregation=aggregation)
+        # self.node_relu1 = tg.NodeReLU()
+        #
+        # self.global_output = tg.GlobalLinear(1,
+        #                                      node_features=128,
+        #                                      edge_features=128,
+        #                                      # global_features=num_global_features,
+        #                                      aggregation=aggregation)
 
         self.hidden_action_layer = nn.Linear(1 + num_actions, hidden_action_size)
         self.action_out_layer = nn.Linear(hidden_action_size, 1)
 
+        for params in self.parameters():
+            weights_init_(params)
+
     def forward(self, g, a):
         g = self.edge_relu1(self.edge1(g))
         g = self.node_relu1(self.node1(g))
-        # g = self.global_relu(self.global1(g))
-        # g = self.edge_relu2(self.edge2(g))
-        # g = self.node_relu2(self.node2(g))
+        g = self.edge_relu2(self.edge2(g))
+        g = self.node_relu2(self.node2(g))
         state_value = self.global_output(g).global_features
         state_action = torch.cat((state_value, a), 1)
         action_value = F.relu(self.hidden_action_layer(state_action))
         action_value = self.action_out_layer(action_value)
         # print(f"Q-network state-value: {state_value}, state-action: {state_action}, action-value: {action_value}")
+
+        # LOGGING
+        global tb_step_q
+        tb.add_histogram('Q-network state-value', state_value, tb_step_q)
+        tb.add_histogram('Q-network action-value', action_value, tb_step_q)
+        tb_step_q += 1
+        # END LOGGING
         return action_value
 
 
@@ -136,45 +161,69 @@ class GaussianPolicy(nn.Module):
         super(GaussianPolicy, self).__init__()
         num_actions = action_space.shape[0]
 
-        self.edge1 = tg.EdgeLinear(128,
+        self.edge1 = tg.EdgeLinear(256,
                                    edge_features=num_edge_features,
-                                   # sender_features=num_node_features,
-                                   # receiver_features=num_node_features,
+                                   sender_features=num_node_features,
+                                   receiver_features=num_node_features,
                                    global_features=num_global_features)
         self.edge_relu1 = tg.EdgeReLU()
 
-        self.node1 = tg.NodeLinear(128,
+        self.node1 = tg.NodeLinear(256,
                                    node_features=num_node_features,
-                                   # incoming_features=128,
+                                   incoming_features=256,
                                    global_features=num_global_features,
                                    aggregation='avg')
         self.node_relu1 = tg.NodeReLU()
 
-        # self.edge2 = tg.EdgeLinear(128,
-        #                            edge_features=256,
-        #                            sender_features=256,
-        #                            receiver_features=256)
-        # self.edge_relu2 = tg.EdgeReLU()
-        #
-        # self.node2 = tg.NodeLinear(128,
-        #                            node_features=256,
-        #                            incoming_features=128,
-        #                            aggregation='avg')
-        # self.node_relu2 = tg.NodeReLU()
+        self.edge2 = tg.EdgeLinear(128,
+                                   edge_features=256,
+                                   sender_features=256,
+                                   receiver_features=256,
+                                   global_features=num_global_features)
+        self.edge_relu2 = tg.EdgeReLU()
 
-        # self.mean_linear = tg.GlobalLinear(num_actions, node_features=128, edge_features=128, aggregation='avg')
-        # self.log_std_linear = tg.GlobalLinear(num_actions, node_features=128, edge_features=128, aggregation='avg')
+        self.node2 = tg.NodeLinear(128,
+                                   node_features=256,
+                                   incoming_features=128,
+                                   global_features=num_global_features,
+                                   aggregation='avg')
+        self.node_relu2 = tg.NodeReLU()
 
         self.mean_linear = tg.GlobalLinear(num_actions,
                                            node_features=128,
                                            edge_features=128,
-                                           # global_features=num_global_features,
+                                           global_features=num_global_features,
                                            aggregation='avg')
         self.log_std_linear = tg.GlobalLinear(num_actions,
                                               node_features=128,
                                               edge_features=128,
-                                              # global_features=num_global_features,
+                                              global_features=num_global_features,
                                               aggregation='avg')
+
+        # self.edge1 = tg.EdgeLinear(128,
+        #                            edge_features=num_edge_features,
+        #                            # sender_features=num_node_features,
+        #                            # receiver_features=num_node_features,
+        #                            global_features=num_global_features)
+        # self.edge_relu1 = tg.EdgeReLU()
+        #
+        # self.node1 = tg.NodeLinear(128,
+        #                            node_features=num_node_features,
+        #                            # incoming_features=128,
+        #                            global_features=num_global_features,
+        #                            aggregation='avg')
+        # self.node_relu1 = tg.NodeReLU()
+        #
+        # self.mean_linear = tg.GlobalLinear(num_actions,
+        #                                    node_features=128,
+        #                                    edge_features=128,
+        #                                    # global_features=num_global_features,
+        #                                    aggregation='avg')
+        # self.log_std_linear = tg.GlobalLinear(num_actions,
+        #                                       node_features=128,
+        #                                       edge_features=128,
+        #                                       # global_features=num_global_features,
+        #                                       aggregation='avg')
 
         # action rescaling
         if action_space is None:
@@ -186,14 +235,25 @@ class GaussianPolicy(nn.Module):
             self.action_bias = torch.FloatTensor(
                 (action_space.high + action_space.low) / 2.)
 
+        for params in self.parameters():
+            weights_init_(params)
+
     def forward(self, g):
         g = self.edge_relu1(self.edge1(g))
         g = self.node_relu1(self.node1(g))
-        # g = self.edge_relu2(self.edge2(g))
-        # g = self.node_relu2(self.node2(g))
+        g = self.edge_relu2(self.edge2(g))
+        g = self.node_relu2(self.node2(g))
 
         mean = self.mean_linear(g).global_features
         log_std = self.log_std_linear(g).global_features
+
+        # LOGGING
+        global tb_step_policy
+        tb.add_histogram('Gaussian policy mean', mean, tb_step_policy)
+        tb.add_histogram('Gaussian policy log_std', log_std, tb_step_policy)
+        tb_step_policy += 1
+        # END LOGGING
+
         # print(f"Gaussian policy, mean: {mean}, log_std{log_std}")
         log_std = torch.clamp(log_std, min=LOG_SIG_MIN, max=LOG_SIG_MAX)
         return mean, log_std
