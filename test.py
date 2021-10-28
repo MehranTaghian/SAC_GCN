@@ -15,7 +15,7 @@ print(env.sim.data.qpos)
 print(env.robot_graph.edge_features)
 while True:
     # action = env.action_space.sample()
-    action = np.array([0, 0, 1, 0])
+    action = np.array([0, 0, 1, 0, 0, 0, 0, 0])
     # action[:4] = [0, 0, 0, 0]
     # print(action)
     obs, _, _, _ = env.step(action)

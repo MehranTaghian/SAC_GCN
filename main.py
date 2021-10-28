@@ -46,6 +46,13 @@ parser.add_argument('--target_update_interval', type=int, default=1, metavar='N'
                     help='Value target update per no. of updates per step (default: 1)')
 parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
                     help='size of replay buffer (default: 10000000)')
+parser.add_argument('-msf', '--model_save_freq', type=int, default=100, metavar='N',
+                    help='Save checkpoint every msf episodes')
+parser.add_argument('-ef', '--evaluation_freq', type=int, default=10, metavar='N',
+                    help='Evaluate the policy every ef episodes')
+
+
+
 parser.add_argument('--aggregation', default="avg",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--cuda', action="store_true",
@@ -133,7 +140,11 @@ for i_episode in itertools.count(1):
                                                                                   episode_steps,
                                                                                   round(episode_reward, 2)))
 
-    if i_episode % 10 == 0 and args.eval is True:
+    # save checkpoint
+    if i_episode % args.model_save_freq == 0:
+        agent.save_checkpoint(env_name=args.env_name)
+
+    if i_episode % args.evaluation_freq == 0 and args.eval is True:
         avg_reward = 0.
         episodes = 10
         for _ in range(episodes):
@@ -155,5 +166,6 @@ for i_episode in itertools.count(1):
         print("----------------------------------------")
         print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
         print("----------------------------------------")
+
 
 env.close()
