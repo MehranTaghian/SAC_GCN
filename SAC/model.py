@@ -81,7 +81,8 @@ class QNetwork(nn.Module):
         state_value = self.global_output(g).global_features
         state_action = torch.cat((state_value, a), 1)
         action_value = F.relu(self.hidden_action_layer(state_action))
-        action_value = F.relu(self.action_out_layer(action_value))
+        action_value = self.action_out_layer(action_value)
+        # print(f"Q-network state-value: {state_value}, state-action: {state_action}, action-value: {action_value}")
         return action_value
 
 
@@ -193,6 +194,7 @@ class GaussianPolicy(nn.Module):
 
         mean = self.mean_linear(g).global_features
         log_std = self.log_std_linear(g).global_features
+        # print(f"Gaussian policy, mean: {mean}, log_std{log_std}")
         log_std = torch.clamp(log_std, min=LOG_SIG_MIN, max=LOG_SIG_MAX)
         return mean, log_std
 
