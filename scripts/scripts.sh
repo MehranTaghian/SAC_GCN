@@ -6,6 +6,7 @@ MAIN_FILE="/home/taghianj/Documents/SAC_GCN/main.py"
 
 CUDA_VISIBLE_DEVICES=0 python main.py --env-name FetchReachEnv-v0 --automatic_entropy_tuning True --num_steps 2000000 --start_steps 5000 -msf 10 --cuda --seed 0
 
+CUDA_VISIBLE_DEVICES=0 python main.py --env-name AntEnv-v0 --automatic_entropy_tuning True --num_steps 2000000 --start_steps 5000 -msf 10 --cuda --seed 0
 
 
 #Evaluation

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 class RobotGraph:
-    def __init__(self, sim, model_path, weld_joints, plot_log=False):
+    def __init__(self, sim, model_path, weld_joints=None, plot_log=False):
         """
         Based on the definition in the MuJoCo documentation:
         This element creates a joint. As explained in Kinematic tree, a joint creates motion degrees of freedom
@@ -22,6 +22,9 @@ class RobotGraph:
         to move. Therefore, when we are adding joints into the edge_list, we replace their object with None
         in the fill_node_edge_lists function.
         Furthermore, we remove those body parts that contain 'camera' or 'laser' in their name.
+
+        Note: in order for the model to be parsed, all the bodies should be named properly except the world body. The
+        world body can have not name.
 
         For node and edge features, I used the following link to a complete reference of the bodies and joints:
         http://www.mujoco.org/book/XMLreference.html
@@ -120,7 +123,12 @@ class RobotGraph:
     def fill_node_edge_lists(self):
         # removing welded joints
         for node1, node2, joint in self.parser.connections:
-            if joint.attrib['name'] not in self.weld_joints:
+            if self.weld_joints is not None:
+                if joint.attrib['name'] not in self.weld_joints:
+                    self.node_list.add(node1)
+                    self.node_list.add(node2)
+                    self.edge_list.append(joint)
+            else:
                 self.node_list.add(node1)
                 self.node_list.add(node2)
                 self.edge_list.append(joint)
@@ -138,7 +146,15 @@ class RobotGraph:
 
         # removing welded parts
         for n1, n2, j in self.parser.connections:
-            if j.attrib['name'] not in self.weld_joints:
+            if self.weld_joints is not None:
+                if j.attrib['name'] not in self.weld_joints:
+                    edge_from = self.node_list.index(n1)
+                    edge_to = self.node_list.index(n2)
+                    self.edges_from.append(edge_from)
+                    self.edges_to.append(edge_to)
+                    # self.edges_from.append(edge_to)
+                    # self.edges_to.append(edge_from)
+            else:
                 edge_from = self.node_list.index(n1)
                 edge_to = self.node_list.index(n2)
                 self.edges_from.append(edge_from)
@@ -179,7 +195,17 @@ class RobotGraph:
         xvelr [3]: rotational velocity
 
         """
-        mask = [self.sim.model.body_name2id(body_name.attrib['name']) for body_name in self.node_list]
+        # for n in self.node_list:
+        #     if 'name' in n.attrib:
+        #         print(self.sim.data.get_body_xpos(n.attrib['name']))
+        #     else:
+        #         print(n)
+        #
+        # for n in range(self.sim.data.body_xpos.shape[0]):
+        #     print(self.sim.model.body_id2name(n))
+        # print(self.sim.data.body_xpos)
+
+        mask = [self.sim.model.body_name2id(body.attrib['name'] if 'name' in body.attrib else 'world') for body in self.node_list]
 
         bodies_mass = self.sim.model.body_mass[mask, np.newaxis]
         # The following features were constant. Instead of using static features for pos and quat, we use dynamic
@@ -317,12 +343,17 @@ if __name__ == '__main__':
     import gym
     from pathlib import Path
 
-    env = gym.make('FetchReachEnv-v0')
+    # env = gym.make('FetchReachEnv-v0')
+    # home = str(Path.home())
+    # g = RobotGraph(env.sim,
+    #                home + '/Documents/SAC_GCN/CustomGymEnvs/envs/fetchreach/CustomFetchReach/assets/fetch/',
+    #                ['robot0:torso_lift_joint', 'robot0:head_pan_joint', 'robot0:head_tilt_joint',
+    #                 'robot0:shoulder_pan_joint'])
+
+    env = gym.make('AntEnv-v0')
     home = str(Path.home())
-    g = RobotGraph(env.sim,
-                   home + '/Documents/SAC_GCN/CustomGymEnvs/envs/fetchreach/CustomFetchReach/assets/fetch/',
-                   ['robot0:torso_lift_joint', 'robot0:head_pan_joint', 'robot0:head_tilt_joint',
-                    'robot0:shoulder_pan_joint'])
+    model_path = home + '/Documents/SAC_GCN/CustomGymEnvs/envs/ant/xml/AntEnv_v0_Normal.xml'
+    g = RobotGraph(env.sim, model_path)
 
     print(g.node_features.shape)
     print(g.edge_features.shape)

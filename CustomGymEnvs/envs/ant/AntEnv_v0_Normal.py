@@ -11,6 +11,8 @@ from gym.envs.mujoco import mujoco_env
 from pathlib import Path
 from mujoco_py.generated import const  # do not delete; may need in viewer_setup method
 import os  # modification here
+from RobotGraphModel import RobotGraph
+from gym import spaces
 
 
 class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
@@ -22,13 +24,29 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
         self.computecanada = not any(host in self.hostname for host in self.localhosts)
         home = str(Path.home())
         if self.computecanada:
-            filepath = home + "/scratch/openai/CustomGymEnvs/envs/ant/xml/AntEnv_v0_Normal.xml"
+            self.filepath = home + "/scratch/SAC_GCN/CustomGymEnvs/envs/ant/xml/AntEnv_v0_Normal.xml"
         else:
-            filepath = home + "/Documents/openai/CustomGymEnvs/envs/ant/xml/AntEnv_v0_Normal.xml"
+            self.filepath = home + "/Documents/SAC_GCN/CustomGymEnvs/envs/ant/xml/AntEnv_v0_Normal.xml"
+
+        self.robot_graph = None
         # modification here: end
 
-        mujoco_env.MujocoEnv.__init__(self, filepath, 5)
+        mujoco_env.MujocoEnv.__init__(self, self.filepath, 5)
         utils.EzPickle.__init__(self)
+
+        # MODIFICATION
+        obs = self._get_obs()
+        self.observation_space = spaces.Dict(dict(
+            node_features=spaces.Box(-np.inf, np.inf, shape=obs['node_features'].shape,
+                                     dtype='float32'),
+            edge_features=spaces.Box(-np.inf, np.inf, shape=obs['edge_features'].shape,
+                                     dtype='float32'),
+            edges_from=spaces.Box(-np.inf, np.inf, shape=obs['edges_from'].shape,
+                                  dtype='float32'),
+            edges_to=spaces.Box(-np.inf, np.inf, shape=obs['edges_to'].shape,
+                                dtype='float32'),
+        ))
+        # END MODIFICATION
 
     def step(self, a):
         xposbefore = self.get_body_com("torso")[0]
@@ -44,6 +62,12 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
         notdone = np.isfinite(state).all() \
                   and state[2] >= 0.2 and state[2] <= 1.0
         done = not notdone
+
+        # MODIFICATION
+        if self.robot_graph is None:
+            self.robot_graph = RobotGraph(self.sim, self.filepath)
+        # END MODIFICATION
+
         ob = self._get_obs()
         return ob, reward, done, dict(
             reward_forward=forward_reward,
@@ -52,11 +76,14 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
             reward_survive=survive_reward)
 
     def _get_obs(self):
-        return np.concatenate([
-            self.sim.data.qpos.flat[2:],
-            self.sim.data.qvel.flat,
-            np.clip(self.sim.data.cfrc_ext, -1, 1).flat,
-        ])
+        # MODIFICATION (COMMENTED)
+        # return np.concatenate([
+        #     self.sim.data.qpos.flat[2:],
+        #     self.sim.data.qvel.flat,
+        #     np.clip(self.sim.data.cfrc_ext, -1, 1).flat,
+        # ])
+        # END MODIFICATION
+        return self.robot_graph.get_graph_obs()
 
     def reset_model(self):
         qpos = self.init_qpos + self.np_random.uniform(size=self.model.nq, low=-.1, high=.1)

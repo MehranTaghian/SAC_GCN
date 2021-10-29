@@ -7,6 +7,8 @@ and remove action from global features.
 
 3) we should double check the observation space and action space to see if they are correct.
 
+4) attach everything to the world body
+
 Runs:
 screen: 94543.pts-2.mehran
 This one all is the same except we removed cameras and laser from the original robot (redundant parts)
