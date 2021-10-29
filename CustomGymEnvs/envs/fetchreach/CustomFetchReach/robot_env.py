@@ -31,9 +31,7 @@ class RobotEnv(gym.GoalEnv):
         self.sim = mujoco_py.MjSim(model, nsubsteps=n_substeps)
 
         # Modification: robot_graph model added. This model will be used as the observation space.
-        self.robot_graph = rgm.RobotGraph(sim=self.sim,
-                                          model_path=str(Path(fullpath).parent) + '/robot.xml',
-                                          weld_joints=weld_joints)
+        self.robot_graph = rgm.RobotGraph(sim=self.sim, weld_joints=weld_joints)
         # End modification
 
         self.viewer = None
@@ -55,8 +53,8 @@ class RobotEnv(gym.GoalEnv):
         # opening and closing of the gripper.
         self.joint_list = [j for j in self.joint_list if (j.attrib['name'] != 'robot0:r_gripper_finger_joint' and
                                                           j.attrib['name'] != 'robot0:l_gripper_finger_joint')]
-        # self.n_actions = len(self.joint_list) + 1
-        self.n_actions = 4
+        self.n_actions = len(self.joint_list) + 1
+        # self.n_actions = 4
         # END MODIFICATION
         self.goal = self._sample_goal()
         obs = self._get_obs()

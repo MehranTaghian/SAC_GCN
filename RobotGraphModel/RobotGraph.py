@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 class RobotGraph:
-    def __init__(self, sim, model_path, weld_joints=None, plot_log=False):
+    def __init__(self, sim, weld_joints=None, plot_log=False):
         """
         Based on the definition in the MuJoCo documentation:
         This element creates a joint. As explained in Kinematic tree, a joint creates motion degrees of freedom
@@ -55,7 +55,7 @@ class RobotGraph:
         """
         self.weld_joints = weld_joints
         self.sim = sim
-        self.parser = ModelParser(model_path)
+        self.parser = ModelParser(self.sim.model.get_xml())
         self.node_list = set()
         self.edge_list = []
         # edges_from and edges_to are based on the index of the node in the node_list, not the joint_id or body_id
@@ -122,52 +122,65 @@ class RobotGraph:
 
     def fill_node_edge_lists(self):
         # removing welded joints
-        for node1, node2, joint in self.parser.connections:
-            if self.weld_joints is not None:
-                if joint.attrib['name'] not in self.weld_joints:
-                    self.node_list.add(node1)
-                    self.node_list.add(node2)
-                    self.edge_list.append(joint)
-            else:
-                self.node_list.add(node1)
-                self.node_list.add(node2)
-                self.edge_list.append(joint)
+        # for node1, node2, joint in self.parser.connections:
+        #     # Note: all the body parts except the world body MUST be named.
+        #     if 'name' not in node1.attrib:
+        #         node1.attrib['name'] = 'world'
+        #     elif 'name' not in node2.attrib:
+        #         node2.attrib['name'] = 'world'
+        #     if joint is not None and self.weld_joints is not None:
+        #         if joint.attrib['name'] not in self.weld_joints:
+        #             self.node_list.add(node1)
+        #             self.node_list.add(node2)
+        #             self.edge_list.append(joint)
+        #         else:  # weld that joint
+        #             self.node_list.add(node1)
+        #             self.node_list.add(node2)
+        #             self.edge_list.append(None)
+        #     else:
+        #         self.node_list.add(node1)
+        #         self.node_list.add(node2)
+        #         self.edge_list.append(joint)
 
         # with welded parts
-        # for node1, node2, joint in self.parser.connections:
-        #     self.node_list.add(node1)
-        #     self.node_list.add(node2)
-        #     joint = joint if (joint is not None and joint.attrib['name'] not in self.weld_joints) else None
-        #     self.edge_list.append(joint)
+        for node1, node2, joint in self.parser.connections:
+            if 'name' not in node1.attrib:
+                node1.attrib['name'] = 'world'
+            elif 'name' not in node2.attrib:
+                node2.attrib['name'] = 'world'
+            self.node_list.add(node1)
+            self.node_list.add(node2)
+            joint = joint if (joint is not None and joint.attrib['name'] not in self.weld_joints) else None
+            self.edge_list.append(joint)
 
         self.node_list = list(self.node_list)
 
     def generate_adjacency_matrix(self):
 
         # removing welded parts
-        for n1, n2, j in self.parser.connections:
-            if self.weld_joints is not None:
-                if j.attrib['name'] not in self.weld_joints:
-                    edge_from = self.node_list.index(n1)
-                    edge_to = self.node_list.index(n2)
-                    self.edges_from.append(edge_from)
-                    self.edges_to.append(edge_to)
-                    # self.edges_from.append(edge_to)
-                    # self.edges_to.append(edge_from)
-            else:
-                edge_from = self.node_list.index(n1)
-                edge_to = self.node_list.index(n2)
-                self.edges_from.append(edge_from)
-                self.edges_to.append(edge_to)
-                # self.edges_from.append(edge_to)
-                # self.edges_to.append(edge_from)
+        # for n1, n2, j in self.parser.connections:
+        #     if j is not None and self.weld_joints is not None:
+        #         if j.attrib['name'] not in self.weld_joints:
+        #             edge_from = self.node_list.index(n1)
+        #             edge_to = self.node_list.index(n2)
+        #             self.edges_from.append(edge_from)
+        #             self.edges_to.append(edge_to)
+        #             # self.edges_from.append(edge_to)
+        #             # self.edges_to.append(edge_from)
+        #     else:
+        #         edge_from = self.node_list.index(n1)
+        #         edge_to = self.node_list.index(n2)
+        #         self.edges_from.append(edge_from)
+        #         self.edges_to.append(edge_to)
+        #         # self.edges_from.append(edge_to)
+        #         # self.edges_to.append(edge_from)
 
         # with welded parts
-        # for n1, n2, _ in self.parser.connections:
-        #     edge_from = self.node_list.index(n1)
-        #     edge_to = self.node_list.index(n2)
-        #     self.edges_from.append(edge_from)
-        #     self.edges_to.append(edge_to)
+        for n1, n2, _ in self.parser.connections:
+            edge_from = self.node_list.index(n1)
+            edge_to = self.node_list.index(n2)
+            self.edges_from.append(edge_from)
+            self.edges_to.append(edge_to)
 
         self.edges_from = np.array(self.edges_from)
         self.edges_to = np.array(self.edges_to)
@@ -197,7 +210,8 @@ class RobotGraph:
         """
         # for n in self.node_list:
         #     if 'name' in n.attrib:
-        #         print(self.sim.data.get_body_xpos(n.attrib['name']))
+        #         pass
+        #         # print(self.sim.data.get_body_xpos(n.attrib['name']))
         #     else:
         #         print(n)
         #
@@ -205,7 +219,7 @@ class RobotGraph:
         #     print(self.sim.model.body_id2name(n))
         # print(self.sim.data.body_xpos)
 
-        mask = [self.sim.model.body_name2id(body.attrib['name'] if 'name' in body.attrib else 'world') for body in self.node_list]
+        mask = [self.sim.model.body_name2id(body.attrib['name']) for body in self.node_list]
 
         bodies_mass = self.sim.model.body_mass[mask, np.newaxis]
         # The following features were constant. Instead of using static features for pos and quat, we use dynamic
@@ -343,17 +357,14 @@ if __name__ == '__main__':
     import gym
     from pathlib import Path
 
-    # env = gym.make('FetchReachEnv-v0')
-    # home = str(Path.home())
-    # g = RobotGraph(env.sim,
-    #                home + '/Documents/SAC_GCN/CustomGymEnvs/envs/fetchreach/CustomFetchReach/assets/fetch/',
-    #                ['robot0:torso_lift_joint', 'robot0:head_pan_joint', 'robot0:head_tilt_joint',
-    #                 'robot0:shoulder_pan_joint'])
-
-    env = gym.make('AntEnv-v0')
+    env = gym.make('FetchReachEnv-v0')
     home = str(Path.home())
-    model_path = home + '/Documents/SAC_GCN/CustomGymEnvs/envs/ant/xml/AntEnv_v0_Normal.xml'
-    g = RobotGraph(env.sim, model_path)
+    g = env.robot_graph
+
+    # env = gym.make('AntEnv-v0')
+    # home = str(Path.home())
+    # model_path = home + '/Documents/SAC_GCN/CustomGymEnvs/envs/ant/xml/AntEnv_v0_Normal.xml'
+    # g = RobotGraph(env.sim, model_path)
 
     print(g.node_features.shape)
     print(g.edge_features.shape)
@@ -372,7 +383,7 @@ if __name__ == '__main__':
 
     for id in sorted(edge_id_list):
         name = env.sim.model.joint_id2name(id)
-        print(id, name, round(env.sim.data.get_joint_qpos(name), 3))
+        print(id, name, np.round(env.sim.data.get_joint_qpos(name), 3))
 
     # print(env.sim.data.get_body_xpos("robot0:forearm_roll_link"))
     # print(env.sim.model.body_name2id("robot0:forearm_roll_link"))
