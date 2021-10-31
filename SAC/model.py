@@ -59,9 +59,24 @@ class GraphNetwork(nn.Module):
                                    aggregation='avg')
         self.node_relu2 = tg.NodeReLU()
 
+        self.edge3 = tg.EdgeLinear(64,
+                                   edge_features=128,
+                                   sender_features=128,
+                                   # receiver_features=256,
+                                   # global_features=num_global_features
+                                   )
+        self.edge_relu3 = tg.EdgeReLU()
+
+        self.node3 = tg.NodeLinear(64,
+                                   node_features=128,
+                                   incoming_features=64,
+                                   # global_features=num_global_features,
+                                   aggregation='avg')
+        self.node_relu3 = tg.NodeReLU()
+
         self.global_output = tg.GlobalLinear(output_size,
-                                             node_features=128,
-                                             edge_features=128,
+                                             node_features=64,
+                                             edge_features=64,
                                              global_features=num_global_features,
                                              aggregation='avg')
 
@@ -70,6 +85,8 @@ class GraphNetwork(nn.Module):
         g = self.node_relu1(self.node1(g))
         g = self.edge_relu2(self.edge2(g))
         g = self.node_relu2(self.node2(g))
+        g = self.edge_relu3(self.edge3(g))
+        g = self.node_relu3(self.node3(g))
         return self.global_output(g)
 
 

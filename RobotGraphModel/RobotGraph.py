@@ -384,7 +384,7 @@ if __name__ == '__main__':
 
     for id in sorted(edge_id_list):
         name = env.sim.model.joint_id2name(id)
-        print(id, name, np.round(env.sim.data.get_joint_qpos(name), 3))
+        print(id, name, np.round(g.edge_features[id, :], 3))
 
     # print(env.sim.data.get_body_xpos("robot0:forearm_roll_link"))
     # print(env.sim.model.body_name2id("robot0:forearm_roll_link"))

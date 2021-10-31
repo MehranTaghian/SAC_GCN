@@ -2,8 +2,8 @@ import gym
 import numpy as np
 import CustomGymEnvs
 
-env = gym.make("FetchReachEnv-v0")
-# env = gym.make("AntEnv-v0")
+# env = gym.make("FetchReachEnv-v0")
+env = gym.make("AntEnv-v0")
 
 state = env.reset()
 
@@ -16,8 +16,9 @@ state = env.reset()
 # print(env.sim.model.get_xml())
 # print(env.robot_graph.edge_features)
 while True:
-    action = env.action_space.sample()
-    # action = np.array([0, 0, 0, 0, 1, 0, 0, 0])
+    # action = env.action_space.sample()
+    # print(action)
+    action = np.array([0, 0, 0, 0, 0, 0, 0, 0])
     # action[:4] = [0, 0, 0, 0]
     # print(action)
     obs, _, _, _ = env.step(action)
