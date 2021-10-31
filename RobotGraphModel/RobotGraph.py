@@ -257,7 +257,8 @@ class RobotGraph:
                 bodies_xpos.copy(),
                 bodies_xquat.copy(),
                 bodies_xvelp.copy(),
-                bodies_xvelr.copy()],
+                bodies_xvelr.copy()
+            ],
             axis=1)
 
     def extract_edge_features(self):
