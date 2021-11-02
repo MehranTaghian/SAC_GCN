@@ -248,16 +248,16 @@ class RobotGraph:
 
         self.node_features = np.concatenate(
             [
-                # bodies_mass.copy(),
+                bodies_mass.copy(),
                 # bodies_inertia.copy(),
                 # bodies_pos.copy(),
                 # bodies_quat.copy(),
                 # bodies_ipos.copy(),
                 # bodies_iquat.copy(),
-                bodies_xpos.copy(),
-                bodies_xquat.copy(),
-                bodies_xvelp.copy(),
-                bodies_xvelr.copy()
+                # bodies_xpos.copy(),
+                # bodies_xquat.copy(),
+                # bodies_xvelp.copy(),
+                # bodies_xvelr.copy()
             ],
             axis=1)
 
@@ -293,7 +293,7 @@ class RobotGraph:
                 jnt_xaxis = self.sim.data.xaxis[id]
                 jnt_xanchor = self.sim.data.xanchor[id]
                 jnt_qpos = self.sim.data.qpos[id]
-                jnt_qvel = self.sim.data.qvel[id] * dt
+                jnt_qvel = self.sim.data.qvel[id]
 
                 edge_feature = np.concatenate([
                     # jnt_ranges.copy(),
@@ -358,7 +358,9 @@ if __name__ == '__main__':
     import gym
     from pathlib import Path
 
-    env = gym.make('FetchReachEnv-v0')
+    # env = gym.make('FetchReachEnv-v0')
+    env = gym.make('AntEnv-v0')
+
     home = str(Path.home())
     g = env.robot_graph
 

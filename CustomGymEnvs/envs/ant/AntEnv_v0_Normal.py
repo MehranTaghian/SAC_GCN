@@ -46,6 +46,8 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
             edges_to=spaces.Box(-np.inf, np.inf, shape=obs['edges_to'].shape,
                                 dtype='float32'),
         ))
+        print(self.sim.data.qpos)
+        print(self.sim.data.qvel)
         # END MODIFICATION
 
     def step(self, a):
@@ -76,13 +78,17 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
 
     def _get_obs(self):
         # MODIFICATION (COMMENTED)
-        # return np.concatenate([
-        #     self.sim.data.qpos.flat[2:],
+        print(self.sim.data.qpos)
+        print(self.sim.data.qvel)
+        # print('original', np.concatenate([
+        #     # self.sim.data.qpos.flat[2:],
+        #     self.sim.data.qpos.flat,
         #     self.sim.data.qvel.flat,
-        #     np.clip(self.sim.data.cfrc_ext, -1, 1).flat,
-        # ])
-        # END MODIFICATION
+        #     # np.clip(self.sim.data.cfrc_ext, -1, 1).flat,
+        # ]))
+        # print('graph', self.robot_graph.get_graph_obs()['edge_features'])
         return self.robot_graph.get_graph_obs()
+        # END MODIFICATION
 
     def reset_model(self):
         qpos = self.init_qpos + self.np_random.uniform(size=self.model.nq, low=-.1, high=.1)
