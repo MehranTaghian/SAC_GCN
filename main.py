@@ -11,7 +11,7 @@ from SAC.replay_memory import ReplayMemory
 from utils import state_2_graph, state_2_graphbatch
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
-parser.add_argument('--env-name', default="HalfCheetah-v2",
+parser.add_argument('--env-name', default="FetchReachEnv-v0",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--policy', default="Gaussian",
                     help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
@@ -68,7 +68,8 @@ if 'observation_nodes' in env.observation_space.spaces.keys():
     num_edges = env.observation_space['observation_edges'].shape[0]
     num_node_features = env.observation_space['observation_nodes'].shape[1]
     num_edge_features = env.observation_space['observation_edges'].shape[1]
-    num_global_features = env.observation_space['achieved_goal'].shape[0]
+    num_global_features = env.observation_space['achieved_goal'].shape[0] + \
+                          env.observation_space['desired_goal'].shape[0]
 elif 'node_features' in env.observation_space.spaces.keys():
     num_nodes = env.observation_space['node_features'].shape[0]
     num_edges = env.observation_space['edge_features'].shape[0]
@@ -103,6 +104,8 @@ for i_episode in itertools.count(1):
     state = env.reset()
 
     while not done:
+        # print('#' * 50)
+        # print(state['observation']['node_features'])
         if args.start_steps > total_numsteps:
             action = env.action_space.sample()  # Sample random action
         else:

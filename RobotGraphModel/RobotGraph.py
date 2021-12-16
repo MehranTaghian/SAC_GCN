@@ -248,14 +248,14 @@ class RobotGraph:
 
         self.node_features = np.concatenate(
             [
-                bodies_mass.copy(),
+                # bodies_mass.copy(),
                 # bodies_inertia.copy(),
                 # bodies_pos.copy(),
                 # bodies_quat.copy(),
                 # bodies_ipos.copy(),
                 # bodies_iquat.copy(),
-                # bodies_xpos.copy(),
-                # bodies_xquat.copy(),
+                bodies_xpos.copy(),
+                bodies_xquat.copy(),
                 # bodies_xvelp.copy(),
                 # bodies_xvelr.copy()
             ],

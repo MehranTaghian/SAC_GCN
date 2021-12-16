@@ -1,10 +1,11 @@
 import torchgraphs as tg
 import torch
+import numpy as np
 
 
 def state_2_graph(obs):
     if isinstance(obs, dict) and 'achieved_goal' in obs.keys():
-        achieved_goal = obs['achieved_goal']
+        goals = np.concatenate([obs['achieved_goal'], obs['desired_goal']])
         state = obs['observation']
         node_features = state['node_features']
         edge_features = state['edge_features']
@@ -13,7 +14,7 @@ def state_2_graph(obs):
         g = tg.Graph(
             node_features=torch.FloatTensor(node_features),
             edge_features=torch.FloatTensor(edge_features),
-            global_features=torch.FloatTensor(achieved_goal),
+            global_features=torch.FloatTensor(goals),
             senders=torch.tensor(edges_from),
             receivers=torch.tensor(edges_to)
         )
@@ -22,7 +23,6 @@ def state_2_graph(obs):
         edge_features = obs['edge_features']
         edges_from = obs['edges_from']
         edges_to = obs['edges_to']
-
         g = tg.Graph(
             node_features=torch.FloatTensor(node_features),
             edge_features=torch.FloatTensor(edge_features),
@@ -34,7 +34,7 @@ def state_2_graph(obs):
 
 def state_2_graphbatch(obs):
     if isinstance(obs, dict) and 'achieved_goal' in obs.keys():
-        achieved_goal = obs['achieved_goal']
+        goals = np.concatenate([obs['achieved_goal'], obs['desired_goal']])
         state = obs['observation']
         node_features = state['node_features']
         edge_features = state['edge_features']
@@ -45,7 +45,7 @@ def state_2_graphbatch(obs):
         g = tg.GraphBatch(
             node_features=torch.FloatTensor(node_features),
             edge_features=torch.FloatTensor(edge_features),
-            global_features=torch.FloatTensor([achieved_goal]),
+            global_features=torch.FloatTensor([goals]),
             senders=torch.tensor(edges_from),
             receivers=torch.tensor(edges_to),
             num_nodes_by_graph=torch.tensor([num_nodes]),
