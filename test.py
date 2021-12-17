@@ -26,15 +26,15 @@ while True:
     # print(env.sim.data.qpos)
     # print(env.sim.data.qvel)
 
-    edge_id_list = []
-    for e in g.edge_list:
-        if e is not None:
-            edge_id_list.append(int(env.sim.model.joint_name2id(e.attrib['name'])))
+    # edge_id_list = []
+    # for e in g.edge_list:
+    #     if e is not None:
+    #         edge_id_list.append(int(env.sim.model.joint_name2id(e.attrib['name'])))
 
-    for id in sorted(edge_id_list):
-        name = env.sim.model.joint_id2name(id)
-        # print(id, name, g.edge_features[id, :])
-        print(id, name, env.sim.data.get_joint_qpos(env.sim.model.joint_id2name(id)))
+    # for id in sorted(edge_id_list):
+    #     name = env.sim.model.joint_id2name(id)
+    #     # print(id, name, g.edge_features[id, :])
+    #     print(id, name, env.sim.data.get_joint_qpos(env.sim.model.joint_id2name(id)))
 
     # print(action)
     # action = np.array([0, 0, 0, 0, 0, 0, 0, 0])

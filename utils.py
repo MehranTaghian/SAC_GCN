@@ -34,7 +34,7 @@ def state_2_graph(obs):
 
 def state_2_graphbatch(obs):
     if isinstance(obs, dict) and 'achieved_goal' in obs.keys():
-        goals = np.concatenate([obs['achieved_goal'], obs['desired_goal']])
+        goals = np.array([np.concatenate([obs['achieved_goal'], obs['desired_goal']])])
         state = obs['observation']
         node_features = state['node_features']
         edge_features = state['edge_features']
@@ -45,7 +45,7 @@ def state_2_graphbatch(obs):
         g = tg.GraphBatch(
             node_features=torch.FloatTensor(node_features),
             edge_features=torch.FloatTensor(edge_features),
-            global_features=torch.FloatTensor([goals]),
+            global_features=torch.FloatTensor(goals),
             senders=torch.tensor(edges_from),
             receivers=torch.tensor(edges_to),
             num_nodes_by_graph=torch.tensor([num_nodes]),

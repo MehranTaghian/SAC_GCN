@@ -11,6 +11,8 @@ and remove action from global features.
 
 5) there is a mismatch between qpos and qvel and the graph qpos and qvel in ant env.
 
+6) Run the learned model and see what is the problem
+
 
 Runs:
 screen: 94543.pts-2.mehran
