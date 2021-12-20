@@ -11,39 +11,7 @@ and remove action from global features.
 
 5) there is a mismatch between qpos and qvel and the graph qpos and qvel in ant env.
 
-6) Run the learned model and see what is the problem
-
+6) Model changed and achieved goal removed
 
 Runs:
-screen: 94543.pts-2.mehran
-This one all is the same except we removed cameras and laser from the original robot (redundant parts)
-
-screen: 94920.pts-2.mehran
-This experiments we removed the last layer with 128 size outputs + the ones in the previous screen
-
-#### None of the above worked properly
-
-screen: 107568.pts-2.mehran
-Changed the total number of steps to 500
-
-screen: 109264.pts-2.mehran
-Commenting out xpos and xquat and using pos and quat instead
-
-screen: 112123.pts-5.mehran
-changing joint features removing xaxis and xanchor. Reducing the episode length to 100
-
-screen:
-Now lets remove all the static parts and welded parts from the robot.
-
-screen 103076.pts-2.mehran:
-changed the size of layers from 256 to 128 and the aggregation to sum
-
-screen 117154.pts-3.mehran:
-action space modified and the change is in LOG.txt number 6
-
-screen 117261.pts-3.mehran:
-action space modified to its original form
-
-screen 142396.pts-5.mehran:
-after removing the relu layer from last layer of the q-network
 

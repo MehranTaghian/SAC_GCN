@@ -5,7 +5,8 @@ import numpy as np
 
 def state_2_graph(obs):
     if isinstance(obs, dict) and 'achieved_goal' in obs.keys():
-        goals = np.concatenate([obs['achieved_goal'], obs['desired_goal']])
+        # goals = np.concatenate([obs['achieved_goal'], obs['desired_goal']])
+        goals = obs['desired_goal']
         state = obs['observation']
         node_features = state['node_features']
         edge_features = state['edge_features']
@@ -34,7 +35,8 @@ def state_2_graph(obs):
 
 def state_2_graphbatch(obs):
     if isinstance(obs, dict) and 'achieved_goal' in obs.keys():
-        goals = np.array([np.concatenate([obs['achieved_goal'], obs['desired_goal']])])
+        # goals = np.array([np.concatenate([obs['achieved_goal'], obs['desired_goal']])])
+        goals = np.array([obs['desired_goal']])
         state = obs['observation']
         node_features = state['node_features']
         edge_features = state['edge_features']
