@@ -7,7 +7,7 @@ from SAC.model import GaussianPolicy, DoubleQNetwork, DeterministicPolicy
 
 
 class SAC(object):
-    def __init__(self, num_node_features, num_edge_features, num_global_features, action_space,
+    def __init__(self, num_node_features, num_edge_features, num_global_features, action_space, relevance,
                  args):
 
         self.gamma = args.gamma
@@ -48,16 +48,17 @@ class SAC(object):
                                          num_global_features=num_global_features,
                                          action_space=action_space,
                                          hidden_action_size=args.hidden_action_size,
-                                         aggregation=args.aggregation).to(
+                                         aggregation=args.aggregation,
+                                         relevance=relevance).to(
                 self.device)
             self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
 
-        else:
-            self.alpha = 0
-            self.automatic_entropy_tuning = False
-            self.policy = DeterministicPolicy(num_inputs, action_space.shape[0], args.hidden_size, action_space).to(
-                self.device)
-            self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
+        # else:
+        # self.alpha = 0
+        # self.automatic_entropy_tuning = False
+        # self.policy = DeterministicPolicy(num_inputs, action_space.shape[0], args.hidden_size, action_space).to(
+        #     self.device)
+        # self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
 
     def select_action(self, state, evaluate=False):
         # state = torch.FloatTensor(state).to(self.device).unsqueeze(0)

@@ -13,5 +13,20 @@ and remove action from global features.
 
 6) Model changed and achieved goal removed
 
-Runs:
+7) Change graph-batch according to federico's code
 
+6) change the environment and limit the range of 9th and check the relevance
+
+8) The fill_value argument was removed in torch-scatter>=2.0.0 as it introduced a lot of problems for scatter_max.
+In scatter_max, we usually want to fill missing values with zero, while we also want to allow negative output values
+as a result of grouping only negative values (rather than set this to 0 by default).
+
+If you want to restore the old behavior, you can define out before-hand and set it to your desired fill_value:
+
+out = src.new_zeros(output_shape)
+scatter_max(src, index, dim=..., out=out)
+
+
+9) You should do the following:
+    a) Run 10 seeds for the normal environment to see how the relevance score of each joint changes across seeds.
+    b) Run 10 seeds for the faulty environment to see how the pattern of relevance changes from normal to faulty.

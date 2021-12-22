@@ -13,3 +13,9 @@ register(
     entry_point="CustomGymEnvs.envs.fetchreach.CustomFetchReach.fetch.reach:FetchReachEnv",
     max_episode_steps=50,
 )
+
+register(
+    id="FetchReachEnv-v1",
+    entry_point="CustomGymEnvs.envs.fetchreach.FetchReachBroken.fetch.reach:FetchReachEnv",
+    max_episode_steps=50,
+)

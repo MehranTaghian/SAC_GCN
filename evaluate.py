@@ -7,8 +7,11 @@ import itertools
 import torch
 from SAC.sac import SAC
 from torch.utils.tensorboard import SummaryWriter
-from SAC.replay_memory import ReplayMemory
 from utils import state_2_graph, state_2_graphbatch
+import matplotlib
+
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="FetchReachEnv-v0",
@@ -70,8 +73,8 @@ if 'observation_nodes' in env.observation_space.spaces.keys():
     num_edges = env.observation_space['observation_edges'].shape[0]
     num_node_features = env.observation_space['observation_nodes'].shape[1]
     num_edge_features = env.observation_space['observation_edges'].shape[1]
-    num_global_features = env.observation_space['achieved_goal'].shape[0] + \
-                          env.observation_space['desired_goal'].shape[0]
+    num_global_features = env.observation_space['desired_goal'].shape[0] \
+        # + env.observation_space['achieved_goal'].shape[0]
 elif 'node_features' in env.observation_space.spaces.keys():
     num_nodes = env.observation_space['node_features'].shape[0]
     num_edges = env.observation_space['edge_features'].shape[0]
@@ -83,9 +86,11 @@ torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 
 # Agent
-agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, args)
+agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, False, args)
+agent_relevance = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, True, args)
 
 agent.load_checkpoint(args.checkpoint_path, evaluate=True)
+agent_relevance.load_checkpoint(args.checkpoint_path, evaluate=True)
 
 # Tesnorboard
 writer = SummaryWriter(
@@ -93,29 +98,55 @@ writer = SummaryWriter(
                                   args.policy, "autotune" if args.automatic_entropy_tuning else ""))
 
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
+render = False
 
-for i_episode in itertools.count(1):
-    avg_reward = 0.
-    episodes = 10
-    for _ in range(episodes):
-        state = state_2_graphbatch(env.reset()).to(device)
+num_samples = 0
+edge_list = env.robot_graph.edge_list
+rel_freq = {}
+for j in edge_list:
+    if j is not None:
+        rel_freq[j.attrib['name']] = 0
+
+# for i_episode in itertools.count(1):
+avg_reward = 0.
+episodes = 10
+for _ in range(episodes):
+    state = env.reset()
+    if render:
         env.render()
-        episode_reward = 0
-        done = False
-        while not done:
-            action = agent.select_action(state, evaluate=True)
-            next_state, reward, done, _ = env.step(action)
-            next_state = state_2_graphbatch(next_state).to(device)
-            episode_reward += reward
-            state = next_state
+    episode_reward = 0
+    done = False
+    while not done:
+        state = state_2_graphbatch(state).requires_grad_().to(device)
+        graph_out = agent_relevance.policy.graph_net(state)[0]
+        out = graph_out.global_features
+        out.backward(out)
+        node_rel = state.node_features.grad.sum(dim=1)
+        edge_rel = state.edge_features.grad.sum(dim=1)
+        joint_ids = torch.argsort(edge_rel)
+        for id in joint_ids:
+            if edge_list[id] is not None:
+                rel_freq[edge_list[id].attrib['name']] += edge_rel[id]
+        num_samples += 1
+        action = agent.select_action(state, evaluate=True)
+        next_state, reward, done, _ = env.step(action)
+        episode_reward += reward
+        state = next_state
+        if render:
             env.render()
-        avg_reward += episode_reward
-    avg_reward /= episodes
+    avg_reward += episode_reward
+avg_reward /= episodes
 
-    writer.add_scalar('avg_reward/test', avg_reward, i_episode)
+# writer.add_scalar('avg_reward/test', avg_reward, i_episode)
 
-    print("----------------------------------------")
-    print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
-    print("----------------------------------------")
+print("----------------------------------------")
+print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
+print("----------------------------------------")
+
+plt.figure(figsize=[12, 7])
+plt.bar(range(len(rel_freq)), np.array(list(rel_freq.values())) / num_samples, align='center')
+plt.xticks(range(len(rel_freq)), list(rel_freq.keys()), rotation=45)
+plt.show()
+print(rel_freq)
 
 env.close()
