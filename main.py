@@ -90,7 +90,7 @@ writer = SummaryWriter(
                                   args.policy, "autotune" if args.automatic_entropy_tuning else ""))
 
 # Memory
-memory = ReplayMemory(args.replay_size, f'seed{args.seed}')
+memory = ReplayMemory(args.replay_size, args.seed)
 
 # Training Loop
 total_numsteps = 0
@@ -151,7 +151,7 @@ for i_episode in itertools.count(1):
 
     # save checkpoint
     if i_episode % args.model_save_freq == 0:
-        agent.save_checkpoint(env_name=args.env_name, suffix=args.seed)
+        agent.save_checkpoint(env_name=args.env_name, suffix=f'seed{args.seed}')
 
     if i_episode % args.evaluation_freq == 0 and args.eval is True:
         avg_reward = 0.
