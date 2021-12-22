@@ -82,7 +82,7 @@ torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 
 # Agent
-agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, args)
+agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, relevance=False, args=args)
 
 # Tesnorboard
 writer = SummaryWriter(
