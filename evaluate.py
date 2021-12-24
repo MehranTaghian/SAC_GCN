@@ -9,6 +9,7 @@ from SAC.sac import SAC
 from torch.utils.tensorboard import SummaryWriter
 from utils import state_2_graph, state_2_graphbatch
 import matplotlib
+from tqdm import tqdm
 
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
@@ -102,15 +103,21 @@ render = False
 
 num_samples = 0
 edge_list = env.robot_graph.edge_list
-rel_freq = {}
+node_list = env.robot_graph.node_list
+rel_freq_edge = {}
 for j in edge_list:
     if j is not None:
-        rel_freq[j.attrib['name']] = 0
+        rel_freq_edge[j.attrib['name']] = 0
+
+rel_freq_node = {}
+for n in node_list:
+    if 'name' in n.attrib:
+        rel_freq_node[n.attrib['name']] = 0
 
 # for i_episode in itertools.count(1):
 avg_reward = 0.
-episodes = 10
-for _ in range(episodes):
+episodes = 20
+for _ in tqdm(range(episodes)):
     state = env.reset()
     if render:
         env.render()
@@ -124,9 +131,14 @@ for _ in range(episodes):
         node_rel = state.node_features.grad.sum(dim=1)
         edge_rel = state.edge_features.grad.sum(dim=1)
         joint_ids = torch.argsort(edge_rel)
+        body_ids = torch.argsort(node_rel)
         for id in joint_ids:
             if edge_list[id] is not None:
-                rel_freq[edge_list[id].attrib['name']] += edge_rel[id]
+                rel_freq_edge[edge_list[id].attrib['name']] += edge_rel[id]
+
+        for id in body_ids:
+            if 'name' in node_list[id].attrib:
+                rel_freq_node[node_list[id].attrib['name']] += node_rel[id]
         num_samples += 1
         action = agent.select_action(state, evaluate=True)
         next_state, reward, done, _ = env.step(action)
@@ -143,10 +155,16 @@ print("----------------------------------------")
 print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
 print("----------------------------------------")
 
-plt.figure(figsize=[12, 7])
-plt.bar(range(len(rel_freq)), np.array(list(rel_freq.values())) / num_samples, align='center')
-plt.xticks(range(len(rel_freq)), list(rel_freq.keys()), rotation=45)
+print(rel_freq_edge)
+plt.figure(figsize=[12, 15])
+plt.bar(range(len(rel_freq_edge)), np.array(list(rel_freq_edge.values())) / num_samples, align='center')
+plt.xticks(range(len(rel_freq_edge)), list(rel_freq_edge.keys()), rotation=90)
 plt.show()
-print(rel_freq)
+
+print(rel_freq_node)
+plt.figure(figsize=[12, 15])
+plt.bar(range(len(rel_freq_node)), np.array(list(rel_freq_node.values())) / num_samples, align='center')
+plt.xticks(range(len(rel_freq_node)), list(rel_freq_node.keys()), rotation=90)
+plt.show()
 
 env.close()

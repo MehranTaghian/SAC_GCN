@@ -46,8 +46,9 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
             edges_to=spaces.Box(-np.inf, np.inf, shape=obs['edges_to'].shape,
                                 dtype='float32'),
         ))
-        print(self.sim.data.qpos)
-        print(self.sim.data.qvel)
+        # print(self.sim.data.qpos)
+        # print(self.sim.data.qvel)
+        # print(self.sim.data)
         # END MODIFICATION
 
     def step(self, a):

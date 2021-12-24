@@ -219,47 +219,74 @@ class RobotGraph:
         #     print(self.sim.model.body_id2name(n))
         # print(self.sim.data.body_xpos)
 
-        mask = [self.sim.model.body_name2id(body.attrib['name']) for body in self.node_list]
+        # mask = [self.sim.model.body_name2id(body.attrib['name']) for body in self.node_list]
 
-        bodies_mass = self.sim.model.body_mass[mask, np.newaxis]
+        # bodies_mass = self.sim.model.body_mass[mask, np.newaxis]
         # The following features were constant. Instead of using static features for pos and quat, we use dynamic
         # features xpos and xquat which change during the runtime. You can see them in the log
-        bodies_inertia = self.sim.model.body_inertia[mask, :]
-        bodies_pos = self.sim.model.body_pos[mask, :]
-        bodies_quat = self.sim.model.body_quat[mask, :]
-        bodies_ipos = self.sim.model.body_ipos[mask, :]
-        bodies_iquat = self.sim.model.body_iquat[mask, :]
-        bodies_xpos = self.sim.data.body_xpos[mask, :]
-        bodies_xquat = self.sim.data.body_xquat[mask, :]
-        bodies_xvelp = self.sim.data.body_xvelp[mask, :]
-        bodies_xvelr = self.sim.data.body_xvelr[mask, :]
+        # bodies_inertia = self.sim.model.body_inertia[mask, :]
+        # bodies_pos = self.sim.model.body_pos[mask, :]
+        # bodies_quat = self.sim.model.body_quat[mask, :]
+        # bodies_ipos = self.sim.model.body_ipos[mask, :]
+        # bodies_iquat = self.sim.model.body_iquat[mask, :]
+        # bodies_xpos = self.sim.data.body_xpos[mask, :]
+        # bodies_xquat = self.sim.data.body_xquat[mask, :]
+        # bodies_xvelp = self.sim.data.body_xvelp[mask, :]
+        # bodies_xvelr = self.sim.data.body_xvelr[mask, :]
 
-        if self.plot_log:
-            self.log['node']['mass'].append(bodies_mass.copy())
-            self.log['node']['inertia'].append(bodies_inertia.copy())
-            self.log['node']['pos'].append(bodies_pos.copy())
-            self.log['node']['quat'].append(bodies_quat.copy())
-            self.log['node']['xpos'].append(bodies_xpos.copy())
-            self.log['node']['xquat'].append(bodies_xquat.copy())
-            self.log['node']['xvelp'].append(bodies_xvelp.copy())
-            self.log['node']['xvelr'].append(bodies_xvelr.copy())
-            self.log['node']['ipos'].append(bodies_ipos.copy())
-            self.log['node']['iquat'].append(bodies_iquat.copy())
+        feature_list = []
+        len_features = None
+        for node in self.node_list:
+            body_xpos = self.sim.data.get_body_xpos(node.attrib['name'])
+            body_xquat = self.sim.data.get_body_xquat(node.attrib['name'])
 
-        self.node_features = np.concatenate(
-            [
-                # bodies_mass.copy(),
-                # bodies_inertia.copy(),
-                # bodies_pos.copy(),
-                # bodies_quat.copy(),
-                # bodies_ipos.copy(),
-                # bodies_iquat.copy(),
-                bodies_xpos.copy(),
-                bodies_xquat.copy(),
-                # bodies_xvelp.copy(),
-                # bodies_xvelr.copy()
-            ],
-            axis=1)
+            if len(body_xpos.shape) > 0 or len(body_xquat.shape) > 0:
+                node_feature = np.concatenate([body_xpos.copy(), body_xquat.copy()])
+            else:
+                node_feature = np.concatenate([
+                    # jnt_ranges.copy(),
+                    # jnt_axis.copy(),
+                    # jnt_xaxis.copy(),
+                    # jnt_xanchor.copy(),
+                    [body_xpos.copy()],
+                    [body_xquat.copy()]])
+
+            # find the feature vector with maximum length of dimension
+            if (len_features is not None and node_feature.shape[0] > len_features) or len_features is None:
+                len_features = node_feature.shape[0]
+
+            feature_list.append(node_feature)
+
+        self.node_features = np.zeros([len(feature_list), len_features])
+        for i in range(len(feature_list)):
+            self.node_features[i, :feature_list[i].shape[0]] = feature_list[i]
+
+        # if self.plot_log:
+        #     self.log['node']['mass'].append(bodies_mass.copy())
+        #     self.log['node']['inertia'].append(bodies_inertia.copy())
+        #     self.log['node']['pos'].append(bodies_pos.copy())
+        #     self.log['node']['quat'].append(bodies_quat.copy())
+        #     self.log['node']['xpos'].append(bodies_xpos.copy())
+        #     self.log['node']['xquat'].append(bodies_xquat.copy())
+        #     self.log['node']['xvelp'].append(bodies_xvelp.copy())
+        #     self.log['node']['xvelr'].append(bodies_xvelr.copy())
+        #     self.log['node']['ipos'].append(bodies_ipos.copy())
+        #     self.log['node']['iquat'].append(bodies_iquat.copy())
+
+        # self.node_features = np.concatenate(
+        #     [
+        #         # bodies_mass.copy(),
+        #         # bodies_inertia.copy(),
+        #         # bodies_pos.copy(),
+        #         # bodies_quat.copy(),
+        #         # bodies_ipos.copy(),
+        #         # bodies_iquat.copy(),
+        #         bodies_xpos.copy(),
+        #         bodies_xquat.copy(),
+        #         # bodies_xvelp.copy(),
+        #         # bodies_xvelr.copy()
+        #     ],
+        #     axis=1)
 
     def extract_edge_features(self):
         """
@@ -283,38 +310,47 @@ class RobotGraph:
 
         feature_list = []
         len_features = None
-
+        # TODO: change self.sim.data.qpos[id] to self.sim.data.get_joint_qpos(name)
         for edge in self.edge_list:
             if edge is not None:
-                dt = self.sim.nsubsteps * self.sim.model.opt.timestep
-                id = self.sim.model.joint_name2id(edge.attrib['name'])
-                jnt_ranges = self.sim.model.jnt_range[id]
+                # dt = self.sim.nsubsteps * self.sim.model.opt.timestep
+                # id = self.sim.model.joint_name2id(edge.attrib['name'])
+                # jnt_ranges = self.sim.model.jnt_range[id]
                 # jnt_axis = self.sim.model.jnt_axis[id]
-                jnt_xaxis = self.sim.data.xaxis[id]
-                jnt_xanchor = self.sim.data.xanchor[id]
-                jnt_qpos = self.sim.data.qpos[id]
-                jnt_qvel = self.sim.data.qvel[id]
+                # jnt_xaxis = self.sim.data.xaxis[id]
+                # jnt_xanchor = self.sim.data.xanchor[id]
+                # jnt_qpos = self.sim.data.qpos[id]
+                # jnt_qvel = self.sim.data.qvel[id]
 
-                edge_feature = np.concatenate([
-                    # jnt_ranges.copy(),
-                    # jnt_axis.copy(),
-                    # jnt_xaxis.copy(),
-                    # jnt_xanchor.copy(),
-                    [jnt_qpos.copy()],
-                    [jnt_qvel.copy()]])
+                jnt_qpos = self.sim.data.get_joint_qpos(edge.attrib['name'])
+                jnt_qvel = self.sim.data.get_joint_qvel(edge.attrib['name'])
 
-                if len_features is None:
+                # print(len(jnt_qpos.shape))
+                # print(len(jnt_qvel.shape))
+                if len(jnt_qpos.shape) > 0 or len(jnt_qvel.shape) > 0:
+                    edge_feature = np.concatenate([jnt_qpos.copy(), jnt_qvel.copy()])
+                else:
+                    edge_feature = np.concatenate([
+                        # jnt_ranges.copy(),
+                        # jnt_axis.copy(),
+                        # jnt_xaxis.copy(),
+                        # jnt_xanchor.copy(),
+                        [jnt_qpos.copy()],
+                        [jnt_qvel.copy()]])
+
+                # find the feature vector with maximum length of dimension
+                if (len_features is not None and edge_feature.shape[0] > len_features) or len_features is None:
                     len_features = edge_feature.shape[0]
 
             else:
                 edge_feature = None
 
             feature_list.append(edge_feature)
-            # feature_list.append(edge_feature)
 
+        self.edge_features = np.zeros([len(feature_list), len_features])
         for i in range(len(feature_list)):
-            if feature_list[i] is None:
-                feature_list[i] = np.zeros(len_features)
+            if feature_list[i] is not None:
+                self.edge_features[i, :feature_list[i].shape[0]] = feature_list[i]
 
         # LOGGING
         jnt_ranges = self.sim.model.jnt_range[mask, :]
@@ -333,7 +369,7 @@ class RobotGraph:
             self.log['edge']['qvel'].append(jnt_qvel.copy())
         # END OF LOGGING
 
-        self.edge_features = np.array(feature_list)
+        # self.edge_features = np.array(feature_list)
 
     def log_plot(self):
         for n in self.log['node'].keys():
@@ -358,8 +394,8 @@ if __name__ == '__main__':
     import gym
     from pathlib import Path
 
-    # env = gym.make('FetchReachEnv-v0')
-    env = gym.make('AntEnv-v0')
+    env = gym.make('FetchReachEnv-v0')
+    # env = gym.make('AntEnv-v0')
 
     home = str(Path.home())
     g = env.robot_graph
@@ -369,8 +405,8 @@ if __name__ == '__main__':
     # model_path = home + '/Documents/SAC_GCN/CustomGymEnvs/envs/ant/xml/AntEnv_v0_Normal.xml'
     # g = RobotGraph(env.sim, model_path)
 
-    print(g.node_features.shape)
-    print(g.edge_features.shape)
+    print(g.node_features)
+    print(g.edge_features)
     node_id_list = []
     for n in g.node_list:
         node_id_list.append(env.sim.model.body_name2id(n.attrib['name']))
@@ -386,7 +422,8 @@ if __name__ == '__main__':
 
     for id in sorted(edge_id_list):
         name = env.sim.model.joint_id2name(id)
-        print(id, name, np.round(g.edge_features[id, :], 3))
+        print(id, name, g.edge_features[id, :])
+        print(name, env.sim.data.get_joint_qpos(name))
 
     # print(env.sim.data.get_body_xpos("robot0:forearm_roll_link"))
     # print(env.sim.model.body_name2id("robot0:forearm_roll_link"))

@@ -41,6 +41,7 @@ class ModelParser:
                                      and 'laser' not in self.parent_map[b].attrib['name'])
                                     )]
 
+        # Removing those connections that have a joint from welded connections list
         for p1, p2, _ in self.connections_joint:
             con = (p1, p2, None)
             if con in self.connections_welded:
