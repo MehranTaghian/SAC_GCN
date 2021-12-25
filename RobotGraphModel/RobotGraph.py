@@ -241,15 +241,21 @@ class RobotGraph:
             body_xquat = self.sim.data.get_body_xquat(node.attrib['name'])
 
             if len(body_xpos.shape) > 0 or len(body_xquat.shape) > 0:
-                node_feature = np.concatenate([body_xpos.copy(), body_xquat.copy()])
+                # node_feature = np.concatenate([
+                #     body_xpos.copy(),
+                #     body_xquat.copy()
+                # ])
+                node_feature = np.empty([0])
             else:
-                node_feature = np.concatenate([
-                    # jnt_ranges.copy(),
-                    # jnt_axis.copy(),
-                    # jnt_xaxis.copy(),
-                    # jnt_xanchor.copy(),
-                    [body_xpos.copy()],
-                    [body_xquat.copy()]])
+                # node_feature = np.concatenate([
+                #     # jnt_ranges.copy(),
+                #     # jnt_axis.copy(),
+                #     # jnt_xaxis.copy(),
+                #     # jnt_xanchor.copy(),
+                #     [body_xpos.copy()],
+                #     [body_xquat.copy()]
+                # ])
+                node_feature = np.empty([0])
 
             # find the feature vector with maximum length of dimension
             if (len_features is not None and node_feature.shape[0] > len_features) or len_features is None:
@@ -404,9 +410,9 @@ if __name__ == '__main__':
     # home = str(Path.home())
     # model_path = home + '/Documents/SAC_GCN/CustomGymEnvs/envs/ant/xml/AntEnv_v0_Normal.xml'
     # g = RobotGraph(env.sim, model_path)
-
-    print(g.node_features)
-    print(g.edge_features)
+    print(env.sim.data.cfrc_ext.shape)
+    print(g.node_features.shape)
+    print(g.edge_features.shape)
     node_id_list = []
     for n in g.node_list:
         node_id_list.append(env.sim.model.body_name2id(n.attrib['name']))

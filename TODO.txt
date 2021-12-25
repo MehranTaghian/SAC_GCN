@@ -30,3 +30,6 @@ scatter_max(src, index, dim=..., out=out)
 9) You should do the following:
     a) Run 10 seeds for the normal environment to see how the relevance score of each joint changes across seeds.
     b) Run 10 seeds for the faulty environment to see how the pattern of relevance changes from normal to faulty.
+
+
+10) Node_features are emtpy now because of ant
