@@ -81,12 +81,12 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
         # MODIFICATION (COMMENTED)
         # print(self.sim.data.qpos)
         # print(self.sim.data.qvel)
-        print('original', np.concatenate([
-            self.sim.data.qpos.flat[2:],
-            self.sim.data.qvel.flat,
-            np.clip(self.sim.data.cfrc_ext, -1, 1).flat,
-        ]))
-        print('graph', self.robot_graph.get_graph_obs()['node_features'])
+        # print('original', np.concatenate([
+        #     self.sim.data.qpos.flat[2:],
+        #     self.sim.data.qvel.flat,
+        #     np.clip(self.sim.data.cfrc_ext, -1, 1).flat,
+        # ]))
+        # print('graph', self.robot_graph.get_graph_obs()['node_features'])
         return self.robot_graph.get_graph_obs()
         # END MODIFICATION
 
