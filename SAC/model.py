@@ -31,55 +31,37 @@ class GraphNetwork(nn.Module):
     def __init__(self, num_node_features, num_edge_features, num_global_features, output_size, aggregation='avg'):
         super(GraphNetwork, self).__init__()
 
-        # self.layers = nn.Sequential(OrderedDict({
-        #     'edge1': tg.EdgeLinear(256,
-        #                            edge_features=num_edge_features,
-        #                            sender_features=num_node_features,
-        #                            receiver_features=num_node_features,
-        #                            global_features=num_global_features
-        #                            ),
-        #     'edge1_relu': tg.EdgeReLU(),
-        #     'node1': tg.NodeLinear(256,
-        #                            node_features=num_node_features,
-        #                            incoming_features=256,
-        #                            global_features=num_global_features,
-        #                            aggregation=aggregation),
-        #     'node1_relu': tg.NodeReLU(),
-        #     'edge2': tg.EdgeLinear(128,
-        #                            edge_features=256,
-        #                            sender_features=256,
-        #                            receiver_features=256,
-        #                            global_features=num_global_features
-        #                            ),
-        #     'edge2_relu': tg.EdgeReLU(),
-        #     'node2': tg.NodeLinear(128,
-        #                            node_features=256,
-        #                            incoming_features=128,
-        #                            global_features=num_global_features,
-        #                            aggregation='avg'),
-        #     'node2_relu': tg.NodeReLU(),
-        #     'global': tg.GlobalLinear(output_size,
-        #                               node_features=128,
-        #                               edge_features=128,
-        #                               global_features=num_global_features,
-        #                               aggregation='avg')
-        # }))
-
         self.layers = nn.Sequential(OrderedDict({
             'edge1': tg.EdgeLinear(256,
                                    edge_features=num_edge_features,
+                                   sender_features=num_node_features,
+                                   receiver_features=num_node_features,
+                                   global_features=num_global_features
                                    ),
             'edge1_relu': tg.EdgeReLU(),
-            'edge2': tg.EdgeLinear(256,
+            'node1': tg.NodeLinear(256,
+                                   node_features=num_node_features,
+                                   incoming_features=256,
+                                   global_features=num_global_features,
+                                   aggregation=aggregation),
+            'node1_relu': tg.NodeReLU(),
+            'edge2': tg.EdgeLinear(128,
                                    edge_features=256,
+                                   sender_features=256,
+                                   receiver_features=256,
+                                   global_features=num_global_features
                                    ),
             'edge2_relu': tg.EdgeReLU(),
-            'edge3': tg.EdgeLinear(128,
-                                   edge_features=256,
-                                   ),
-            'edge3_relu': tg.EdgeReLU(),
+            'node2': tg.NodeLinear(128,
+                                   node_features=256,
+                                   incoming_features=128,
+                                   global_features=num_global_features,
+                                   aggregation='avg'),
+            'node2_relu': tg.NodeReLU(),
             'global': tg.GlobalLinear(output_size,
+                                      node_features=128,
                                       edge_features=128,
+                                      global_features=num_global_features,
                                       aggregation='avg')
         }))
 
@@ -91,55 +73,39 @@ class GraphNetworkRelevance(nn.Module):
     def __init__(self, num_node_features, num_edge_features, num_global_features, output_size, aggregation='avg'):
         super(GraphNetworkRelevance, self).__init__()
 
-        # self.layers = nn.Sequential(OrderedDict({
-        #     'edge1': Relevance.EdgeLinearRelevance(256,
-        #                                            edge_features=num_edge_features,
-        #                                            sender_features=num_node_features,
-        #                                            receiver_features=num_node_features,
-        #                                            global_features=num_global_features
-        #                                            ),
-        #     'edge1_relu': Relevance.EdgeReLURelevance(),
-        #     'node1': Relevance.NodeLinearRelevance(256,
-        #                                            node_features=num_node_features,
-        #                                            incoming_features=256,
-        #                                            global_features=num_global_features,
-        #                                            aggregation=aggregation),
-        #     'node1_relu': Relevance.NodeReLURelevance(),
-        #     'edge2': Relevance.EdgeLinearRelevance(128,
-        #                                            edge_features=256,
-        #                                            sender_features=256,
-        #                                            receiver_features=256,
-        #                                            global_features=num_global_features
-        #                                            ),
-        #     'edge2_relu': Relevance.EdgeReLURelevance(),
-        #     'node2': Relevance.NodeLinearRelevance(128,
-        #                                            node_features=256,
-        #                                            incoming_features=128,
-        #                                            global_features=num_global_features,
-        #                                            aggregation='avg'),
-        #     'node2_relu': Relevance.NodeReLURelevance(),
-        #     'global': Relevance.GlobalLinearRelevance(output_size,
-        #                                               node_features=128,
-        #                                               edge_features=128,
-        #                                               global_features=num_global_features,
-        #                                               aggregation='avg')
-        # }))
-
         self.layers = nn.Sequential(OrderedDict({
             'edge1': Relevance.EdgeLinearRelevance(256,
                                                    edge_features=num_edge_features,
+                                                   sender_features=num_node_features,
+                                                   receiver_features=num_node_features,
+                                                   global_features=num_global_features
                                                    ),
             'edge1_relu': Relevance.EdgeReLURelevance(),
-            'edge2': Relevance.EdgeLinearRelevance(256,
+            'node1': Relevance.NodeLinearRelevance(256,
+                                                   node_features=num_node_features,
+                                                   incoming_features=256,
+                                                   outgoing_features=256,
+                                                   global_features=num_global_features,
+                                                   aggregation=aggregation),
+            'node1_relu': Relevance.NodeReLURelevance(),
+            'edge2': Relevance.EdgeLinearRelevance(128,
                                                    edge_features=256,
+                                                   sender_features=256,
+                                                   receiver_features=256,
+                                                   global_features=num_global_features
                                                    ),
             'edge2_relu': Relevance.EdgeReLURelevance(),
-            'edge3': Relevance.EdgeLinearRelevance(128,
-                                                   edge_features=256,
-                                                   ),
-            'edge3_relu': Relevance.EdgeReLURelevance(),
+            'node2': Relevance.NodeLinearRelevance(128,
+                                                   node_features=256,
+                                                   incoming_features=128,
+                                                   outgoing_features=128,
+                                                   global_features=num_global_features,
+                                                   aggregation='avg'),
+            'node2_relu': Relevance.NodeReLURelevance(),
             'global': Relevance.GlobalLinearRelevance(output_size,
+                                                      node_features=128,
                                                       edge_features=128,
+                                                      global_features=num_global_features,
                                                       aggregation='avg')
         }))
 

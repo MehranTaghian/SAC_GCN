@@ -81,6 +81,10 @@ elif 'node_features' in env.observation_space.spaces.keys():
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 
+print('num_node_features', num_node_features)
+print('num_edge_features', num_edge_features)
+print('num_global_features', num_global_features)
+
 # Agent
 agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, relevance=False, args=args)
 

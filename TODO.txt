@@ -33,3 +33,5 @@ scatter_max(src, index, dim=..., out=out)
 
 
 10) Node_features are emtpy now because of ant
+
+11) Outgoing features added to model node_layers
