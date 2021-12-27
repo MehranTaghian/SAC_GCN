@@ -31,37 +31,55 @@ class GraphNetwork(nn.Module):
     def __init__(self, num_node_features, num_edge_features, num_global_features, output_size, aggregation='avg'):
         super(GraphNetwork, self).__init__()
 
+        # self.layers = nn.Sequential(OrderedDict({
+        #     'edge1': tg.EdgeLinear(256,
+        #                            edge_features=num_edge_features,
+        #                            sender_features=num_node_features,
+        #                            receiver_features=num_node_features,
+        #                            global_features=num_global_features
+        #                            ),
+        #     'edge1_relu': tg.EdgeReLU(),
+        #     'node1': tg.NodeLinear(256,
+        #                            node_features=num_node_features,
+        #                            incoming_features=256,
+        #                            global_features=num_global_features,
+        #                            aggregation=aggregation),
+        #     'node1_relu': tg.NodeReLU(),
+        #     'edge2': tg.EdgeLinear(128,
+        #                            edge_features=256,
+        #                            sender_features=256,
+        #                            receiver_features=256,
+        #                            global_features=num_global_features
+        #                            ),
+        #     'edge2_relu': tg.EdgeReLU(),
+        #     'node2': tg.NodeLinear(128,
+        #                            node_features=256,
+        #                            incoming_features=128,
+        #                            global_features=num_global_features,
+        #                            aggregation='avg'),
+        #     'node2_relu': tg.NodeReLU(),
+        #     'global': tg.GlobalLinear(output_size,
+        #                               node_features=128,
+        #                               edge_features=128,
+        #                               global_features=num_global_features,
+        #                               aggregation='avg')
+        # }))
+
         self.layers = nn.Sequential(OrderedDict({
             'edge1': tg.EdgeLinear(256,
                                    edge_features=num_edge_features,
-                                   sender_features=num_node_features,
-                                   receiver_features=num_node_features,
-                                   global_features=num_global_features
                                    ),
             'edge1_relu': tg.EdgeReLU(),
-            'node1': tg.NodeLinear(256,
-                                   node_features=num_node_features,
-                                   incoming_features=256,
-                                   global_features=num_global_features,
-                                   aggregation=aggregation),
-            'node1_relu': tg.NodeReLU(),
-            'edge2': tg.EdgeLinear(128,
+            'edge2': tg.EdgeLinear(256,
                                    edge_features=256,
-                                   sender_features=256,
-                                   receiver_features=256,
-                                   global_features=num_global_features
                                    ),
             'edge2_relu': tg.EdgeReLU(),
-            'node2': tg.NodeLinear(128,
-                                   node_features=256,
-                                   incoming_features=128,
-                                   global_features=num_global_features,
-                                   aggregation='avg'),
-            'node2_relu': tg.NodeReLU(),
+            'edge3': tg.EdgeLinear(128,
+                                   edge_features=256,
+                                   ),
+            'edge3_relu': tg.EdgeReLU(),
             'global': tg.GlobalLinear(output_size,
-                                      node_features=128,
                                       edge_features=128,
-                                      global_features=num_global_features,
                                       aggregation='avg')
         }))
 
