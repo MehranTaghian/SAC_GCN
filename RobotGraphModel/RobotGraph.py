@@ -400,8 +400,8 @@ if __name__ == '__main__':
     import gym
     from pathlib import Path
 
-    env = gym.make('FetchReachEnv-v0')
-    # env = gym.make('AntEnv-v0')
+    # env = gym.make('FetchReachEnv-v0')
+    env = gym.make('AntEnv-v0')
 
     home = str(Path.home())
     g = env.robot_graph
@@ -430,6 +430,7 @@ if __name__ == '__main__':
         name = env.sim.model.joint_id2name(id)
         print(id, name, g.edge_features[id, :])
         print(name, env.sim.data.get_joint_qpos(name))
+
 
     # print(env.sim.data.get_body_xpos("robot0:forearm_roll_link"))
     # print(env.sim.model.body_name2id("robot0:forearm_roll_link"))
