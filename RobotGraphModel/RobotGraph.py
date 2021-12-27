@@ -241,21 +241,21 @@ class RobotGraph:
             body_xquat = self.sim.data.get_body_xquat(node.attrib['name'])
 
             if len(body_xpos.shape) > 0 or len(body_xquat.shape) > 0:
-                # node_feature = np.concatenate([
-                #     body_xpos.copy(),
-                #     body_xquat.copy()
-                # ])
-                node_feature = np.empty([0])
+                node_feature = np.concatenate([
+                    body_xpos.copy(),
+                    body_xquat.copy()
+                ])
+                # node_feature = np.empty([0])
             else:
-                # node_feature = np.concatenate([
-                #     # jnt_ranges.copy(),
-                #     # jnt_axis.copy(),
-                #     # jnt_xaxis.copy(),
-                #     # jnt_xanchor.copy(),
-                #     [body_xpos.copy()],
-                #     [body_xquat.copy()]
-                # ])
-                node_feature = np.empty([0])
+                node_feature = np.concatenate([
+                    # jnt_ranges.copy(),
+                    # jnt_axis.copy(),
+                    # jnt_xaxis.copy(),
+                    # jnt_xanchor.copy(),
+                    [body_xpos.copy()],
+                    [body_xquat.copy()]
+                ])
+                # node_feature = np.empty([0])
 
             # find the feature vector with maximum length of dimension
             if (len_features is not None and node_feature.shape[0] > len_features) or len_features is None:
@@ -414,11 +414,13 @@ if __name__ == '__main__':
     print(g.node_features.shape)
     print(g.edge_features.shape)
     node_id_list = []
-    for n in g.node_list:
-        node_id_list.append(env.sim.model.body_name2id(n.attrib['name']))
-
+    for n in range(g.node_features.shape[0]):
+        # node_id_list.append(env.sim.model.body_name2id(n.attrib['name']))
+        print(g.node_list[n].attrib['name'], g.node_features[n])
+        print(env.get_body_com(g.node_list[n].attrib['name']))
     for id in sorted(node_id_list):
         print(id, env.sim.model.body_id2name(id))
+
     print('#' * 100)
 
     edge_id_list = []
@@ -430,7 +432,6 @@ if __name__ == '__main__':
         name = env.sim.model.joint_id2name(id)
         print(id, name, g.edge_features[id, :])
         print(name, env.sim.data.get_joint_qpos(name))
-
 
     # print(env.sim.data.get_body_xpos("robot0:forearm_roll_link"))
     # print(env.sim.model.body_name2id("robot0:forearm_roll_link"))
