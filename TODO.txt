@@ -37,3 +37,6 @@ scatter_max(src, index, dim=..., out=out)
 11) Outgoing features added to model node_layers
 
 12) add torso xpos as global feature (because of reward)
+
+13) global_features for the Ant changed to reflect the xvelp. Also xvelp and xvelr are being used instead of xpos
+and xquat as node_features

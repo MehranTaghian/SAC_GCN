@@ -239,10 +239,18 @@ class RobotGraph:
         for node in self.node_list:
             body_xpos = self.sim.data.get_body_xpos(node.attrib['name'])
             body_xquat = self.sim.data.get_body_xquat(node.attrib['name'])
-            if len(body_xpos.shape) > 0 or len(body_xquat.shape) > 0:
+            body_xvelp = self.sim.data.get_body_xvelp(node.attrib['name'])
+            body_xvelr = self.sim.data.get_body_xvelr(node.attrib['name'])
+
+            if (len(body_xpos.shape) > 0 or
+                    len(body_xquat.shape) > 0 or
+                    len(body_xvelp.shape) > 0 or
+                    len(body_xvelr.shape) > 0):
                 node_feature = np.concatenate([
-                    body_xpos.copy(),
-                    body_xquat.copy()
+                    # body_xpos.copy(),
+                    # body_xquat.copy(),
+                    body_xvelp.copy(),
+                    body_xvelr.copy()
                 ])
             else:
                 node_feature = np.concatenate([
@@ -250,8 +258,10 @@ class RobotGraph:
                     # jnt_axis.copy(),
                     # jnt_xaxis.copy(),
                     # jnt_xanchor.copy(),
-                    [body_xpos.copy()],
-                    [body_xquat.copy()]
+                    # [body_xpos.copy()],
+                    # [body_xquat.copy()],
+                    [body_xvelp.copy()],
+                    [body_xvelr.copy()]
                 ])
 
             # node_feature = np.empty([0])
@@ -408,9 +418,9 @@ if __name__ == '__main__':
     # home = str(Path.home())
     # model_path = home + '/Documents/SAC_GCN/CustomGymEnvs/envs/ant/xml/AntEnv_v0_Normal.xml'
     # g = RobotGraph(env.sim, model_path)
-    print(env.sim.data.cfrc_ext.shape)
-    print(g.node_features.shape)
-    print(g.edge_features.shape)
+    # print(env.sim.data.cfrc_ext.shape)
+    print('g.node_features.shape', g.node_features.shape)
+    # print(g.edge_features.shape)
     node_id_list = []
     for n in range(g.node_features.shape[0]):
         # node_id_list.append(env.sim.model.body_name2id(n.attrib['name']))
