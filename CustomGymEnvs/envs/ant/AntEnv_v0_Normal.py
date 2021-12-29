@@ -41,6 +41,8 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
                                      dtype='float32'),
             edge_features=spaces.Box(-np.inf, np.inf, shape=obs['edge_features'].shape,
                                      dtype='float32'),
+            global_features=spaces.Box(-np.inf, np.inf, shape=obs['global_features'].shape,
+                                       dtype='float32'),
             edges_from=spaces.Box(-np.inf, np.inf, shape=obs['edges_from'].shape,
                                   dtype='float32'),
             edges_to=spaces.Box(-np.inf, np.inf, shape=obs['edges_to'].shape,
@@ -85,7 +87,9 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
         #     np.clip(self.sim.data.cfrc_ext, -1, 1).flat,
         # ]))
         # print('graph', self.robot_graph.get_graph_obs()['node_features'])
-        return self.robot_graph.get_graph_obs()
+        obs = self.robot_graph.get_graph_obs()
+        obs['global_features'] = np.array([self.get_body_com("torso")[0]])
+        return obs
         # END MODIFICATION
 
     def reset_model(self):

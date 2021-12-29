@@ -63,20 +63,13 @@ env = gym.make(args.env_name)
 env.seed(args.seed)
 env.action_space.seed(args.seed)
 
-if 'observation_nodes' in env.observation_space.spaces.keys():
-    num_nodes = env.observation_space['observation_nodes'].shape[0]
-    num_edges = env.observation_space['observation_edges'].shape[0]
-    num_node_features = env.observation_space['observation_nodes'].shape[1]
-    num_edge_features = env.observation_space['observation_edges'].shape[1]
-    # num_global_features = env.observation_space['achieved_goal'].shape[0] + \
-    #                       env.observation_space['desired_goal'].shape[0]
-    num_global_features = env.observation_space['desired_goal'].shape[0]
-elif 'node_features' in env.observation_space.spaces.keys():
-    num_nodes = env.observation_space['node_features'].shape[0]
-    num_edges = env.observation_space['edge_features'].shape[0]
-    num_node_features = env.observation_space['node_features'].shape[1]
-    num_edge_features = env.observation_space['edge_features'].shape[1]
-    num_global_features = None
+num_nodes = env.observation_space['node_features'].shape[0]
+num_edges = env.observation_space['edge_features'].shape[0]
+num_node_features = env.observation_space['node_features'].shape[1]
+num_edge_features = env.observation_space['edge_features'].shape[1]
+num_global_features = env.observation_space['global_features'].shape[0]
+
+print('global features', env.observation_space['global_features'].shape)
 
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
