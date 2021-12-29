@@ -103,4 +103,3 @@ def state_2_graphbatch(obs):
     #     )
 
     return tg.GraphBatch.collate([g])
-
