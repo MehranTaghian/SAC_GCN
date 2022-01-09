@@ -6,13 +6,13 @@ import torchgraphs as tg
 from collections import OrderedDict
 import Relevance
 
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 
 LOG_SIG_MAX = 2
 LOG_SIG_MIN = -20
 epsilon = 1e-6
 
-tb = SummaryWriter()
+# tb = SummaryWriter()
 tb_step_policy = 0
 tb_step_q = 0
 
@@ -140,10 +140,10 @@ class QNetwork(nn.Module):
         action_value = self.action_out_layer(action_value)
 
         # LOGGING
-        global tb_step_q
-        tb.add_histogram('Q-network state-value', state_value, tb_step_q)
-        tb.add_histogram('Q-network action-value', action_value, tb_step_q)
-        tb_step_q += 1
+        # global tb_step_q
+        # tb.add_histogram('Q-network state-value', state_value, tb_step_q)
+        # tb.add_histogram('Q-network action-value', action_value, tb_step_q)
+        # tb_step_q += 1
         # END LOGGING
         return action_value
 
@@ -213,10 +213,10 @@ class GaussianPolicy(nn.Module):
         log_std = self.log_std_linear(g).global_features
 
         # LOGGING
-        global tb_step_policy
-        tb.add_histogram('Gaussian policy mean', mean, tb_step_policy)
-        tb.add_histogram('Gaussian policy log_std', log_std, tb_step_policy)
-        tb_step_policy += 1
+        # global tb_step_policy
+        # tb.add_histogram('Gaussian policy mean', mean, tb_step_policy)
+        # tb.add_histogram('Gaussian policy log_std', log_std, tb_step_policy)
+        # tb_step_policy += 1
         # END LOGGING
 
         # print(f"Gaussian policy, mean: {mean}, log_std{log_std}")
