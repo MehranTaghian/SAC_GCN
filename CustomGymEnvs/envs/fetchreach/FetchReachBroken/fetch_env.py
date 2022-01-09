@@ -163,12 +163,12 @@ class FetchEnv(robot_env.RobotEnv):
         #     'achieved_goal': achieved_goal.copy(),
         #     'desired_goal': self.goal.copy(),
         # }
-
-        return {
-            'observation': self.robot_graph.get_graph_obs(),
-            'achieved_goal': achieved_goal.copy(),
-            'desired_goal': self.goal.copy(),
-        }
+        obs = self.robot_graph.get_graph_obs()
+        obs['global_features'] = self.goal.copy()
+        obs['observation'] = None
+        obs['achieved_goal'] = achieved_goal.copy()
+        obs['desired_goal'] = self.goal.copy()
+        return obs
 
     def _viewer_setup(self):
         body_id = self.sim.model.body_name2id('robot0:gripper_link')

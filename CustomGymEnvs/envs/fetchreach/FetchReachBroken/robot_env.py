@@ -67,18 +67,22 @@ class RobotEnv(gym.GoalEnv):
         # ))
 
         self.observation_space = spaces.Dict(dict(
-            desired_goal=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),
-            achieved_goal=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),
-            observation=spaces.Box(-np.inf, np.inf, shape=obs['observation']['node_features'].shape,
+            observation=spaces.Box(-np.inf, np.inf, shape=obs['edge_features'].shape,
                                    dtype='float32'),
-            observation_nodes=spaces.Box(-np.inf, np.inf, shape=obs['observation']['node_features'].shape,
-                                         dtype='float32'),
-            observation_edges=spaces.Box(-np.inf, np.inf, shape=obs['observation']['edge_features'].shape,
-                                         dtype='float32'),
-            observation_edges_from=spaces.Box(-np.inf, np.inf, shape=obs['observation']['edges_from'].shape,
-                                              dtype='float32'),
-            observation_edges_to=spaces.Box(-np.inf, np.inf, shape=obs['observation']['edges_to'].shape,
-                                            dtype='float32'),
+            achieved_goal=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape,
+                                     dtype='float32'),
+            desired_goal=spaces.Box(-np.inf, np.inf, shape=obs['desired_goal'].shape,
+                                    dtype='float32'),
+            node_features=spaces.Box(-np.inf, np.inf, shape=obs['node_features'].shape,
+                                     dtype='float32'),
+            edge_features=spaces.Box(-np.inf, np.inf, shape=obs['edge_features'].shape,
+                                     dtype='float32'),
+            global_features=spaces.Box(-np.inf, np.inf, shape=obs['global_features'].shape,
+                                       dtype='float32'),
+            edges_from=spaces.Box(-np.inf, np.inf, shape=obs['edges_from'].shape,
+                                  dtype='float32'),
+            edges_to=spaces.Box(-np.inf, np.inf, shape=obs['edges_to'].shape,
+                                dtype='float32'),
         ))
 
     @property
