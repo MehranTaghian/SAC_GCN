@@ -57,12 +57,12 @@ class GraphNetwork(nn.Module):
                                    # incoming_features=128,
                                    global_features=num_global_features,
                                    aggregation='avg'),
-            'node2_relu': tg.NodeReLU(),
-            'global': tg.GlobalLinear(output_size,
-                                      node_features=128,
-                                      edge_features=128,
-                                      global_features=num_global_features,
-                                      aggregation='avg')
+            'node2_relu': tg.NodeReLU()
+            # 'global': tg.GlobalLinear(output_size,
+            #                           node_features=128,
+            #                           edge_features=128,
+            #                           global_features=num_global_features,
+            #                           aggregation='avg')
         }))
 
     def forward(self, g):
@@ -121,6 +121,11 @@ class QNetwork(nn.Module):
         self.graph_net = GraphNetwork(num_node_features, num_edge_features, num_global_features,
                                       output_size=state_output_size,
                                       aggregation='avg')
+        self.global_avg = tg.GlobalLinear(state_output_size,
+                                          node_features=128,
+                                          edge_features=128,
+                                          global_features=num_global_features,
+                                          aggregation='avg')
         self.hidden_action_layer = nn.Linear(state_output_size + num_actions, hidden_action_size)
         self.action_out_layer = nn.Linear(hidden_action_size, 1)
 
@@ -129,11 +134,10 @@ class QNetwork(nn.Module):
 
     def forward(self, g, a):
         g = self.graph_net(g)
-        state_value = g.global_features
+        state_value = self.global_avg(g).global_features
         state_action = torch.cat((state_value, a), 1)
         action_value = F.relu(self.hidden_action_layer(state_action))
         action_value = self.action_out_layer(action_value)
-        # print(f"Q-network state-value: {state_value}, state-action: {state_action}, action-value: {action_value}")
 
         # LOGGING
         global tb_step_q
@@ -159,36 +163,6 @@ class DoubleQNetwork(nn.Module):
         return out_q1, out_q2
 
 
-# class QNetwork(nn.Module):
-#     def __init__(self, num_inputs, num_actions, hidden_dim):
-#         super(QNetwork, self).__init__()
-#
-#         # Q1 architecture
-#         self.linear1 = nn.Linear(num_inputs + num_actions, hidden_dim)
-#         self.linear2 = nn.Linear(hidden_dim, hidden_dim)
-#         self.linear3 = nn.Linear(hidden_dim, 1)
-#
-#         # Q2 architecture
-#         self.linear4 = nn.Linear(num_inputs + num_actions, hidden_dim)
-#         self.linear5 = nn.Linear(hidden_dim, hidden_dim)
-#         self.linear6 = nn.Linear(hidden_dim, 1)
-#
-#         self.apply(weights_init_)
-#
-#     def forward(self, state, action):
-#         xu = torch.cat([state, action], 1)
-#
-#         x1 = F.relu(self.linear1(xu))
-#         x1 = F.relu(self.linear2(x1))
-#         x1 = self.linear3(x1)
-#
-#         x2 = F.relu(self.linear4(xu))
-#         x2 = F.relu(self.linear5(x2))
-#         x2 = self.linear6(x2)
-#
-#         return x1, x2
-
-
 class GaussianPolicy(nn.Module):
     def __init__(self, num_node_features, num_edge_features, num_global_features, action_space, hidden_action_size,
                  aggregation='avg', relevance=False):
@@ -211,17 +185,32 @@ class GaussianPolicy(nn.Module):
             self.graph_net = GraphNetworkRelevance(num_node_features, num_edge_features, num_global_features,
                                                    output_size=hidden_action_size, aggregation=aggregation)
 
-        self.mean_linear = nn.Linear(hidden_action_size, num_actions)
-        self.log_std_linear = nn.Linear(hidden_action_size, num_actions)
+        # self.mean_linear = nn.Linear(hidden_action_size, num_actions)
+        # self.log_std_linear = nn.Linear(hidden_action_size, num_actions)
+
+        self.mean_linear = tg.GlobalLinear(num_actions,
+                                           node_features=128,
+                                           edge_features=128,
+                                           global_features=num_global_features,
+                                           aggregation='avg')
+        self.log_std_linear = tg.GlobalLinear(num_actions,
+                                              node_features=128,
+                                              edge_features=128,
+                                              global_features=num_global_features,
+                                              aggregation='avg')
 
         for params in self.parameters():
             weights_init_(params)
 
     def forward(self, g):
         g = self.graph_net(g)
-        out = F.relu(g.global_features)
-        mean = self.mean_linear(out)
-        log_std = self.log_std_linear(out)
+
+        # out = F.relu(g.global_features)
+        # mean = self.mean_linear(out)
+        # log_std = self.log_std_linear(out)
+
+        mean = self.mean_linear(g).global_features
+        log_std = self.log_std_linear(g).global_features
 
         # LOGGING
         global tb_step_policy
@@ -252,56 +241,6 @@ class GaussianPolicy(nn.Module):
         self.action_scale = self.action_scale.to(device)
         self.action_bias = self.action_bias.to(device)
         return super(GaussianPolicy, self).to(device)
-
-
-# class GaussianPolicy(nn.Module):
-#     def __init__(self, num_inputs, num_actions, hidden_dim, action_space=None):
-#         super(GaussianPolicy, self).__init__()
-#
-#         self.linear1 = nn.Linear(num_inputs, hidden_dim)
-#         self.linear2 = nn.Linear(hidden_dim, hidden_dim)
-#
-#         self.mean_linear = nn.Linear(hidden_dim, num_actions)
-#         self.log_std_linear = nn.Linear(hidden_dim, num_actions)
-#
-#         self.apply(weights_init_)
-#
-#         # action rescaling
-#         if action_space is None:
-#             self.action_scale = torch.tensor(1.)
-#             self.action_bias = torch.tensor(0.)
-#         else:
-#             self.action_scale = torch.FloatTensor(
-#                 (action_space.high - action_space.low) / 2.)
-#             self.action_bias = torch.FloatTensor(
-#                 (action_space.high + action_space.low) / 2.)
-#
-#     def forward(self, state):
-#         x = F.relu(self.linear1(state))
-#         x = F.relu(self.linear2(x))
-#         mean = self.mean_linear(x)
-#         log_std = self.log_std_linear(x)
-#         log_std = torch.clamp(log_std, min=LOG_SIG_MIN, max=LOG_SIG_MAX)
-#         return mean, log_std
-#
-#     def sample(self, state):
-#         mean, log_std = self.forward(state)
-#         std = log_std.exp()
-#         normal = Normal(mean, std)
-#         x_t = normal.rsample()  # for reparameterization trick (mean + std * N(0,1))
-#         y_t = torch.tanh(x_t)
-#         action = y_t * self.action_scale + self.action_bias
-#         log_prob = normal.log_prob(x_t)
-#         # Enforcing Action Bound
-#         log_prob -= torch.log(self.action_scale * (1 - y_t.pow(2)) + epsilon)
-#         log_prob = log_prob.sum(1, keepdim=True)
-#         mean = torch.tanh(mean) * self.action_scale + self.action_bias
-#         return action, log_prob, mean
-#
-#     def to(self, device):
-#         self.action_scale = self.action_scale.to(device)
-#         self.action_bias = self.action_bias.to(device)
-#         return super(GaussianPolicy, self).to(device)
 
 
 class DeterministicPolicy(nn.Module):

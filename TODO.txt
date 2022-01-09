@@ -40,3 +40,5 @@ scatter_max(src, index, dim=..., out=out)
 
 13) global_features for the Ant changed to reflect the xvelp. Also xvelp and xvelr are being used instead of xpos
 and xquat as node_features
+
+14) for the policy network, the last layer of the graph network changed to be a global linear layer

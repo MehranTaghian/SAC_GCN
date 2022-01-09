@@ -247,10 +247,10 @@ class RobotGraph:
                     len(body_xvelp.shape) > 0 or
                     len(body_xvelr.shape) > 0):
                 node_feature = np.concatenate([
-                    # body_xpos.copy(),
-                    # body_xquat.copy(),
-                    body_xvelp.copy(),
-                    body_xvelr.copy()
+                    body_xpos.copy(),
+                    body_xquat.copy(),
+                    # body_xvelp.copy(),
+                    # body_xvelr.copy()
                 ])
             else:
                 node_feature = np.concatenate([
@@ -258,10 +258,10 @@ class RobotGraph:
                     # jnt_axis.copy(),
                     # jnt_xaxis.copy(),
                     # jnt_xanchor.copy(),
-                    # [body_xpos.copy()],
-                    # [body_xquat.copy()],
-                    [body_xvelp.copy()],
-                    [body_xvelr.copy()]
+                    [body_xpos.copy()],
+                    [body_xquat.copy()],
+                    # [body_xvelp.copy()],
+                    # [body_xvelr.copy()]
                 ])
 
             # node_feature = np.empty([0])
@@ -316,15 +316,12 @@ class RobotGraph:
         qpos [1]: angle of each joint
         qvel [1]: open or close velocity of each joint
         """
-        mask = [self.sim.model.joint_name2id(joint_name.attrib['name']) for joint_name in self.edge_list if joint_name
-                is not None]
 
         # axis is a static constant feature which does not change during the runtime. Thus we remove it and use
         # dynamic features instead.
 
         feature_list = []
         len_features = None
-        # TODO: change self.sim.data.qpos[id] to self.sim.data.get_joint_qpos(name)
         for edge in self.edge_list:
             if edge is not None:
                 # dt = self.sim.nsubsteps * self.sim.model.opt.timestep
@@ -339,8 +336,6 @@ class RobotGraph:
                 jnt_qpos = self.sim.data.get_joint_qpos(edge.attrib['name'])
                 jnt_qvel = self.sim.data.get_joint_qvel(edge.attrib['name'])
 
-                # print(len(jnt_qpos.shape))
-                # print(len(jnt_qvel.shape))
                 if len(jnt_qpos.shape) > 0 or len(jnt_qvel.shape) > 0:
                     edge_feature = np.concatenate([jnt_qpos.copy(), jnt_qvel.copy()])
                 else:
@@ -367,20 +362,20 @@ class RobotGraph:
                 self.edge_features[i, :feature_list[i].shape[0]] = feature_list[i]
 
         # LOGGING
-        jnt_ranges = self.sim.model.jnt_range[mask, :]
-        jnt_axis = self.sim.model.jnt_axis[mask, :]
-        jnt_xaxis = self.sim.data.xaxis[mask, :]
-        jnt_xanchor = self.sim.data.xanchor[mask, :]
-        jnt_qpos = self.sim.data.qpos[mask, np.newaxis]
-        jnt_qvel = self.sim.data.qvel[mask, np.newaxis]
-
-        if self.plot_log:
-            self.log['edge']['ranges'].append(jnt_ranges.copy())
-            self.log['edge']['axis'].append(jnt_axis.copy())
-            self.log['edge']['xaxis'].append(jnt_xaxis.copy())
-            self.log['edge']['xanchor'].append(jnt_xanchor.copy())
-            self.log['edge']['qpos'].append(jnt_qpos.copy())
-            self.log['edge']['qvel'].append(jnt_qvel.copy())
+        # jnt_ranges = self.sim.model.jnt_range[mask, :]
+        # jnt_axis = self.sim.model.jnt_axis[mask, :]
+        # jnt_xaxis = self.sim.data.xaxis[mask, :]
+        # jnt_xanchor = self.sim.data.xanchor[mask, :]
+        # jnt_qpos = self.sim.data.qpos[mask, np.newaxis]
+        # jnt_qvel = self.sim.data.qvel[mask, np.newaxis]
+        #
+        # if self.plot_log:
+        #     self.log['edge']['ranges'].append(jnt_ranges.copy())
+        #     self.log['edge']['axis'].append(jnt_axis.copy())
+        #     self.log['edge']['xaxis'].append(jnt_xaxis.copy())
+        #     self.log['edge']['xanchor'].append(jnt_xanchor.copy())
+        #     self.log['edge']['qpos'].append(jnt_qpos.copy())
+        #     self.log['edge']['qvel'].append(jnt_qvel.copy())
         # END OF LOGGING
 
         # self.edge_features = np.array(feature_list)
@@ -408,24 +403,19 @@ if __name__ == '__main__':
     import gym
     from pathlib import Path
 
-    # env = gym.make('FetchReachEnv-v0')
-    env = gym.make('AntEnv-v0')
+    env = gym.make('FetchReachEnv-v0')
+    # env = gym.make('AntEnv-v0')
 
     home = str(Path.home())
     g = env.robot_graph
 
-    # env = gym.make('AntEnv-v0')
-    # home = str(Path.home())
-    # model_path = home + '/Documents/SAC_GCN/CustomGymEnvs/envs/ant/xml/AntEnv_v0_Normal.xml'
-    # g = RobotGraph(env.sim, model_path)
-    # print(env.sim.data.cfrc_ext.shape)
     print('g.node_features.shape', g.node_features.shape)
-    # print(g.edge_features.shape)
+    print('g.edge_features.shape', g.edge_features.shape)
     node_id_list = []
     for n in range(g.node_features.shape[0]):
         # node_id_list.append(env.sim.model.body_name2id(n.attrib['name']))
         print(g.node_list[n].attrib['name'], g.node_features[n])
-        print(env.get_body_com(g.node_list[n].attrib['name']))
+        # print(env.get_body_com(g.node_list[n].attrib['name']))
     for id in sorted(node_id_list):
         print(id, env.sim.model.body_id2name(id))
 
