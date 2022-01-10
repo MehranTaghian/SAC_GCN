@@ -6,7 +6,7 @@ import numpy as np
 import itertools
 import torch
 from SAC.sac import SAC
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 from utils import state_2_graph, state_2_graphbatch
 import matplotlib
 from tqdm import tqdm
@@ -69,19 +69,11 @@ env = gym.make(args.env_name)
 env.seed(args.seed)
 env.action_space.seed(args.seed)
 
-if 'observation_nodes' in env.observation_space.spaces.keys():
-    num_nodes = env.observation_space['observation_nodes'].shape[0]
-    num_edges = env.observation_space['observation_edges'].shape[0]
-    num_node_features = env.observation_space['observation_nodes'].shape[1]
-    num_edge_features = env.observation_space['observation_edges'].shape[1]
-    num_global_features = env.observation_space['desired_goal'].shape[0] \
-        # + env.observation_space['achieved_goal'].shape[0]
-elif 'node_features' in env.observation_space.spaces.keys():
-    num_nodes = env.observation_space['node_features'].shape[0]
-    num_edges = env.observation_space['edge_features'].shape[0]
-    num_node_features = env.observation_space['node_features'].shape[1]
-    num_edge_features = env.observation_space['edge_features'].shape[1]
-    num_global_features = None
+num_nodes = env.observation_space['node_features'].shape[0]
+num_edges = env.observation_space['edge_features'].shape[0]
+num_node_features = env.observation_space['node_features'].shape[1]
+num_edge_features = env.observation_space['edge_features'].shape[1]
+num_global_features = env.observation_space['global_features'].shape[0]
 
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
@@ -94,9 +86,9 @@ agent.load_checkpoint(args.checkpoint_path, evaluate=True)
 agent_relevance.load_checkpoint(args.checkpoint_path, evaluate=True)
 
 # Tesnorboard
-writer = SummaryWriter(
-    'runs/{}_SAC_{}_{}_{}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), args.env_name,
-                                  args.policy, "autotune" if args.automatic_entropy_tuning else ""))
+# writer = SummaryWriter(
+#     'runs/{}_SAC_{}_{}_{}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), args.env_name,
+#                                   args.policy, "autotune" if args.automatic_entropy_tuning else ""))
 
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
 render = False
@@ -125,8 +117,8 @@ for _ in tqdm(range(episodes)):
     done = False
     while not done:
         state = state_2_graphbatch(state).requires_grad_().to(device)
-        graph_out = agent_relevance.policy.graph_net(state)[0]
-        out = graph_out.global_features
+        graph_out = agent_relevance.policy.graph_net(state)
+        out = agent_relevance.policy.mean_linear(graph_out).global_features
         out.backward(out)
         node_rel = state.node_features.grad.sum(dim=1)
         edge_rel = state.edge_features.grad.sum(dim=1)

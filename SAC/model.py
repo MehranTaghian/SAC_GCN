@@ -6,13 +6,10 @@ import torchgraphs as tg
 from collections import OrderedDict
 import Relevance
 
-# from torch.utils.tensorboard import SummaryWriter
-
 LOG_SIG_MAX = 2
 LOG_SIG_MIN = -20
 epsilon = 1e-6
 
-# tb = SummaryWriter()
 tb_step_policy = 0
 tb_step_q = 0
 
@@ -21,10 +18,6 @@ tb_step_q = 0
 def weights_init_(m):
     if len(m.shape) > 1:
         torch.nn.init.xavier_uniform_(m, gain=1)
-
-    # if isinstance(m, nn.Linear):
-    #     torch.nn.init.xavier_uniform_(m.weight, gain=1)
-    #     torch.nn.init.constant_(m.bias, 0)
 
 
 class GraphNetwork(nn.Module):
@@ -58,11 +51,6 @@ class GraphNetwork(nn.Module):
                                    global_features=num_global_features,
                                    aggregation='avg'),
             'node2_relu': tg.NodeReLU()
-            # 'global': tg.GlobalLinear(output_size,
-            #                           node_features=128,
-            #                           edge_features=128,
-            #                           global_features=num_global_features,
-            #                           aggregation='avg')
         }))
 
     def forward(self, g):
@@ -101,12 +89,7 @@ class GraphNetworkRelevance(nn.Module):
                                                    # outgoing_features=128,
                                                    global_features=num_global_features,
                                                    aggregation='avg'),
-            'node2_relu': Relevance.NodeReLURelevance(),
-            'global': Relevance.GlobalLinearRelevance(output_size,
-                                                      node_features=128,
-                                                      edge_features=128,
-                                                      global_features=num_global_features,
-                                                      aggregation='avg')
+            'node2_relu': Relevance.NodeReLURelevance()
         }))
 
     def forward(self, g):
@@ -138,13 +121,6 @@ class QNetwork(nn.Module):
         state_action = torch.cat((state_value, a), 1)
         action_value = F.relu(self.hidden_action_layer(state_action))
         action_value = self.action_out_layer(action_value)
-
-        # LOGGING
-        # global tb_step_q
-        # tb.add_histogram('Q-network state-value', state_value, tb_step_q)
-        # tb.add_histogram('Q-network action-value', action_value, tb_step_q)
-        # tb_step_q += 1
-        # END LOGGING
         return action_value
 
 
@@ -181,45 +157,39 @@ class GaussianPolicy(nn.Module):
         if not relevance:
             self.graph_net = GraphNetwork(num_node_features, num_edge_features, num_global_features,
                                           output_size=hidden_action_size, aggregation=aggregation)
+            self.mean_linear = tg.GlobalLinear(num_actions,
+                                               node_features=128,
+                                               edge_features=128,
+                                               global_features=num_global_features,
+                                               aggregation='avg')
+            self.log_std_linear = tg.GlobalLinear(num_actions,
+                                                  node_features=128,
+                                                  edge_features=128,
+                                                  global_features=num_global_features,
+                                                  aggregation='avg')
+
         else:
             self.graph_net = GraphNetworkRelevance(num_node_features, num_edge_features, num_global_features,
                                                    output_size=hidden_action_size, aggregation=aggregation)
 
-        # self.mean_linear = nn.Linear(hidden_action_size, num_actions)
-        # self.log_std_linear = nn.Linear(hidden_action_size, num_actions)
-
-        self.mean_linear = tg.GlobalLinear(num_actions,
-                                           node_features=128,
-                                           edge_features=128,
-                                           global_features=num_global_features,
-                                           aggregation='avg')
-        self.log_std_linear = tg.GlobalLinear(num_actions,
-                                              node_features=128,
-                                              edge_features=128,
-                                              global_features=num_global_features,
-                                              aggregation='avg')
+            self.mean_linear = Relevance.GlobalLinearRelevance(num_actions,
+                                                               node_features=128,
+                                                               edge_features=128,
+                                                               global_features=num_global_features,
+                                                               aggregation='avg')
+            self.log_std_linear = Relevance.GlobalLinearRelevance(num_actions,
+                                                                  node_features=128,
+                                                                  edge_features=128,
+                                                                  global_features=num_global_features,
+                                                                  aggregation='avg')
 
         for params in self.parameters():
             weights_init_(params)
 
     def forward(self, g):
         g = self.graph_net(g)
-
-        # out = F.relu(g.global_features)
-        # mean = self.mean_linear(out)
-        # log_std = self.log_std_linear(out)
-
         mean = self.mean_linear(g).global_features
         log_std = self.log_std_linear(g).global_features
-
-        # LOGGING
-        # global tb_step_policy
-        # tb.add_histogram('Gaussian policy mean', mean, tb_step_policy)
-        # tb.add_histogram('Gaussian policy log_std', log_std, tb_step_policy)
-        # tb_step_policy += 1
-        # END LOGGING
-
-        # print(f"Gaussian policy, mean: {mean}, log_std{log_std}")
         log_std = torch.clamp(log_std, min=LOG_SIG_MIN, max=LOG_SIG_MAX)
         return mean, log_std
 
