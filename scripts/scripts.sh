@@ -34,4 +34,6 @@ tmux new-session -d -s v1-9 "CUDA_VISIBLE_DEVICES=6 python $MAIN_FILE --env-name
 
 
 #Evaluation
-#python evaluate_single.py --env-name FetchReachEnv-v0 -chp ~/Documents/SAC_GCN/checkpoints/sac_checkpoint_FetchReachEnv-v0_
+# python evaluate_single.py --env-name FetchReachEnv-v0 -chp ~/Documents/SAC_GCN/checkpoints/sac_checkpoint_FetchReachEnv-v0_
+
+# python Evaluate/evaluate_multiple.py --env-name FetchReachEnv-v1 -chd ~/Documents/SAC_GCN/checkpoints/abnormal
