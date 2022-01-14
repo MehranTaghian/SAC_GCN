@@ -9,10 +9,14 @@ from SAC.sac import SAC
 # from torch.utils.tensorboard import SummaryWriter
 from SAC.replay_memory import ReplayMemory
 from utils import state_2_graph, state_2_graphbatch
+import pandas as pd
+import os
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="FetchReachEnv-v0",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
+parser.add_argument('--exp-type', default="standard",
+                    help='Type of the experiment like normal or abnormal')
 parser.add_argument('--policy', default="Gaussian",
                     help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
 parser.add_argument('--eval', type=bool, default=True,
@@ -46,7 +50,7 @@ parser.add_argument('--target_update_interval', type=int, default=1, metavar='N'
                     help='Value target update per no. of updates per step (default: 1)')
 parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
                     help='size of replay buffer (default: 10000000)')
-parser.add_argument('-msf', '--model_save_freq', type=int, default=100, metavar='N',
+parser.add_argument('-dsf', '--data_save_freq', type=int, default=100, metavar='N',
                     help='Save checkpoint every msf episodes')
 parser.add_argument('-ef', '--evaluation_freq', type=int, default=10, metavar='N',
                     help='Evaluate the policy every ef episodes')
@@ -56,6 +60,11 @@ parser.add_argument('--aggregation', default="avg",
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
 args = parser.parse_args()
+
+exp_path = os.path.join('Data', args.env_name, args.exp_type, f'seed{args.seed}')
+
+if not os.path.exists(exp_path):
+    os.makedirs(exp_path)
 
 # Environment
 # env = NormalizedActions(gym.make(args.env_name))
@@ -95,6 +104,24 @@ updates = 0
 
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
 
+losses = np.empty([0, 6])
+train_reward = np.empty([0, 5])
+eval_reward = np.empty([0, 4])
+
+
+def save_data():
+    loss_df = pd.DataFrame(losses,
+                           columns=['num_updates', 'critic_1_loss', 'critic_2_loss', 'policy_loss', 'ent_loss',
+                                    'alpha'])
+    train_reward_df = pd.DataFrame(train_reward, columns=['num_episodes', 'num_steps', 'num_updates', 'episode_steps',
+                                                          'train_reward'])
+    eval_reward_df = pd.DataFrame(eval_reward, columns=['num_episodes', 'num_steps', 'num_updates', 'eval_reward'])
+
+    loss_df.to_csv(os.path.join(exp_path, 'loss.csv'), index=False)
+    train_reward_df.to_csv(os.path.join(exp_path, 'train.csv'), index=False)
+    eval_reward_df.to_csv(os.path.join(exp_path, 'eval.csv'), index=False)
+
+
 for i_episode in itertools.count(1):
     episode_reward = 0
     episode_steps = 0
@@ -122,6 +149,7 @@ for i_episode in itertools.count(1):
                 # writer.add_scalar('loss/policy', policy_loss, updates)
                 # writer.add_scalar('loss/entropy_loss', ent_loss, updates)
                 # writer.add_scalar('entropy_temprature/alpha', alpha, updates)
+                np.append(losses, [[updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha]], axis=0)
                 updates += 1
 
         next_state, reward, done, _ = env.step(action)  # Step
@@ -141,14 +169,18 @@ for i_episode in itertools.count(1):
     if total_numsteps > args.num_steps:
         break
 
+    train_reward = np.append(train_reward, [[i_episode, total_numsteps, updates, episode_steps, episode_reward]],
+                             axis=0)
     # writer.add_scalar('reward/train', episode_reward, i_episode)
     print("Episode: {}, total numsteps: {}, episode steps: {}, reward: {}".format(i_episode, total_numsteps,
                                                                                   episode_steps,
                                                                                   round(episode_reward, 2)))
 
     # save checkpoint
-    if i_episode % args.model_save_freq == 0:
-        agent.save_checkpoint(env_name=args.env_name, suffix=f'seed{args.seed}')
+    if i_episode % args.data_save_freq == 0:
+        print('Saving ...')
+        agent.save_checkpoint(exp_path)
+        save_data()
 
     if i_episode % args.evaluation_freq == 0 and args.eval is True:
         avg_reward = 0.
@@ -168,6 +200,7 @@ for i_episode in itertools.count(1):
         avg_reward /= episodes
 
         # writer.add_scalar('avg_reward/test', avg_reward, i_episode)
+        eval_reward = np.append(eval_reward, [[i_episode, total_numsteps, updates, avg_reward]], axis=0)
 
         print("----------------------------------------")
         print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))

@@ -126,11 +126,8 @@ class SAC(object):
         return qf1_loss.item(), qf2_loss.item(), policy_loss.item(), alpha_loss.item(), alpha_tlogs.item()
 
     # Save model parameters
-    def save_checkpoint(self, env_name, suffix="", ckpt_path=None):
-        if not os.path.exists('checkpoints/'):
-            os.makedirs('checkpoints/')
-        if ckpt_path is None:
-            ckpt_path = "checkpoints/sac_checkpoint_{}_{}".format(env_name, suffix)
+    def save_checkpoint(self, exp_path):
+        ckpt_path = os.path.join(exp_path, 'model')
         print('Saving models to {}'.format(ckpt_path))
         torch.save({'policy_state_dict': self.policy.state_dict(),
                     'critic_state_dict': self.critic.state_dict(),
