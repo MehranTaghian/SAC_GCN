@@ -42,3 +42,4 @@ scatter_max(src, index, dim=..., out=out)
 and xquat as node_features
 
 14) for the policy network, the last layer of the graph network changed to be a global linear layer
+

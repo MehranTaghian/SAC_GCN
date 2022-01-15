@@ -53,7 +53,8 @@
                 <inertial diaginertia="0.009 0.0086 0.0041" mass="2.5587" pos="0.0927 -0.0056 0.0564"
                           quat="-0.1364 0.7624 -0.1562 0.613"></inertial>
                 <joint axis="0 0 1" name="robot0:shoulder_pan_joint" range="-1.6056 1.6056"></joint>
-                <geom mesh="robot0:shoulder_pan_link" name="robot0:shoulder_pan_link" material="robot0:arm_mat" class="robot0:red"></geom>
+                <geom mesh="robot0:shoulder_pan_link" name="robot0:shoulder_pan_link" material="robot0:arm_mat"
+                      class="robot0:red"></geom>
                 <body name="robot0:shoulder_lift_link" pos="0.117 0 0.06">
                     <inertial diaginertia="0.0116 0.0112 0.0023" mass="2.6615" pos="0.1432 0.0072 -0.0001"
                               quat="0.4382 0.4382 0.555 0.555"></inertial>

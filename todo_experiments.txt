@@ -1,0 +1,8 @@
+1) Rerun experiments for normal and faulty environments
+2) For the normal environment, after learning, break those joints having zero score (based on our previous observation,
+we do not have a negative score on joints) and see whether the policy is
+transferable or not.
+
+3) For the faulty environment, as we observed, there are some joints having negative score. Try to:
+    i) Change their feature space to show zero all the time
+    ii) or break those joints so that they would not have any negative impact on the learning process.

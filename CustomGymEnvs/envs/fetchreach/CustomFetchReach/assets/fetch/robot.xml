@@ -58,12 +58,14 @@
                     <inertial diaginertia="0.0116 0.0112 0.0023" mass="2.6615" pos="0.1432 0.0072 -0.0001"
                               quat="0.4382 0.4382 0.555 0.555"></inertial>
                     <joint axis="0 1 0" name="robot0:shoulder_lift_joint" range="-1.221 1.518"></joint>
+<!--                    <joint axis="0 1 0" name="robot0:shoulder_lift_joint" range="-0.001 0.001" limited="true"></joint>-->
                     <geom mesh="robot0:shoulder_lift_link" name="robot0:shoulder_lift_link" material="robot0:arm_mat"
                           class="robot0:blue"></geom>
                     <body name="robot0:upperarm_roll_link" pos="0.219 0 0">
                         <inertial diaginertia="0.0047 0.0045 0.0019" mass="2.3311" pos="0.1165 0.0014 0"
                                   quat="-0.0136 0.707 0.0136 0.707"></inertial>
                         <joint axis="1 0 0" limited="false" name="robot0:upperarm_roll_joint"></joint>
+<!--                        <joint axis="1 0 0" limited="true" range="-0.001 0.001" name="robot0:upperarm_roll_joint"></joint>-->
                         <geom mesh="robot0:upperarm_roll_link" name="robot0:upperarm_roll_link"
                               material="robot0:arm_mat"></geom>
                         <body name="robot0:elbow_flex_link" pos="0.133 0 0">
