@@ -22,11 +22,12 @@ X_AXIS_TO_LABEL = {'num_time_steps': 'Time step',
                    'num_updates': 'Number of updates',
                    'num_samples': 'Number of samples'}
 
-exp_path = os.path.join('..', 'Data', args.env_name, args.exp_type)
+exp_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data', args.env_name, args.exp_type)
 
 
 def draw():
     experiment_seed = os.listdir(exp_path)
+    experiment_seed = [d for d in experiment_seed if os.path.isdir(os.path.join(exp_path, d))]
     num_seeds = len(experiment_seed)
     first = True
     train_average_returns = None

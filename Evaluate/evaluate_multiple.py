@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 import CustomGymEnvs
-
+from pathlib import Path
 from SAC.sac import SAC
 # from torch.utils.tensorboard import SummaryWriter
 from utils import state_2_graphbatch
@@ -18,6 +18,8 @@ import matplotlib.pyplot as plt
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="FetchReachEnv-v0",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
+parser.add_argument('--exp-type', default="standard",
+                    help='Type of the experiment like normal or abnormal')
 parser.add_argument('--policy', default="Gaussian",
                     help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
 parser.add_argument('--eval', type=bool, default=True,
@@ -53,15 +55,15 @@ parser.add_argument('-msf', '--model_save_freq', type=int, default=100, metavar=
                     help='Save checkpoint every msf episodes')
 parser.add_argument('-ef', '--evaluation_freq', type=int, default=10, metavar='N',
                     help='Evaluate the policy every ef episodes')
-parser.add_argument('-chd', '--checkpoint_dir',
-                    help='Mujoco Gym environment (default: HalfCheetah-v2)')
-parser.add_argument('-seeds', '--number_of_seeds', type=int, default=10, metavar='N',
-                    help='Evaluate the policy every ef episodes')
 parser.add_argument('--aggregation', default="avg",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
 args = parser.parse_args()
+
+exp_path = os.path.join(Path(__file__).parent.parent, 'Data', args.env_name, args.exp_type)
+experiment_seed = os.listdir(exp_path)
+experiment_seed = [d for d in experiment_seed if os.path.isdir(os.path.join(exp_path, d))]
 
 # Environment
 # env = NormalizedActions(gym.make(args.env_name))
@@ -83,16 +85,16 @@ rel_freq_edge = {}
 rel_freq_node = {}
 
 fig, ax = plt.subplots(figsize=[15, 12])
-width = 1 / args.number_of_seeds
-step = - np.floor(args.number_of_seeds / 2)
+width = 1 / len(experiment_seed)
+step = - np.floor(len(experiment_seed) / 2)
 
-for s in range(args.number_of_seeds):
+for s in range(len(experiment_seed)):
     env.seed(s)
     env.action_space.seed(s)
     torch.manual_seed(s)
     np.random.seed(s)
     # Agent
-    checkpoint_path = os.path.join(args.checkpoint_dir, f'sac_checkpoint_{args.env_name}_seed{s}')
+    checkpoint_path = os.path.join(exp_path, f'seed{s}', 'model')
     agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, False, args)
     agent_relevance = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, True, args)
 
@@ -149,7 +151,7 @@ for s in range(args.number_of_seeds):
            label=f'seed{s}')
     step += 1
 
-fig_name = os.path.join(args.checkpoint_dir, 'result.jpg')
+fig_name = os.path.join(exp_path, 'LRP_result.jpg')
 x = [2 * x for x in range(len(rel_freq_edge[0]))]
 keys = [' '.join(k.split(':')[1].split('_')) for k in rel_freq_edge[0].keys()]
 ax.set_xticks(x, keys, rotation=45)
