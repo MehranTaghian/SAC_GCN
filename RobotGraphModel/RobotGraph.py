@@ -323,7 +323,7 @@ class RobotGraph:
         feature_list = []
         len_features = None
         for edge in self.edge_list:
-            if edge is not None and edge.attrib['name'] != 'robot0:wrist_flex_joint':
+            if edge is not None and edge.attrib['name'] != 'robot0:elbow_flex_joint':
                 # dt = self.sim.nsubsteps * self.sim.model.opt.timestep
                 # id = self.sim.model.joint_name2id(edge.attrib['name'])
                 # jnt_ranges = self.sim.model.jnt_range[id]
