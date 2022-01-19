@@ -10,6 +10,8 @@ from SAC.sac import SAC
 from utils import state_2_graph, state_2_graphbatch
 import matplotlib
 from tqdm import tqdm
+import os
+from pathlib import Path
 
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
@@ -17,6 +19,8 @@ import matplotlib.pyplot as plt
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="FetchReachEnv-v0",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
+parser.add_argument('--exp-type', default="standard",
+                    help='Type of the experiment like normal or abnormal')
 parser.add_argument('--policy', default="Gaussian",
                     help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
 parser.add_argument('--eval', type=bool, default=True,
@@ -62,6 +66,8 @@ parser.add_argument('--aggregation', default="avg",
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
 args = parser.parse_args()
+
+exp_path = os.path.join(Path(__file__).parent.parent, 'Data', args.env_name, args.exp_type, f'seed{args.seed}')
 
 # Environment
 # env = NormalizedActions(gym.make(args.env_name))
@@ -122,6 +128,8 @@ for _ in tqdm(range(episodes)):
         out.backward(out)
         node_rel = state.node_features.grad.sum(dim=1)
         edge_rel = state.edge_features.grad.sum(dim=1)
+        global_rel = state.global_features.grad.sum(dim=1)
+        print(global_rel)
         joint_ids = torch.argsort(edge_rel)
         body_ids = torch.argsort(node_rel)
         for id in joint_ids:

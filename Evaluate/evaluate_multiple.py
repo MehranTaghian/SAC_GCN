@@ -76,15 +76,15 @@ num_global_features = env.observation_space['global_features'].shape[0]
 
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
 
-episodes = 20
+episodes = 1
 
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
 
 rel_freq_edge = {}
 rel_freq_node = {}
-
-fig, ax = plt.subplots(figsize=[15, 12])
+rel_freq_global = {}
+fig, ax = plt.subplots(figsize=[18, 12])
 width = 1 / len(experiment_seed)
 step = - np.floor(len(experiment_seed) / 2)
 
@@ -103,6 +103,8 @@ for s in range(len(experiment_seed)):
 
     rel_freq_edge[s] = {}
     rel_freq_node[s] = {}
+    rel_freq_global[s] = 0
+
     for j in edge_list:
         if j is not None:
             rel_freq_edge[s][j.attrib['name']] = 0
@@ -123,6 +125,7 @@ for s in range(len(experiment_seed)):
             out.backward(out)
             node_rel = state.node_features.grad.sum(dim=1)
             edge_rel = state.edge_features.grad.sum(dim=1)
+            rel_freq_global[s] += state.global_features.grad.sum(dim=1)
             joint_ids = torch.argsort(edge_rel)
             body_ids = torch.argsort(node_rel)
             for id in joint_ids:
@@ -146,15 +149,19 @@ for s in range(len(experiment_seed)):
     print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
     print("----------------------------------------")
 
-    x = [2 * x + step * width for x in range(len(rel_freq_edge[s]))]
-    ax.bar(x, np.array(list(rel_freq_edge[s].values())) / num_samples, width,
+    x = [2 * x + step * width for x in range(len(rel_freq_edge[s]) + len(rel_freq_node[s]) + 1)]
+    ax.bar(x,
+           np.array(list(rel_freq_edge[s].values()) + list(rel_freq_node[s].values()) + [rel_freq_global[s]]) / num_samples,
+           width,
            label=f'seed{s}')
     step += 1
 
 fig_name = os.path.join(exp_path, 'LRP_result.jpg')
-x = [2 * x for x in range(len(rel_freq_edge[0]))]
+x = [2 * x for x in range(len(rel_freq_edge[0]) + len(rel_freq_node[0]) + 1)]
 keys = [' '.join(k.split(':')[1].split('_')) for k in rel_freq_edge[0].keys()]
-ax.set_xticks(x, keys, rotation=45)
+keys += [(' '.join(k.split(':')[1].split('_')) if 'robot0' in k else k) for k in rel_freq_node[0].keys()]
+keys += ['global features']
+ax.set_xticks(x, keys, rotation=90)
 ax.legend()
 plt.savefig(fig_name, dpi=300)
 plt.show()
