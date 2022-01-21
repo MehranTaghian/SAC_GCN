@@ -84,49 +84,49 @@ class FetchEnv(robot_env.RobotEnv):
         #   angular position (velocity) of each joints
         # MODIFICATION
 
-        # assert action.shape == (self.n_actions,)
-        # action = action.copy()  # ensure that we don't change the action outside of this scope
-        # # The last element of the action array would be dedicated to gripper control and the first part
-        # # dedicates to the joint control
-        # pos_ctrl, gripper_ctrl = np.array([action[j] for j in range(len(self.joint_list))]), action[-1]
-        # pos_ctrl *= 0.1  # limit maximum change in position
-        # # rot_ctrl = [1., 0., 1., 0.]  # fixed rotation of the end effector, expressed as a quaternion
-        # gripper_ctrl = np.array([gripper_ctrl, gripper_ctrl])  # for left and right gripper
-        # assert gripper_ctrl.shape == (2,)
-        # if self.block_gripper:
-        #     gripper_ctrl = np.zeros_like(gripper_ctrl)
-        #
-        # # Apply action to simulation.
-        #
-        # # Here, the action that is applied on the gripper to open and close it would be applied in the
-        # # utils.ctrl_set_action, therefore, we do not need to change this function. The only change applies to the
-        # # utils.mocap_set_action. Instead of changing the mocap, we change joints qpos. The action should of of length
-        # # num-joints.
-        #
-        # # For fetchreach, this one sets the position of the gripper (gripper_ctrl)
-        # utils.ctrl_set_action(self.sim, gripper_ctrl)
-        # # The mocap is controlled by position and rotation control first of which has 3 elements, second of which
-        # # has 4 elements and in total, 7 elements. We change this policy for changing the position of the end-effector
-        # # to a method for calculating it using the qpos of each joint.
-        # utils.mocap_set_action(self.sim, pos_ctrl, self.joint_list)
-
-        # END MODIFICATION
-
-        assert action.shape == (4,)
+        assert action.shape == (self.n_actions,)
         action = action.copy()  # ensure that we don't change the action outside of this scope
-        pos_ctrl, gripper_ctrl = action[:3], action[3]
-
-        pos_ctrl *= 0.05  # limit maximum change in position
-        rot_ctrl = [1., 0., 1., 0.]  # fixed rotation of the end effector, expressed as a quaternion
-        gripper_ctrl = np.array([gripper_ctrl, gripper_ctrl])
+        # The last element of the action array would be dedicated to gripper control and the first part
+        # dedicates to the joint control
+        pos_ctrl, gripper_ctrl = np.array([action[j] for j in range(len(self.joint_list))]), action[-1]
+        pos_ctrl *= 0.1  # limit maximum change in position
+        # rot_ctrl = [1., 0., 1., 0.]  # fixed rotation of the end effector, expressed as a quaternion
+        gripper_ctrl = np.array([gripper_ctrl, gripper_ctrl])  # for left and right gripper
         assert gripper_ctrl.shape == (2,)
         if self.block_gripper:
             gripper_ctrl = np.zeros_like(gripper_ctrl)
-        action = np.concatenate([pos_ctrl, rot_ctrl, gripper_ctrl])
 
         # Apply action to simulation.
-        utils.ctrl_set_action(self.sim, action)
-        utils.mocap_set_action(self.sim, action)
+
+        # Here, the action that is applied on the gripper to open and close it would be applied in the
+        # utils.ctrl_set_action, therefore, we do not need to change this function. The only change applies to the
+        # utils.mocap_set_action. Instead of changing the mocap, we change joints qpos. The action should of of length
+        # num-joints.
+
+        # For fetchreach, this one sets the position of the gripper (gripper_ctrl)
+        utils.ctrl_set_action(self.sim, gripper_ctrl)
+        # The mocap is controlled by position and rotation control first of which has 3 elements, second of which
+        # has 4 elements and in total, 7 elements. We change this policy for changing the position of the end-effector
+        # to a method for calculating it using the qpos of each joint.
+        utils.mocap_set_action(self.sim, pos_ctrl, self.joint_list)
+
+        # END MODIFICATION
+
+        # assert action.shape == (4,)
+        # action = action.copy()  # ensure that we don't change the action outside of this scope
+        # pos_ctrl, gripper_ctrl = action[:3], action[3]
+        #
+        # pos_ctrl *= 0.05  # limit maximum change in position
+        # rot_ctrl = [1., 0., 1., 0.]  # fixed rotation of the end effector, expressed as a quaternion
+        # gripper_ctrl = np.array([gripper_ctrl, gripper_ctrl])
+        # assert gripper_ctrl.shape == (2,)
+        # if self.block_gripper:
+        #     gripper_ctrl = np.zeros_like(gripper_ctrl)
+        # action = np.concatenate([pos_ctrl, rot_ctrl, gripper_ctrl])
+        #
+        # # Apply action to simulation.
+        # utils.ctrl_set_action(self.sim, action)
+        # utils.mocap_set_action(self.sim, action)
 
     def _get_obs(self):
         # positions
