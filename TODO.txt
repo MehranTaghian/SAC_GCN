@@ -44,3 +44,8 @@ and xquat as node_features
 14) for the policy network, the last layer of the graph network changed to be a global linear layer
 
 15) robot0:wrist_flex_joint is occluded. Be noted to return it to the original form after this experiment
+
+16) Change the model as follows:
+    i) First use edge linear to update edge features
+    ii) Then do node linear to update node faetures
+    iii) Update global features using the updated node and edge features.
