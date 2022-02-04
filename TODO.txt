@@ -49,3 +49,6 @@ and xquat as node_features
     i) First use edge linear to update edge features
     ii) Then do node linear to update node faetures
     iii) Update global features using the updated node and edge features.
+
+
+17) Do not use aggregation for ant. just to edge update and produce output using only edge updates.
