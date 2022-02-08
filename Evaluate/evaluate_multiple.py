@@ -76,7 +76,7 @@ num_global_features = env.observation_space['global_features'].shape[0]
 
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
 
-episodes = 1
+episodes = 10
 
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
@@ -84,7 +84,31 @@ node_list = env.robot_graph.node_list
 rel_freq_edge = {}
 rel_freq_node = {}
 rel_freq_global = {}
-fig, ax = plt.subplots(figsize=[18, 12])
+avg_rel_freq_node = {}
+avg_rel_freq_edge = {}
+
+
+def set_ax(ax):
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['bottom'].set_color('#DDDDDD')
+    ax.tick_params(bottom=False, left=False)
+    ax.set_axisbelow(True)
+    ax.yaxis.grid(True, color='#EEEEEE')
+    ax.xaxis.grid(False)
+
+figure_width = 18
+figure_height = 18
+
+fig, ax = plt.subplots(figsize=[figure_width, figure_height])
+fig2, ax2 = plt.subplots(figsize=[figure_width, figure_height])
+fig3, ax3 = plt.subplots(figsize=[figure_width, figure_height])
+
+set_ax(ax)
+set_ax(ax2)
+set_ax(ax3)
+
 width = 1 / len(experiment_seed)
 step = - np.floor(len(experiment_seed) / 2)
 
@@ -150,26 +174,89 @@ for s in range(len(experiment_seed)):
     print("----------------------------------------")
 
     x = [2 * x + step * width for x in range(len(rel_freq_edge[s]) + len(rel_freq_node[s]) + 1)]
-    ax.bar(x,
-           np.array(list(rel_freq_edge[s].values()) + list(rel_freq_node[s].values()) + [rel_freq_global[s]]) / num_samples,
-           width,
-           label=f'seed{s}')
+
+    total_relevance = np.array(list(rel_freq_edge[s].values()) +
+                               list(rel_freq_node[s].values()) +
+                               [rel_freq_global[s]]) / num_samples
+
+    avg_rel_freq_node[s] = np.array(list(rel_freq_node[s].values())) / num_samples
+    avg_rel_freq_edge[s] = np.array(list(rel_freq_edge[s].values())) / num_samples
+
+    ax.bar(x, total_relevance, width, label=f'seed{s}')
+
+    x2 = [2 * x + step * width for x in range(len(rel_freq_node[s]))]
+    ax2.bar(x2, avg_rel_freq_node[s], width, label=f'seed{s}')
+
+    x3 = [2 * x + step * width for x in range(len(rel_freq_edge[s]))]
+    ax3.bar(x3, avg_rel_freq_edge[s], width, label=f'seed{s}')
+
     step += 1
 
-fig_name = os.path.join(exp_path, 'LRP_result.jpg')
+fig_name = os.path.join(exp_path, 'LRP_result_total.jpg')
 x = [2 * x for x in range(len(rel_freq_edge[0]) + len(rel_freq_node[0]) + 1)]
 keys = [' '.join(k.split(':')[1].split('_')) for k in rel_freq_edge[0].keys()]
 keys += [(' '.join(k.split(':')[1].split('_')) if 'robot0' in k else k) for k in rel_freq_node[0].keys()]
 keys += ['global features']
 ax.set_xticks(x, keys, rotation=90)
 ax.legend()
-plt.savefig(fig_name, dpi=300)
-plt.show()
-plt.close()
-# print(rel_freq_node)
-# plt.figure(figsize=[12, 15])
-# plt.bar(range(len(rel_freq_node)), np.array(list(rel_freq_node.values())) / num_samples, align='center')
-# plt.xticks(range(len(rel_freq_node)), list(rel_freq_node.keys()), rotation=90)
-# plt.show()
+ax.set_xlabel("Graph part name")
+ax.set_ylabel("LRP score")
+ax.set_title("LRP score for each part of the input graph's nodes, edges and global features")
+fig.savefig(fig_name, dpi=300)
+
+# Node features plot
+fig_name = os.path.join(exp_path, 'LRP_result_nodes.jpg')
+x = [2 * x for x in range(len(rel_freq_node[0]))]
+keys = [(' '.join(k.split(':')[1].split('_')) if 'robot0' in k else k) for k in rel_freq_node[0].keys()]
+ax2.set_xticks(x, keys, rotation=90)
+ax2.legend()
+ax2.set_xlabel("Graph part name")
+ax2.set_ylabel("LRP score")
+ax2.set_title("LRP score for each part of the input graph's nodes")
+fig2.savefig(fig_name, dpi=300)
+
+# Edge features plot
+fig_name = os.path.join(exp_path, 'LRP_result_edges.jpg')
+x = [2 * x for x in range(len(rel_freq_edge[0]))]
+keys = [' '.join(k.split(':')[1].split('_')) for k in rel_freq_edge[0].keys()]
+ax3.set_xticks(x, keys, rotation=90)
+ax3.legend()
+ax3.set_xlabel("Graph part name")
+ax3.set_ylabel("LRP score")
+ax3.set_title("LRP score for each part of the input graph's edges")
+fig3.savefig(fig_name, dpi=300)
+
+node_relevances = np.zeros([len(experiment_seed), len(rel_freq_node[0])])
+edge_relevances = np.zeros([len(experiment_seed), len(rel_freq_edge[0])])
+# average relevances over seeds
+for s in range(len(experiment_seed)):
+    node_relevances[s, :] = avg_rel_freq_node[s]
+    edge_relevances[s, :] = avg_rel_freq_edge[s]
+
+fig_name = os.path.join(exp_path, 'LRP_result_nodes_avg.jpg')
+fig4, ax4 = plt.subplots(figsize=[figure_width, figure_height])
+set_ax(ax4)
+x = [x for x in range(len(rel_freq_node[0]))]
+keys = [(' '.join(k.split(':')[1].split('_')) if 'robot0' in k else k) for k in rel_freq_node[0].keys()]
+ax4.bar(x, np.mean(node_relevances, axis=0))
+ax4.set_xticks(x, keys, rotation=90)
+ax4.legend()
+ax4.set_xlabel("Graph part name")
+ax4.set_ylabel(f"Average LRP score across {len(experiment_seed)} seeds")
+ax4.set_title("Average LRP score for each part of the input graph's nodes")
+fig4.savefig(fig_name, dpi=300)
+
+fig_name = os.path.join(exp_path, 'LRP_result_edges_avg.jpg')
+fig5, ax5 = plt.subplots(figsize=[figure_width, figure_height])
+set_ax(ax5)
+x = [x for x in range(len(rel_freq_edge[0]))]
+keys = [' '.join(k.split(':')[1].split('_')) for k in rel_freq_edge[0].keys()]
+ax5.bar(x, np.mean(edge_relevances, axis=0))
+ax5.set_xticks(x, keys, rotation=90)
+ax5.legend()
+ax5.set_xlabel("Graph part name")
+ax5.set_ylabel(f"Average LRP score across {len(experiment_seed)} seeds")
+ax5.set_title("Average LRP score for each part of the input graph's edges")
+fig5.savefig(fig_name, dpi=300)
 
 env.close()
