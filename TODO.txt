@@ -52,3 +52,9 @@ and xquat as node_features
 
 
 17) Do not use aggregation for ant. just to edge update and produce output using only edge updates.
+
+18) based on the relevance score of the joint, find how time it takes to adapt for each fault oocured to those joints with
+positive scores, and how detrimental the fault would be.
+
+19) Why are you using your left hand to write? Because my right hand is damaged -> my dynamics changed. In life-long learning,
+we can analyze the change in the policy and change in the pattern of relevance scores.

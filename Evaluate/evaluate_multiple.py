@@ -78,7 +78,7 @@ num_global_features = env.observation_space['global_features'].shape[0]
 
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
 
-episodes = 1
+episodes = 10
 
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
@@ -225,7 +225,7 @@ keys += ['global\nfeatures']
 
 ax.set_xticks(x, keys, rotation=label_rotation)
 ax.legend()
-ax.set_xlabel("Graph part name")
+ax.set_xlabel("Name of the graph's nodes, edges, and global features")
 ax.set_ylabel("LRP score")
 ax.set_title("LRP score for each part of the input graph's nodes, edges and global features")
 fig.savefig(fig_name, dpi=300)
@@ -237,7 +237,7 @@ x = [2 * x for x in range(len(rel_freq_node[0]))]
 keys = process_keys(rel_freq_node[0].keys())
 ax2.set_xticks(x, keys, rotation=label_rotation)
 ax2.legend()
-ax2.set_xlabel("Graph part name")
+ax2.set_xlabel("Name of the graph's nodes (robot's links)")
 ax2.set_ylabel("LRP score")
 ax2.set_title("LRP score for each part of the input graph's nodes")
 fig2.savefig(fig_name, dpi=300)
@@ -249,7 +249,7 @@ x = [2 * x for x in range(len(rel_freq_edge[0]))]
 keys = process_keys(rel_freq_edge[0].keys())
 ax3.set_xticks(x, keys, rotation=label_rotation)
 ax3.legend()
-ax3.set_xlabel("Graph part name")
+ax3.set_xlabel("Name of the graph's edges (robot's joints)")
 ax3.set_ylabel("LRP score")
 ax3.set_title("LRP score for each part of the input graph's edges")
 fig3.savefig(fig_name, dpi=300)
@@ -270,7 +270,7 @@ x = [x for x in range(len(rel_freq_node[0]))]
 keys = process_keys(rel_freq_node[0].keys())
 ax4.bar(x, np.mean(node_relevances, axis=0))
 ax4.set_xticks(x, keys, rotation=label_rotation)
-ax4.set_xlabel("Graph part name")
+ax4.set_xlabel("Name of the graph's nodes (robot's links)")
 ax4.set_ylabel(f"Average LRP score across {len(experiment_seed)} seeds")
 ax4.set_title("Average LRP score for each part of the input graph's nodes")
 fig4.savefig(fig_name, dpi=300)
@@ -282,7 +282,7 @@ x = [x for x in range(len(rel_freq_edge[0]))]
 keys = process_keys(rel_freq_edge[0].keys())
 ax5.bar(x, np.mean(edge_relevances, axis=0))
 ax5.set_xticks(x, keys, rotation=label_rotation)
-ax5.set_xlabel("Graph part name")
+ax5.set_xlabel("Name of the graph's edges (robot's joints)")
 ax5.set_ylabel(f"Average LRP score across {len(experiment_seed)} seeds")
 ax5.set_title("Average LRP score for each part of the input graph's edges")
 fig5.savefig(fig_name, dpi=300)
