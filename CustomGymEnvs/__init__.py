@@ -6,6 +6,13 @@ register(
     max_episode_steps=1000,
 )
 
+# HalfCheetah
+register(
+    id="HalfCheetahEnv-v0",
+    entry_point="CustomGymEnvs.envs.halfcheetah.HalfCheetahEnv_v0.half_cheetah:HalfCheetahEnvV0",
+    max_episode_steps=1000,
+)
+
 # FetchReach
 
 register(

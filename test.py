@@ -5,11 +5,12 @@ import CustomGymEnvs
 # env = gym.make("FetchReachEnv-v0")
 # env = gym.make("AntEnv-v0")
 # env = gym.make("FetchReach-v1")
-env = gym.make("Ant-v2")
+# env = gym.make("Ant-v2")
+env = gym.make("HalfCheetahEnv-v0")
 
 obs = env.reset()
-print(obs.shape)
-print(env.sim.model.joint_names)
+print(obs)
+# print(env.sim.model.joint_names)
 # print()
 
 # print(env.action_space.shape[0])
