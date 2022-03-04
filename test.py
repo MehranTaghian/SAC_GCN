@@ -10,6 +10,7 @@ env = gym.make("HalfCheetahEnv-v0")
 
 obs = env.reset()
 print(obs)
+
 # print(env.sim.model.joint_names)
 # print()
 
