@@ -264,7 +264,7 @@ class RobotGraph:
                     # [body_xvelr.copy()]
                 ])
 
-            # node_feature = np.empty([0])
+            node_feature = np.empty([0])
             # find the feature vector with maximum length of dimension
             if (len_features is not None and node_feature.shape[0] > len_features) or len_features is None:
                 len_features = node_feature.shape[0]

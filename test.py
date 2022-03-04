@@ -3,10 +3,10 @@ import numpy as np
 import CustomGymEnvs
 
 # env = gym.make("FetchReachEnv-v0")
-# env = gym.make("AntEnv-v0")
+env = gym.make("AntEnv-v0")
 # env = gym.make("FetchReach-v1")
 # env = gym.make("Ant-v2")
-env = gym.make("HalfCheetahEnv-v0")
+# env = gym.make("HalfCheetahEnv-v0")
 
 obs = env.reset()
 print(obs)
@@ -22,8 +22,8 @@ print(obs)
 # print(env.sim.model.get_xml())
 # print(env.robot_graph.edge_features)
 # g = env.robot_graph
-while True:
-    action = env.action_space.sample()
+# while True:
+#     action = env.action_space.sample()
     # print(obs['global_features'])
     # print(env.sim.data.qpos)
     # print(env.sim.data.qvel)
@@ -43,7 +43,7 @@ while True:
     # action = np.array([0, 0, 0, 0, 0, 0, 0, 0])
     # action[:4] = [0, 0, 0, 0]
     # print(action)
-    obs, _, _, _ = env.step(action)
+    # obs, _, _, _ = env.step(action)
     # print('node_features', obs['observation']['node_features'])
     # print('edge_features', obs['observation']['edge_features'])
-    env.render()
+    # env.render()
