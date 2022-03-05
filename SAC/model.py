@@ -130,8 +130,8 @@ class QNetwork(nn.Module):
         self.hidden_action_layer = nn.Linear(state_output_size + num_actions, hidden_action_size)
         self.action_out_layer = nn.Linear(hidden_action_size, 1)
 
-        for params in self.parameters():
-            weights_init_(params)
+        # for params in self.parameters():
+        #     weights_init_(params)
 
     def forward(self, g, a):
         g = self.graph_net(g)
@@ -197,8 +197,8 @@ class GaussianPolicy(nn.Module):
                                                                   global_features=num_global_features,
                                                                   aggregation='avg')
 
-        for params in self.parameters():
-            weights_init_(params)
+        # for params in self.parameters():
+        #     weights_init_(params)
 
     def forward(self, g):
         g = self.graph_net(g)
