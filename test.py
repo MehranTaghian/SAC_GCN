@@ -25,6 +25,7 @@ print(obs)
 # g = env.robot_graph
 while True:
     action = env.action_space.sample()
+    print(action.shape)
     # print(obs['global_features'])
     # print(env.sim.data.qpos)
     # print(env.sim.data.qvel)

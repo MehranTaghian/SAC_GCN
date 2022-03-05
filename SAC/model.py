@@ -127,18 +127,22 @@ class QNetwork(nn.Module):
                                           global_features=128,
                                           aggregation=aggregation)
 
-        self.hidden_action_layer = nn.Linear(state_output_size + num_actions, hidden_action_size)
-        self.action_out_layer = nn.Linear(hidden_action_size, 1)
+        self.action_value_layer = nn.Sequential(
+            nn.Linear(state_output_size + num_actions, hidden_action_size),
+            nn.ReLU(),
+            nn.Linear(hidden_action_size, hidden_action_size),
+            nn.ReLU(),
+            nn.Linear(hidden_action_size, 1),
+        )
 
-        # for params in self.parameters():
-        #     weights_init_(params)
+        for params in self.parameters():
+            weights_init_(params)
 
     def forward(self, g, a):
         g = self.graph_net(g)
         state_value = self.global_avg(g).global_features
         state_action = torch.cat((state_value, a), 1)
-        action_value = F.relu(self.hidden_action_layer(state_action))
-        action_value = self.action_out_layer(action_value)
+        action_value = self.action_value_layer(state_action)
         return action_value
 
 
@@ -197,8 +201,8 @@ class GaussianPolicy(nn.Module):
                                                                   global_features=num_global_features,
                                                                   aggregation='avg')
 
-        # for params in self.parameters():
-        #     weights_init_(params)
+        for params in self.parameters():
+            weights_init_(params)
 
     def forward(self, g):
         g = self.graph_net(g)
