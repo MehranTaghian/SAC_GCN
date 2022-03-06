@@ -82,7 +82,7 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
     def _get_obs(self):
         # MODIFICATION (COMMENTED)
         # print('original', np.concatenate([
-        #     self.sim.data.qpos.flat[2:],
+        #     self.sim.data.qpos.flat,
         #     self.sim.data.qvel.flat,
         #     np.clip(self.sim.data.cfrc_ext, -1, 1).flat,
         # ]))

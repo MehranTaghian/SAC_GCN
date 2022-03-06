@@ -58,3 +58,5 @@ positive scores, and how detrimental the fault would be.
 
 19) Why are you using your left hand to write? Because my right hand is damaged -> my dynamics changed. In life-long learning,
 we can analyze the change in the policy and change in the pattern of relevance scores.
+
+20) The original observation space is added as global feature for half cheetah

@@ -21,7 +21,7 @@ def weights_init_(m):
 
 
 class GraphNetwork(nn.Module):
-    def __init__(self, num_node_features, num_edge_features, num_global_features, output_size, aggregation='avg'):
+    def __init__(self, num_node_features, num_edge_features, num_global_features, aggregation='avg'):
         super(GraphNetwork, self).__init__()
 
         self.layers = nn.Sequential(OrderedDict({
@@ -106,11 +106,8 @@ class QNetwork(nn.Module):
         # For the action value function, we consider the action as the graph's global features
         super(QNetwork, self).__init__()
         self.graph_net = GraphNetwork(num_node_features, num_edge_features, num_global_features,
-                                      output_size=state_output_size,
-                                      aggregation='avg')
-        self.global_avg = tg.GlobalLinear(state_output_size,
-                                          global_features=128,
-                                          aggregation=aggregation)
+                                      aggregation=aggregation)
+        self.global_avg = tg.GlobalLinear(state_output_size, global_features=128, aggregation=aggregation)
 
         self.action_value_layer = nn.Sequential(
             nn.Linear(state_output_size + num_actions, hidden_action_size),
@@ -126,7 +123,7 @@ class QNetwork(nn.Module):
     def forward(self, g, a):
         g = self.graph_net(g)
         state_value = self.global_avg(g).global_features
-        state_action = torch.cat((state_value, a), 1)
+        state_action = torch.cat([state_value, a], 1)
         action_value = self.action_value_layer(state_action)
         return action_value
 
@@ -136,9 +133,9 @@ class DoubleQNetwork(nn.Module):
                  aggregation='avg'):
         super(DoubleQNetwork, self).__init__()
         self.Q1 = QNetwork(num_node_features, num_edge_features, num_global_features, num_actions, hidden_action_size,
-                           state_output_size=32, aggregation=aggregation)
+                           state_output_size=64, aggregation=aggregation)
         self.Q2 = QNetwork(num_node_features, num_edge_features, num_global_features, num_actions, hidden_action_size,
-                           state_output_size=32, aggregation=aggregation)
+                           state_output_size=64, aggregation=aggregation)
 
     def forward(self, g, a):
         out_q1 = self.Q1(g, a)
@@ -163,7 +160,7 @@ class GaussianPolicy(nn.Module):
 
         if not relevance:
             self.graph_net = GraphNetwork(num_node_features, num_edge_features, num_global_features,
-                                          output_size=hidden_action_size, aggregation=aggregation)
+                                          aggregation=aggregation)
             self.mean_linear = tg.GlobalLinear(num_actions,
                                                global_features=128,
                                                aggregation='avg')

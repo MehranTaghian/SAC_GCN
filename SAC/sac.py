@@ -49,8 +49,7 @@ class SAC(object):
                                          action_space=action_space,
                                          hidden_action_size=args.hidden_action_size,
                                          aggregation=args.aggregation,
-                                         relevance=relevance).to(
-                self.device)
+                                         relevance=relevance).to(self.device)
             self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
 
         # else:
