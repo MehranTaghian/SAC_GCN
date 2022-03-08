@@ -163,7 +163,7 @@ class GaussianPolicy(nn.Module):
                                           aggregation=aggregation)
             self.mean_linear = tg.GlobalLinear(num_actions,
                                                global_features=128,
-                                               aggregation='avg')
+                                               aggregation=aggregation)
             self.log_std_linear = tg.GlobalLinear(num_actions,
                                                   global_features=128,
                                                   aggregation=aggregation)
@@ -176,12 +176,12 @@ class GaussianPolicy(nn.Module):
                                                                node_features=128,
                                                                edge_features=128,
                                                                global_features=num_global_features,
-                                                               aggregation='avg')
+                                                               aggregation=aggregation)
             self.log_std_linear = Relevance.GlobalLinearRelevance(num_actions,
                                                                   node_features=128,
                                                                   edge_features=128,
                                                                   global_features=num_global_features,
-                                                                  aggregation='avg')
+                                                                  aggregation=aggregation)
 
         for params in self.parameters():
             weights_init_(params)

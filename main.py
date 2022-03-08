@@ -56,7 +56,7 @@ parser.add_argument('-ef', '--evaluation_freq', type=int, default=10, metavar='N
                     help='Evaluate the policy every ef episodes')
 
 parser.add_argument('--aggregation', default="avg",
-                    help='Mujoco Gym environment (default: HalfCheetah-v2)')
+                    help='Aggregation type in nodes and globals (default: average)')
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
 args = parser.parse_args()

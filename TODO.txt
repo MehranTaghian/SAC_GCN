@@ -62,3 +62,4 @@ we can analyze the change in the policy and change in the pattern of relevance s
 19) For Ant running on mehran, the graph net became shallower and the action value network deepend
 20) The original observation space is added as global feature for half cheetah
 
+21) print the state feature vector to see whether it changes or not.

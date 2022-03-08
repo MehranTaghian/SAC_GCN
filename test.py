@@ -3,9 +3,9 @@ import numpy as np
 import CustomGymEnvs
 
 # env = gym.make("FetchReachEnv-v0")
-# env = gym.make("AntEnv-v0")
+env = gym.make("AntEnv-v0")
 # env = gym.make("FetchReach-v1")
-env = gym.make("Ant-v2")
+# env = gym.make("Ant-v2")
 # env = gym.make("HalfCheetahEnv-v0")
 
 obs = env.reset()
