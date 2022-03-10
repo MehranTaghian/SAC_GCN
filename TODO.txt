@@ -67,5 +67,18 @@ we can analyze the change in the policy and change in the pattern of relevance s
 22) save parameters and arguments in a pkl file
 
 
+experiments running:
+melco1: ant and halfcheetah for new model in SAC_GCN_ANT with only edge operations
+screen:
+    2424314.pts-25.melco
+    2424241.pts-25.melco
+
+Now its time to add global features to ant states
+screen:
+
+
+
+mehran:
+half-cheetah with new model without global features in SAC_GCN:
 screen 38520.pts-0.mehran aggregation avg
 screen 97771.pts-1.mehran aggregation sum

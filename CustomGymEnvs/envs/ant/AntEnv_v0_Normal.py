@@ -90,8 +90,8 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
         obs = self.robot_graph.get_graph_obs()
         # obs['global_features'] = np.array([self.get_body_com("torso")[0]])
         # obs['global_features'] = np.array([self.sim.data.get_body_xvelp("torso")[0]])
-        obs['global_features'] = np.empty([0])
-        # obs['global_features'] = np.concatenate([self.sim.data.qpos.flat, self.sim.data.qvel.flat])
+        # obs['global_features'] = np.empty([0])
+        obs['global_features'] = np.concatenate([self.sim.data.qpos.flat, self.sim.data.qvel.flat])
         return obs
         # END MODIFICATION
 

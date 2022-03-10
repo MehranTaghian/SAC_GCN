@@ -44,7 +44,7 @@ parser.add_argument('--num_steps', type=int, default=1000001, metavar='N',
                     help='maximum number of steps (default: 1000000)')
 parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
                     help='hidden size (default: 256)')
-parser.add_argument('--hidden_action_size', type=int, default=32, metavar='N',
+parser.add_argument('--hidden_action_size', type=int, default=256, metavar='N',
                     help='hidden size for action layer in Q-function (default: 32)')
 parser.add_argument('--updates_per_step', type=int, default=1, metavar='N',
                     help='model updates per simulator step (default: 1)')
@@ -98,7 +98,7 @@ agent_relevance.load_checkpoint(checkpoint_path, evaluate=True)
 #                                   args.policy, "autotune" if args.automatic_entropy_tuning else ""))
 
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
-render = True
+render = False
 
 num_samples = 0
 edge_list = env.robot_graph.edge_list
