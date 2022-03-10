@@ -67,33 +67,35 @@ class GraphNetworkRelevance(nn.Module):
 
         self.layers = nn.Sequential(OrderedDict({
             'edge1': Relevance.EdgeLinearRelevance(256,
-                                                   edge_features=num_edge_features,
-                                                   # sender_features=num_node_features,
-                                                   # receiver_features=num_node_features,
-                                                   # global_features=num_global_features
-                                                   ),
+                                                   edge_features=num_edge_features),
             'edge1_relu': Relevance.EdgeReLURelevance(),
             'node1': Relevance.NodeLinearRelevance(256,
                                                    node_features=num_node_features,
-                                                   # incoming_features=256,
-                                                   # outgoing_features=256,
-                                                   # global_features=num_global_features,
+                                                   incoming_features=256,
+                                                   outgoing_features=256,
                                                    aggregation=aggregation),
             'node1_relu': Relevance.NodeReLURelevance(),
+            'global1': Relevance.GlobalLinearRelevance(256,
+                                                       global_features=num_global_features,
+                                                       node_features=256,
+                                                       edge_features=256,
+                                                       aggregation=aggregation),
+            'global1_relu': Relevance.GlobalReLURelevance(),
             'edge2': Relevance.EdgeLinearRelevance(128,
-                                                   edge_features=256,
-                                                   # sender_features=256,
-                                                   # receiver_features=256,
-                                                   global_features=num_global_features
-                                                   ),
+                                                   edge_features=256),
             'edge2_relu': Relevance.EdgeReLURelevance(),
             'node2': Relevance.NodeLinearRelevance(128,
                                                    node_features=256,
-                                                   # incoming_features=128,
-                                                   # outgoing_features=128,
-                                                   global_features=num_global_features,
-                                                   aggregation='avg'),
-            'node2_relu': Relevance.NodeReLURelevance()
+                                                   incoming_features=128,
+                                                   outgoing_features=128,
+                                                   aggregation=aggregation),
+            'node2_relu': Relevance.NodeReLURelevance(),
+            'global2': Relevance.GlobalLinearRelevance(128,
+                                                       global_features=256,
+                                                       node_features=128,
+                                                       edge_features=128,
+                                                       aggregation=aggregation),
+            'global2_relu': Relevance.GlobalReLURelevance()
         }))
 
     def forward(self, g):
@@ -123,6 +125,7 @@ class QNetwork(nn.Module):
     def forward(self, g, a):
         g = self.graph_net(g)
         state_value = self.global_avg(g).global_features
+        print(state_value)
         state_action = torch.cat([state_value, a], 1)
         action_value = self.action_value_layer(state_action)
         return action_value
@@ -173,14 +176,10 @@ class GaussianPolicy(nn.Module):
                                                    output_size=hidden_action_size, aggregation=aggregation)
 
             self.mean_linear = Relevance.GlobalLinearRelevance(num_actions,
-                                                               node_features=128,
-                                                               edge_features=128,
-                                                               global_features=num_global_features,
+                                                               global_features=128,
                                                                aggregation=aggregation)
             self.log_std_linear = Relevance.GlobalLinearRelevance(num_actions,
-                                                                  node_features=128,
-                                                                  edge_features=128,
-                                                                  global_features=num_global_features,
+                                                                  global_features=128,
                                                                   aggregation=aggregation)
 
         for params in self.parameters():

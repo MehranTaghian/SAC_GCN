@@ -49,8 +49,8 @@ class HalfCheetahEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def _get_obs(self):
         obs = self.robot_graph.get_graph_obs()
-        # obs['global_features'] = np.empty([0])
-        obs['global_features'] = np.concatenate([self.sim.data.qpos.flat[1:], self.sim.data.qvel.flat])
+        obs['global_features'] = np.empty([0])
+        # obs['global_features'] = np.concatenate([self.sim.data.qpos.flat[1:], self.sim.data.qvel.flat])
         # original_obs = np.concatenate([self.sim.data.qpos.flat[1:], self.sim.data.qvel.flat])
         # print(original_obs)
         return obs

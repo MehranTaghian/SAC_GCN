@@ -78,8 +78,6 @@ num_node_features = env.observation_space['node_features'].shape[1]
 num_edge_features = env.observation_space['edge_features'].shape[1]
 num_global_features = env.observation_space['global_features'].shape[0]
 
-print('global features', env.observation_space['global_features'].shape)
-
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 

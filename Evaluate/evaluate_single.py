@@ -88,8 +88,9 @@ np.random.seed(args.seed)
 agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, False, args)
 agent_relevance = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, True, args)
 
-agent.load_checkpoint(args.checkpoint_path, evaluate=True)
-agent_relevance.load_checkpoint(args.checkpoint_path, evaluate=True)
+checkpoint_path = os.path.join(exp_path, 'model')
+agent.load_checkpoint(checkpoint_path, evaluate=True)
+agent_relevance.load_checkpoint(checkpoint_path, evaluate=True)
 
 # Tesnorboard
 # writer = SummaryWriter(
@@ -112,6 +113,7 @@ for n in node_list:
     if 'name' in n.attrib:
         rel_freq_node[n.attrib['name']] = 0
 
+rel_freq_global = 0
 # for i_episode in itertools.count(1):
 avg_reward = 0.
 episodes = 20
@@ -129,7 +131,7 @@ for _ in tqdm(range(episodes)):
         node_rel = state.node_features.grad.sum(dim=1)
         edge_rel = state.edge_features.grad.sum(dim=1)
         global_rel = state.global_features.grad.sum(dim=1)
-        print(global_rel)
+        rel_freq_global += global_rel
         joint_ids = torch.argsort(edge_rel)
         body_ids = torch.argsort(node_rel)
         for id in joint_ids:
@@ -155,6 +157,7 @@ print("----------------------------------------")
 print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
 print("----------------------------------------")
 
+print(rel_freq_global / num_samples)
 print(rel_freq_edge)
 plt.figure(figsize=[12, 15])
 plt.bar(range(len(rel_freq_edge)), np.array(list(rel_freq_edge.values())) / num_samples, align='center')
