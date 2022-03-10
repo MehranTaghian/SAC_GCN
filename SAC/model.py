@@ -125,7 +125,6 @@ class QNetwork(nn.Module):
     def forward(self, g, a):
         g = self.graph_net(g)
         state_value = self.global_avg(g).global_features
-        print(state_value)
         state_action = torch.cat([state_value, a], 1)
         action_value = self.action_value_layer(state_action)
         return action_value
