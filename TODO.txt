@@ -64,5 +64,8 @@ we can analyze the change in the policy and change in the pattern of relevance s
 
 21) print the state feature vector to see whether it changes or not.
 
+22) save parameters and arguments in a pkl file
+
+
 screen 38520.pts-0.mehran aggregation avg
 screen 97771.pts-1.mehran aggregation sum

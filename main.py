@@ -163,7 +163,6 @@ for i_episode in itertools.count(1):
                     mask)  # Append transition to memory
 
         state = next_state
-        print(state)
 
     if total_numsteps > args.num_steps:
         break
