@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 class RobotGraph:
-    def __init__(self, sim, weld_joints=None, plot_log=False):
+    def __init__(self, sim, env_name, weld_joints=None, plot_log=False):
         """
         Based on the definition in the MuJoCo documentation:
         This element creates a joint. As explained in Kinematic tree, a joint creates motion degrees of freedom
@@ -55,7 +55,7 @@ class RobotGraph:
         """
         self.weld_joints = weld_joints
         self.sim = sim
-        self.parser = ModelParser(self.sim.model.get_xml())
+        self.parser = ModelParser(self.sim.model.get_xml(), env_name)
         self.node_list = set()
         self.edge_list = []
         # edges_from and edges_to are based on the index of the node in the node_list, not the joint_id or body_id
@@ -144,13 +144,13 @@ class RobotGraph:
 
         # with welded parts
         for node1, node2, joint in self.parser.connections:
-            if 'name' not in node1.attrib:
-                node1.attrib['name'] = 'world'
-            elif 'name' not in node2.attrib:
-                node2.attrib['name'] = 'world'
+            # print(
+            #     f"Edge {joint.attrib['name'] if joint is not None else 'welded'} "
+            #     f"between node {node1.attrib['name']} & {node2.attrib['name']}")
             self.node_list.add(node1)
             self.node_list.add(node2)
-            joint = joint if (joint is not None and joint.attrib['name'] not in self.weld_joints) else None
+            joint = joint if self.weld_joints is None or (joint is not None and self.weld_joints is not None
+                                                          and joint.attrib['name'] not in self.weld_joints) else None
             self.edge_list.append(joint)
 
         self.node_list = list(self.node_list)
@@ -176,11 +176,12 @@ class RobotGraph:
         #         # self.edges_to.append(edge_from)
 
         # with welded parts
-        for n1, n2, _ in self.parser.connections:
+        for n1, n2, j in self.parser.connections:
             edge_from = self.node_list.index(n1)
             edge_to = self.node_list.index(n2)
             self.edges_from.append(edge_from)
             self.edges_to.append(edge_to)
+            # print(f"Edge {j.attrib['name']} between {n1.attrib['name']} & {n2.attrib['name']}")
 
         self.edges_from = np.array(self.edges_from)
         self.edges_to = np.array(self.edges_to)
@@ -237,32 +238,32 @@ class RobotGraph:
         feature_list = []
         len_features = None
         for node in self.node_list:
-            body_xpos = self.sim.data.get_body_xpos(node.attrib['name'])
-            body_xquat = self.sim.data.get_body_xquat(node.attrib['name'])
-            body_xvelp = self.sim.data.get_body_xvelp(node.attrib['name'])
-            body_xvelr = self.sim.data.get_body_xvelr(node.attrib['name'])
-
-            if (len(body_xpos.shape) > 0 or
-                    len(body_xquat.shape) > 0 or
-                    len(body_xvelp.shape) > 0 or
-                    len(body_xvelr.shape) > 0):
-                node_feature = np.concatenate([
-                    body_xpos.copy(),
-                    body_xquat.copy(),
-                    # body_xvelp.copy(),
-                    # body_xvelr.copy()
-                ])
-            else:
-                node_feature = np.concatenate([
-                    # jnt_ranges.copy(),
-                    # jnt_axis.copy(),
-                    # jnt_xaxis.copy(),
-                    # jnt_xanchor.copy(),
-                    [body_xpos.copy()],
-                    [body_xquat.copy()],
-                    # [body_xvelp.copy()],
-                    # [body_xvelr.copy()]
-                ])
+            # body_xpos = self.sim.data.get_body_xpos(node.attrib['name'])
+            # body_xquat = self.sim.data.get_body_xquat(node.attrib['name'])
+            # body_xvelp = self.sim.data.get_body_xvelp(node.attrib['name'])
+            # body_xvelr = self.sim.data.get_body_xvelr(node.attrib['name'])
+            #
+            # if (len(body_xpos.shape) > 0 or
+            #         len(body_xquat.shape) > 0 or
+            #         len(body_xvelp.shape) > 0 or
+            #         len(body_xvelr.shape) > 0):
+            #     node_feature = np.concatenate([
+            #         body_xpos.copy(),
+            #         body_xquat.copy(),
+            #         # body_xvelp.copy(),
+            #         # body_xvelr.copy()
+            #     ])
+            # else:
+            #     node_feature = np.concatenate([
+            #         # jnt_ranges.copy(),
+            #         # jnt_axis.copy(),
+            #         # jnt_xaxis.copy(),
+            #         # jnt_xanchor.copy(),
+            #         [body_xpos.copy()],
+            #         [body_xquat.copy()],
+            #         # [body_xvelp.copy()],
+            #         # [body_xvelr.copy()]
+            #     ])
 
             node_feature = np.empty([0])
             # find the feature vector with maximum length of dimension
@@ -323,7 +324,7 @@ class RobotGraph:
         feature_list = []
         len_features = None
         for edge in self.edge_list:
-            if edge is not None: #and edge.attrib['name'] != 'robot0:elbow_flex_joint':
+            if edge is not None:  # and edge.attrib['name'] != 'robot0:elbow_flex_joint':
                 # dt = self.sim.nsubsteps * self.sim.model.opt.timestep
                 # id = self.sim.model.joint_name2id(edge.attrib['name'])
                 # jnt_ranges = self.sim.model.jnt_range[id]
@@ -408,9 +409,15 @@ if __name__ == '__main__':
 
     home = str(Path.home())
     g = env.robot_graph
+    for n in g.node_list:
+        print(n.attrib['name'])
 
-    print('g.node_features.shape', g.node_features.shape)
-    print('g.edge_features.shape', g.edge_features.shape)
+    # print('g.node_features.shape', g.node_features.shape)
+    # print('g.edge_features.shape', g.edge_features.shape)
+
+    print(g.edges_from)
+    print(g.edges_to)
+
     node_id_list = []
     for n in range(g.node_features.shape[0]):
         # node_id_list.append(env.sim.model.body_name2id(n.attrib['name']))

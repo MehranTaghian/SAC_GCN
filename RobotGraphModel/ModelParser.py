@@ -5,7 +5,7 @@ import gym
 
 # TODO: receive a list of keywords to extract those bodies containing that keyword in their name
 class ModelParser:
-    def __init__(self, model):
+    def __init__(self, model, env_name):
         self.root = ElementTree.fromstring(model)
         self.element_list = [e for e in self.root.iter()]
         self.parent_map = {c: p for p in self.root.iter() for c in p}
@@ -13,6 +13,13 @@ class ModelParser:
         # Fill joints list with xml objects of <joint> tag. This list shows the edges of the graph
         self.joints = [j for j in self.root.iter() if j.tag == 'joint' and 'name' in j.attrib]
         self.bodies = [b for b in self.root.iter() if b.tag == 'body']
+
+        if 'name' not in self.parent_map[self.bodies[0]].attrib:
+            self.parent_map[self.bodies[0]].attrib['name'] = 'world'
+
+        for i in range(len(self.bodies)):
+            if 'name' not in self.bodies[i].attrib:
+                self.bodies[i].attrib['name'] = f'body_{i}'
 
         # This dictionary represents a joint along with two separate bodies whom it attached together.
         # Those nodes whose super parent is 'mujoco' element, they are not connected to another body. So just ignore
@@ -41,19 +48,28 @@ class ModelParser:
                                      and 'laser' not in self.parent_map[b].attrib['name'])
                                     )]
 
-        # Removing those connections that have a joint from welded connections list
-        for p1, p2, _ in self.connections_joint:
-            con = (p1, p2, None)
-            if con in self.connections_welded:
-                self.connections_welded.remove(con)
+        if 'AntEnv' in env_name:
+            for i in range(len(self.connections_joint)):
+                _, _, j = self.connections_joint[i]
+                if 'name' in j.attrib and j.attrib['name'] == 'root':
+                    del self.connections_joint[i]
+                    break
 
-        self.connections = self.connections_joint + self.connections_welded
-        # self.connections = self.connections_joint
+        # Removing those connections that have a joint from welded connections list
+        # for p1, p2, _ in self.connections_joint:
+        #     con = (p1, p2, None)
+        #     if con in self.connections_welded:
+        #         self.connections_welded.remove(con)
+        # self.connections = self.connections_joint + self.connections_welded
+
+        self.connections = self.connections_joint
 
 
 if __name__ == "__main__":
-    env = gym.make('FetchReachEnv-v0')
-    p = ModelParser(env.sim.model.get_xml())
+    # env_name = 'FetchReachEnv-v0'
+    env_name = 'AntEnv-v0'
+    env = gym.make(env_name)
+    p = ModelParser(env.sim.model.get_xml(), env_name)
 
     # env = gym.make('FetchReachEnv-v0')
     # print(env.sim.data.qpos)

@@ -84,3 +84,6 @@ screen 97771.pts-1.mehran aggregation sum (deleted)
 
 
 EdgeRelu output has been removed from SAC_GCN_ANT
+
+i) change the joint feature that attaches the main body to the world as the global_feature
+ii) remove welded joints

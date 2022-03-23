@@ -41,7 +41,7 @@ class HalfCheetahEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):
 
         # MODIFICATION
         if self.robot_graph is None:
-            self.robot_graph = RobotGraph(self.sim, self.filepath)
+            self.robot_graph = RobotGraph(self.sim, env_name='HalfCheetahEnv-v0')
         # END MODIFICATION
         ob = self._get_obs()
 

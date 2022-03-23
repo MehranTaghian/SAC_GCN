@@ -10,3 +10,6 @@
 9) For fetchreach, I changed the pos_ctrl to mitigate the change in the position of the gripper.
 10) The observation space for body or edge should change.
 11) The desired goal was forgotten to be added to the observation. That was the main reason for random behavior.
+
+12) Joints with name = 'root' are removed in the ModelParser.py
+13) choosing only joint connections
