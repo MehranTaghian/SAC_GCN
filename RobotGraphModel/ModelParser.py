@@ -56,13 +56,13 @@ class ModelParser:
                     break
 
         # Removing those connections that have a joint from welded connections list
-        # for p1, p2, _ in self.connections_joint:
-        #     con = (p1, p2, None)
-        #     if con in self.connections_welded:
-        #         self.connections_welded.remove(con)
-        # self.connections = self.connections_joint + self.connections_welded
+        for p1, p2, _ in self.connections_joint:
+            con = (p1, p2, None)
+            if con in self.connections_welded:
+                self.connections_welded.remove(con)
+        self.connections = self.connections_joint + self.connections_welded
 
-        self.connections = self.connections_joint
+        # self.connections = self.connections_joint
 
 
 if __name__ == "__main__":
