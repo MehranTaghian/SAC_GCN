@@ -404,8 +404,8 @@ if __name__ == '__main__':
     import gym
     from pathlib import Path
 
-    # env = gym.make('FetchReachEnv-v0')
-    env = gym.make('AntEnv-v0')
+    env = gym.make('FetchReachEnv-v0')
+    # env = gym.make('AntEnv-v0')
 
     home = str(Path.home())
     g = env.robot_graph
