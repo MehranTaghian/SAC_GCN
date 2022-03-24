@@ -23,6 +23,12 @@ register(
 
 register(
     id="FetchReachEnv-v1",
-    entry_point="CustomGymEnvs.envs.fetchreach.FetchReachBroken.fetch.reach:FetchReachEnv",
+    entry_point="CustomGymEnvs.envs.fetchreach.FetchReach_BrokenShoulderLift.fetch.reach:FetchReachEnv",
+    max_episode_steps=50,
+)
+
+register(
+    id="FetchReachEnv-v2",
+    entry_point="CustomGymEnvs.envs.fetchreach.FetchReach_ElbowFlexNoisyMovement.fetch.reach:FetchReachEnv",
     max_episode_steps=50,
 )
