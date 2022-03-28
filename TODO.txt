@@ -85,6 +85,6 @@ screen 97771.pts-1.mehran aggregation sum (deleted)
 
 EdgeRelu output has been removed from SAC_GCN_ANT
 
+i) design an experiment for a specific joint to malfunction and misbehave (move accidentally more than
+what desired)
 
-screen 39690.pts-0.mehran: with welded
-screen 39584.pts-0.mehran: without welded

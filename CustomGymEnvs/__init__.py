@@ -32,3 +32,9 @@ register(
     entry_point="CustomGymEnvs.envs.fetchreach.FetchReach_ElbowFlexNoisyMovement.fetch.reach:FetchReachEnv",
     max_episode_steps=50,
 )
+
+register(
+    id="FetchReachEnv-v3",
+    entry_point="CustomGymEnvs.envs.fetchreach.FetchReach_WristFlexNoisyMovement.fetch.reach:FetchReachEnv",
+    max_episode_steps=50,
+)
