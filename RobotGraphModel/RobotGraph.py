@@ -355,6 +355,7 @@ class RobotGraph:
             else:
                 edge_feature = None
 
+            edge_feature = np.empty([0])
             feature_list.append(edge_feature)
 
         self.edge_features = np.zeros([len(feature_list), len_features])

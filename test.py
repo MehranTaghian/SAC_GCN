@@ -2,7 +2,7 @@ import gym
 import numpy as np
 import CustomGymEnvs
 
-env = gym.make("FetchReachEnv-v3")
+env = gym.make("FetchReachEnv-v0")
 # env = gym.make("AntEnv-v0")
 # env = gym.make("FetchReach-v1")
 # env = gym.make("Ant-v2")
@@ -48,5 +48,5 @@ while True:
     obs, _, _, _ = env.step(action)
     # print('node_features', obs['observation']['node_features'])
     # print('edge_features', obs['observation']['edge_features'])
-    print(obs)
+    # print(obs)
     env.render()
