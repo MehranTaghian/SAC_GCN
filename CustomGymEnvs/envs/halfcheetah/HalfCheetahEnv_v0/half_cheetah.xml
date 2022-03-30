@@ -64,9 +64,11 @@
         <geom axisangle="0 1 0 -3.8" name="bthigh" pos=".1 0 -.13" size="0.046 .145" type="capsule"/>
         <body name="bshin" pos=".16 0 -.25">
           <joint axis="0 1 0" damping="4.5" name="bshin" pos="0 0 0" range="-.785 .785" stiffness="180" type="hinge"/>
+<!--          <joint axis="0 1 0" damping="4.5" name="bshin" pos="0 0 0" range="-.01 .01" limited="true" stiffness="180" type="hinge"/>-->
           <geom axisangle="0 1 0 -2.03" name="bshin" pos="-.14 0 -.07" rgba="0.9 0.6 0.6 1" size="0.046 .15" type="capsule"/>
           <body name="bfoot" pos="-.28 0 -.14">
             <joint axis="0 1 0" damping="3" name="bfoot" pos="0 0 0" range="-.4 .785" stiffness="120" type="hinge"/>
+<!--            <joint axis="0 1 0" damping="3" name="bfoot" pos="0 0 0" range="-.01 .01" limited="true" stiffness="120" type="hinge"/>-->
             <geom axisangle="0 1 0 -.27" name="bfoot" pos=".03 0 -.097" rgba="0.9 0.6 0.6 1" size="0.046 .094" type="capsule"/>
           </body>
         </body>

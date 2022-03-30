@@ -356,7 +356,7 @@ class RobotGraph:
                 edge_feature = None
 
             # modification
-            edge_feature = np.empty([0])
+            # edge_feature = np.empty([0x])
             # end modification
 
             feature_list.append(edge_feature)

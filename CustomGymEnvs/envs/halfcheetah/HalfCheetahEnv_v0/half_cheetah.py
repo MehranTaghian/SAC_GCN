@@ -31,9 +31,23 @@ class HalfCheetahEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):
         # END MODIFICATION
 
     def step(self, action):
+        # modification here
+        # old_value = self.sim.data.get_joint_qpos("bshin").copy()
+        # end of modification
+
         xposbefore = self.sim.data.qpos[0]
         self.do_simulation(action, self.frame_skip)
         xposafter = self.sim.data.qpos[0]
+
+        # modification here
+        # new_value = self.sim.data.get_joint_qpos("bshin").copy()
+        # delta = new_value - old_value
+        # # slippery_value = old_value + delta * self.np_random.normal(0, 0.1)
+        # slippery_value = new_value + (delta != 0) * 0.1
+        # self.sim.data.set_joint_qpos("bshin", slippery_value)
+        # self.sim.forward()
+        # end of modification
+
         reward_ctrl = -0.1 * np.square(action).sum()
         reward_run = (xposafter - xposbefore) / self.dt
         reward = reward_ctrl + reward_run
