@@ -17,7 +17,7 @@ register(
 
 register(
     id="FetchReachEnv-v0",
-    entry_point="CustomGymEnvs.envs.fetchreach.CustomFetchPickAndPlace.fetch.reach:FetchReachEnv",
+    entry_point="CustomGymEnvs.envs.fetchreach.CustomFetchReach.fetch.reach:FetchReachEnv",
     max_episode_steps=50,
 )
 

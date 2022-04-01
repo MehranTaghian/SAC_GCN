@@ -1,90 +1,22 @@
 TODO are as follows:
 
-1) Design the state of the environment based on the previous observation (the original fetch reach)
-
-2) add achieved goal and desired goal as global features. Therefore, we should change the model of Q-function
-and remove action from global features.
-
-3) we should double check the observation space and action space to see if they are correct.
-
-4) attach everything to the world body
-
-5) there is a mismatch between qpos and qvel and the graph qpos and qvel in ant env.
-
-6) Model changed and achieved goal removed
-
-7) Change graph-batch according to federico's code
-
-6) change the environment and limit the range of 9th and check the relevance
-
-8) The fill_value argument was removed in torch-scatter>=2.0.0 as it introduced a lot of problems for scatter_max.
+1) The fill_value argument was removed in torch-scatter>=2.0.0 as it introduced a lot of problems for scatter_max.
 In scatter_max, we usually want to fill missing values with zero, while we also want to allow negative output values
 as a result of grouping only negative values (rather than set this to 0 by default).
 
 If you want to restore the old behavior, you can define out before-hand and set it to your desired fill_value:
-
 out = src.new_zeros(output_shape)
 scatter_max(src, index, dim=..., out=out)
 
+2) based on the relevance score of the joint, find how much time it takes to adapt for each fault occured
+ to those joints with positive scores, and how detrimental the fault would be.
 
-9) You should do the following:
-    a) Run 10 seeds for the normal environment to see how the relevance score of each joint changes across seeds.
-    b) Run 10 seeds for the faulty environment to see how the pattern of relevance changes from normal to faulty.
-
-
-10) Node_features are emtpy now because of ant
-
-11) Outgoing features added to model node_layers
-
-12) add torso xpos as global feature (because of reward)
-
-13) global_features for the Ant changed to reflect the xvelp. Also xvelp and xvelr are being used instead of xpos
-and xquat as node_features
-
-14) for the policy network, the last layer of the graph network changed to be a global linear layer
-
-15) robot0:wrist_flex_joint is occluded. Be noted to return it to the original form after this experiment
-
-16) Change the model as follows:
-    i) First use edge linear to update edge features
-    ii) Then do node linear to update node faetures
-    iii) Update global features using the updated node and edge features.
-
-
-17) Do not use aggregation for ant. just to edge update and produce output using only edge updates.
-
-18) based on the relevance score of the joint, find how time it takes to adapt for each fault oocured to those joints with
-positive scores, and how detrimental the fault would be.
-
-19) Why are you using your left hand to write? Because my right hand is damaged -> my dynamics changed. In life-long learning,
+3) Why are you using your left hand to write? Because my right hand is damaged -> my dynamics changed. In life-long learning,
 we can analyze the change in the policy and change in the pattern of relevance scores.
 
-19) For Ant running on mehran, the graph net became shallower and the action value network deepend
-20) The original observation space is added as global feature for half cheetah
-
-21) print the state feature vector to see whether it changes or not.
-
-22) save parameters and arguments in a pkl file
-
-
-experiments running:
-melco1: ant and halfcheetah for new model in SAC_GCN_ANT with only edge operations
-screen:
-    2424314.pts-25.melco
-    2424241.pts-25.melco
-
-Now its time to add global features to ant states
-screen:
-    2426500.pts-30.melco
-
-mehran:
-half-cheetah with new model without global features in SAC_GCN:
-screen 38520.pts-0.mehran aggregation avg
-screen 97771.pts-1.mehran aggregation sum (deleted)
-
-
-EdgeRelu output has been removed from SAC_GCN_ANT
-
-i) design an experiment for a specific joint to malfunction and misbehave (move accidentally more than
+4) design an experiment for a specific joint to malfunction and misbehave (move accidentally more than
 what desired)
 
+5) Occlude all the mandatory joints.
+
+6) change the action space to set the joint velocities.

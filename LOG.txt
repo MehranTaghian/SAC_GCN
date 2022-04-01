@@ -1,15 +1,4 @@
-1) The model architecture has changed for both Q-network and policy network. The global features for the state space includes the achieved goal.
-2) The feature for nodes and edges have also changed according to the original observations of the environment
-   which contain the qpos and qvel of the joint (TODO: double check).
-3) The utils state_2_graph and state_2_graphbatch also changed to reflect the global features
-4) The model architecture for Q-function changed and a linear layer added to estimate the state-action value.
-5) Two direction edges added to the graph (and also feature vectors are duplicated)
-6) We forgot to add one of the strategic joints to the action space: robot0:shoulder_pan_joint
-7) Action space changed to the original form of the environment
-8) Network changed and we created an instance of GraphNetwork shared between q-network and policy network.
-9) For fetchreach, I changed the pos_ctrl to mitigate the change in the position of the gripper.
-10) The observation space for body or edge should change.
-11) The desired goal was forgotten to be added to the observation. That was the main reason for random behavior.
+1) For fetchreach, we zero out the 3 key joints to observe the behavior of the robot and change in the LRP scores.
+The list of weld joints exist in the fetch_env.py __init__() function.
 
-12) Joints with name = 'root' are removed in the ModelParser.py
-13) choosing only joint connections
+2) action space changed to use joint velocities
