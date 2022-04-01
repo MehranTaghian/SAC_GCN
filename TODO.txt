@@ -24,4 +24,5 @@ what desired)
 screen 146234.pts-0.mehran:
 uses joint velocities. If this does not work, change pos_ctrl *= 1 to pos_ctrl *= 10 in fetch_env.py
 
-
+146724.pts-0.mehran:
+Occlude all the mandatory joints. Joints having highest relevance scores.
