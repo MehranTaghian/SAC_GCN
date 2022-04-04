@@ -6,7 +6,7 @@ modified _sample_goal method to eliminate unreachable goals in table
 """
 import numpy as np
 
-from CustomGymEnvs.envs.fetchreach.CustomFetchReach import robot_env, rotations, utils  # modification here
+from CustomGymEnvs.envs.fetchreach.FetchReach_Occluded import robot_env, rotations, utils  # modification here
 
 
 def goal_distance(goal_a, goal_b):
@@ -56,7 +56,11 @@ class FetchEnv(robot_env.RobotEnv):
                          'robot0:head_tilt_joint',
                          'robot0:slide0',
                          'robot0:slide1',
-                         'robot0:slide2']
+                         'robot0:slide2',
+                         'robot0:shoulder_lift_joint',
+                         'robot0:elbow_flex_joint',
+                         'robot0:wrist_flex_joint'
+                         ]
             , initial_qpos=initial_qpos)
 
     # GoalEnv methods

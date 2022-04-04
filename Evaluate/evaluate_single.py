@@ -98,7 +98,7 @@ agent_relevance.load_checkpoint(checkpoint_path, evaluate=True)
 #                                   args.policy, "autotune" if args.automatic_entropy_tuning else ""))
 
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
-render = True
+render = False
 
 num_samples = 0
 edge_list = env.robot_graph.edge_list
@@ -116,7 +116,7 @@ for n in node_list:
 rel_freq_global = 0
 # for i_episode in itertools.count(1):
 avg_reward = 0.
-episodes = 10
+episodes = 20
 for _ in tqdm(range(episodes)):
     state = env.reset()
     if render:

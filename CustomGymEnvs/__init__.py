@@ -45,6 +45,18 @@ register(
     max_episode_steps=50,
 )
 
+register(
+    id="FetchReachEnv-v5",
+    entry_point="CustomGymEnvs.envs.fetchreach.FetchReach_JointVel.fetch.reach:FetchReachEnv",
+    max_episode_steps=50,
+)
+
+register(
+    id="FetchReachEnv-v6",
+    entry_point="CustomGymEnvs.envs.fetchreach.FetchReach_Occluded.fetch.reach:FetchReachEnv",
+    max_episode_steps=50,
+)
+
 # FetchPickAndPlace
 
 register(

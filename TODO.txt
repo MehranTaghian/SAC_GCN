@@ -29,4 +29,4 @@ Occlude all the mandatory joints. Joints having highest relevance scores.
 
 7) simulate experiments in which when an action is applied to move a joint in some specific direction, move that
 joint to the other side so to move against decision-making
-
+screen 528216.pts-0.melco on melco, experiment type is ActionAvoidance
