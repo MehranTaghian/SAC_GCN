@@ -57,9 +57,6 @@ class FetchEnv(robot_env.RobotEnv):
                          'robot0:slide0',
                          'robot0:slide1',
                          'robot0:slide2',
-                         # 'robot0:shoulder_lift_joint',
-                         # 'robot0:elbow_flex_joint',
-                         # 'robot0:wrist_flex_joint'
                          ]
             , initial_qpos=initial_qpos)
 
