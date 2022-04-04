@@ -2,3 +2,10 @@
 The list of weld joints exist in the fetch_env.py __init__() function.
 
 2) action space changed to use joint velocities
+
+3) Occlude all the mandatory joints: This was interesting because it was trying to move the other non-occluded joints
+to reach the goal.
+
+4) Simulate experiments in which when an action is applied to move a joint in some specific direction, move that
+joint to the other side so to move against decision-making. This fault was applied on Elbow-flex-joint and observed
+that all the joint's relevance scores became negative.

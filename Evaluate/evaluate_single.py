@@ -98,7 +98,7 @@ agent_relevance.load_checkpoint(checkpoint_path, evaluate=True)
 #                                   args.policy, "autotune" if args.automatic_entropy_tuning else ""))
 
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
-render = True
+render = False
 
 num_samples = 0
 edge_list = env.robot_graph.edge_list
@@ -127,6 +127,7 @@ for _ in tqdm(range(episodes)):
         state = state_2_graphbatch(state).requires_grad_().to(device)
         graph_out = agent_relevance.policy.graph_net(state)
         out = agent_relevance.policy.mean_linear(graph_out).global_features
+        state.zero_grad_()
         out.backward(out)
         node_rel = state.node_features.grad.sum(dim=1)
         edge_rel = state.edge_features.grad.sum(dim=1)
@@ -164,10 +165,10 @@ plt.bar(range(len(rel_freq_edge)), np.array(list(rel_freq_edge.values())) / num_
 plt.xticks(range(len(rel_freq_edge)), list(rel_freq_edge.keys()), rotation=90)
 plt.show()
 
-print(rel_freq_node)
-plt.figure(figsize=[12, 15])
-plt.bar(range(len(rel_freq_node)), np.array(list(rel_freq_node.values())) / num_samples, align='center')
-plt.xticks(range(len(rel_freq_node)), list(rel_freq_node.keys()), rotation=90)
-plt.show()
+# print(rel_freq_node)
+# plt.figure(figsize=[12, 15])
+# plt.bar(range(len(rel_freq_node)), np.array(list(rel_freq_node.values())) / num_samples, align='center')
+# plt.xticks(range(len(rel_freq_node)), list(rel_freq_node.keys()), rotation=90)
+# plt.show()
 
 env.close()

@@ -17,16 +17,7 @@ we can analyze the change in the policy and change in the pattern of relevance s
 4) design an experiment for a specific joint to malfunction and misbehave (move accidentally more than
 what desired)
 
-5) Occlude all the mandatory joints.
+5) Double-check the relevance score calculation procedure to see whether it is correct or not
 
-6) change the action space to set the joint velocities.
-
-screen 516512.pts-7.melco on melco:
-uses joint velocities. If this does not work, change pos_ctrl *= 1 to pos_ctrl *= 10 in fetch_env.py
-
-screen on mehran:
-Occlude all the mandatory joints. Joints having highest relevance scores.
-
-7) simulate experiments in which when an action is applied to move a joint in some specific direction, move that
-joint to the other side so to move against decision-making
-screen 528216.pts-0.melco on melco, experiment type is ActionAvoidance
+9) Try to train the joint velocity-based actions for better relevance calculations. Already the experiment is running
+on melco to train using the velocity-based actions.

@@ -107,7 +107,8 @@ class RobotEnv(gym.GoalEnv):
         self.sim.step()
         self._step_callback()
 
-        # print('before slip:', self._get_obs())
+        # obs_before = self._get_obs().copy()
+        # print('before slip:', obs_before)
         # modification here
         new_value = self.sim.data.get_joint_qpos("robot0:elbow_flex_joint").copy()
         delta = new_value - old_value
@@ -119,9 +120,10 @@ class RobotEnv(gym.GoalEnv):
         self.sim.forward()
         # end of modification
 
-        obs = self._get_obs()
+        obs = self._get_obs().copy()
 
         # print("after slip:", obs)
+        # print(obs_before['edge_features'] == obs['edge_features'])
 
         done = False
         info = {
