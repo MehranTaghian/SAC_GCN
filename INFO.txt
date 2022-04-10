@@ -1,0 +1,44 @@
+axis: real(3), “0 0 1”
+    This attribute specifies the axis of rotation for hinge joints and the direction of translation for slide joints.
+    It is ignored for free and ball joints. The vector specified here is automatically normalized to unit length as long as
+    its length is greater than 10E-14; otherwise a compile error is generated.
+
+
+body/ joint (*)
+    This element creates a joint. As explained in Kinematic tree, a joint creates motion degrees of freedom between the
+    body where it is defined and the body’s parent. If multiple joints are defined in the same body, the corresponding
+    spatial transformations (of the body frame relative to the parent frame) are applied in order. If no joints are defined,
+    the body is welded to its parent. Joints cannot be defined in the world body. At runtime the positions and orientations
+    of all joints defined in the model are stored in the vector mjData.qpos, in the order in which the appear in the
+    kinematic tree. The linear and angular velocities are stored in the vector mjData.qvel. These two vectors have different
+    dimensionality when free or ball joints are used, because such joints represent rotations as unit quaternions.
+
+name: string, optional
+Name of the joint.
+
+class: string, optional
+    Defaults class for setting unspecified attributes.
+
+type: [free, ball, slide, hinge], “hinge”
+    Type of the joint. The keywords have the following meaning: The free type creates a free “joint” with three
+    translational degrees of freedom followed by three rotational degrees of freedom. In other words it makes the
+    body floating. The rotation is represented as a unit quaternion. This joint type is only allowed in bodies
+    that are children of the world body. No other joints can be defined in the body if a free joint is defined.
+    Unlike the remaining joint types, free joints do not have a position within the body frame. Instead the joint
+    position is assumed to coincide with the center of the body frame. Thus at runtime the position and orientation
+    data of the free joint correspond to the global position and orientation of the body frame. Free joints cannot
+    have limits.
+
+    The ball type creates a ball joint with three rotational degrees of freedom. The rotation is represented as a unit
+    quaternion. The quaternion (1,0,0,0) corresponds to the initial configuration in which the model is defined.
+    Any other quaternion is interpreted as a 3D rotation relative to this initial configuration. The rotation is
+    around the point defined by the pos attribute below. If a body has a ball joint, it cannot have other rotational
+    joints (ball or hinge). Combining ball joints with slide joints in the same body is allowed.
+
+    The slide type creates a sliding or prismatic joint with one translational degree of freedom. Such joints are
+    defined by a position and a sliding direction. For simulation purposes only the direction is needed; the joint
+    position is used for rendering purposes.
+
+    The hinge type creates a hinge joint with one rotational degree of freedom. The rotation takes place around a
+    specified axis through a specified position. This is the most common type of joint and is therefore the default.
+    Most models contact only hinge and free joints.

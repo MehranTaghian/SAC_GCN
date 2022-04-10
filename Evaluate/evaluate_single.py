@@ -104,9 +104,11 @@ num_samples = 0
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
 rel_freq_edge = {}
+rel_score_edge = {}
 for j in edge_list:
     if j is not None:
         rel_freq_edge[j.attrib['name']] = 0
+        rel_score_edge[j.attrib['name']] = []
 
 rel_freq_node = {}
 for n in node_list:
@@ -116,13 +118,14 @@ for n in node_list:
 rel_freq_global = 0
 # for i_episode in itertools.count(1):
 avg_reward = 0.
-episodes = 20
+episodes = 1
 for _ in tqdm(range(episodes)):
     state = env.reset()
     if render:
         env.render()
     episode_reward = 0
     done = False
+    episode_step = 0
     while not done:
         state = state_2_graphbatch(state).requires_grad_().to(device)
         graph_out = agent_relevance.policy.graph_net(state)
@@ -137,7 +140,9 @@ for _ in tqdm(range(episodes)):
         body_ids = torch.argsort(node_rel)
         for id in joint_ids:
             if edge_list[id] is not None:
+                # print(edge_list[id].attrib['name'], edge_rel[id])
                 rel_freq_edge[edge_list[id].attrib['name']] += edge_rel[id]
+                rel_score_edge[edge_list[id].attrib['name']].append(edge_rel[id])
 
         for id in body_ids:
             if 'name' in node_list[id].attrib:
@@ -149,7 +154,15 @@ for _ in tqdm(range(episodes)):
         state = next_state
         if render:
             env.render()
+
+        episode_step += 1
     avg_reward += episode_reward
+
+    plt.figure(figsize=[12, 15])
+    for k in rel_score_edge.keys():
+        plt.plot(rel_score_edge[k], label=k)
+    plt.legend()
+    plt.show()
 avg_reward /= episodes
 
 # writer.add_scalar('avg_reward/test', avg_reward, i_episode)
