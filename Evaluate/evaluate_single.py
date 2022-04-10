@@ -118,7 +118,7 @@ for n in node_list:
 rel_freq_global = 0
 # for i_episode in itertools.count(1):
 avg_reward = 0.
-episodes = 1
+episodes = 10
 for _ in tqdm(range(episodes)):
     state = env.reset()
     if render:
