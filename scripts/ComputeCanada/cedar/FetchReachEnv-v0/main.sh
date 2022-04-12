@@ -10,4 +10,4 @@
 #SBATCH --mail-user=taghianj@ualberta.ca
 #SBATCH --mail-type=ALL
 
-parallel standard.txt
+parallel < standard.txt

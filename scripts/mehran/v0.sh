@@ -16,3 +16,4 @@ tmux new-session -d -s v0-9 "CUDA_VISIBLE_DEVICES=6 python $MAIN_FILE --env-name
 
 
 
+MAIN_FILE="/home/taghianj/Scratch/SAC_GCN/main.py"
