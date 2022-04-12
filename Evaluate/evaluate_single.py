@@ -118,8 +118,8 @@ for n in node_list:
 rel_freq_global = 0
 # for i_episode in itertools.count(1):
 avg_reward = 0.
-episodes = 10
-for _ in tqdm(range(episodes)):
+episodes = 20
+for i in tqdm(range(episodes)):
     state = env.reset()
     if render:
         env.render()
@@ -142,7 +142,9 @@ for _ in tqdm(range(episodes)):
             if edge_list[id] is not None:
                 # print(edge_list[id].attrib['name'], edge_rel[id])
                 rel_freq_edge[edge_list[id].attrib['name']] += edge_rel[id]
-                rel_score_edge[edge_list[id].attrib['name']].append(edge_rel[id])
+                if len(rel_score_edge[edge_list[id].attrib['name']]) - 1 < i:
+                    rel_score_edge[edge_list[id].attrib['name']].append([])
+                rel_score_edge[edge_list[id].attrib['name']][i].append(edge_rel[id])
 
         for id in body_ids:
             if 'name' in node_list[id].attrib:
@@ -158,11 +160,18 @@ for _ in tqdm(range(episodes)):
         episode_step += 1
     avg_reward += episode_reward
 
-    plt.figure(figsize=[12, 15])
-    for k in rel_score_edge.keys():
-        plt.plot(rel_score_edge[k], label=k)
-    plt.legend()
-    plt.show()
+plt.figure(figsize=[12, 15])
+for k in rel_score_edge.keys():
+    scores = np.array(rel_score_edge[k])
+    average_score = np.mean(scores, axis=0)
+    std_score = np.std(scores, axis=0) / np.sqrt(scores.shape[0])
+    x = np.linspace(1, len(average_score), len(average_score))
+    plt.plot(x, average_score, label=k)
+    plt.fill_between(x, average_score - 2.26 * std_score, average_score + 2.26 * std_score, alpha=0.2)
+
+plt.legend()
+plt.show()
+
 avg_reward /= episodes
 
 # writer.add_scalar('avg_reward/test', avg_reward, i_episode)

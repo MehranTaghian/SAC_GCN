@@ -21,3 +21,5 @@ what desired)
 
 9) Try to train the joint velocity-based actions for better relevance calculations. Already the experiment is running
 on melco to train using the velocity-based actions.
+
+10) Running experiments for FetchReachEnv-v3
