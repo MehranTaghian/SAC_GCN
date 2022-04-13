@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0 python /home/taghianj/scratch/SAC_GCN/main.py --env-name FetchReachEnv-v0 --exp-type standard --automatic_entropy_tuning True --num_steps 10000 --start_steps 0 -dsf 100 --cuda --seed 0"
-CUDA_VISIBLE_DEVICES=0 python /home/taghianj/scratch/SAC_GCN/main.py --env-name FetchReachEnv-v0 --exp-type standard --automatic_entropy_tuning True --num_steps 10000 --start_steps 0 -dsf 100 --cuda --seed 1"
-CUDA_VISIBLE_DEVICES=0 python /home/taghianj/scratch/SAC_GCN/main.py --env-name FetchReachEnv-v0 --exp-type standard --automatic_entropy_tuning True --num_steps 10000 --start_steps 0 -dsf 100 --cuda --seed 2"
-CUDA_VISIBLE_DEVICES=0 python /home/taghianj/scratch/SAC_GCN/main.py --env-name FetchReachEnv-v0 --exp-type standard --automatic_entropy_tuning True --num_steps 10000 --start_steps 0 -dsf 100 --cuda --seed 3"
+CUDA_VISIBLE_DEVICES=0 python /home/taghianj/scratch/SAC_GCN/main.py --env-name FetchReachEnv-v0 --exp-type standard --automatic_entropy_tuning True --num_steps 10000 --start_steps 0 -dsf 100 --cuda --seed 0
+CUDA_VISIBLE_DEVICES=0 python /home/taghianj/scratch/SAC_GCN/main.py --env-name FetchReachEnv-v0 --exp-type standard --automatic_entropy_tuning True --num_steps 10000 --start_steps 0 -dsf 100 --cuda --seed 1
+CUDA_VISIBLE_DEVICES=0 python /home/taghianj/scratch/SAC_GCN/main.py --env-name FetchReachEnv-v0 --exp-type standard --automatic_entropy_tuning True --num_steps 10000 --start_steps 0 -dsf 100 --cuda --seed 2
+CUDA_VISIBLE_DEVICES=0 python /home/taghianj/scratch/SAC_GCN/main.py --env-name FetchReachEnv-v0 --exp-type standard --automatic_entropy_tuning True --num_steps 10000 --start_steps 0 -dsf 100 --cuda --seed 3
