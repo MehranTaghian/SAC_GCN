@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #SBATCH --gpus-per-node=1
+#SBATCH --ntasks-per-node=4
 #SBATCH --mem=20G               # memory per node
 #SBATCH --time=00:05:00
 #SBATCH --job-name="FetchReachEnv-v0"
