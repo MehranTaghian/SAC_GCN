@@ -5,7 +5,7 @@
 #SBATCH --ntasks-per-node=24
 #SBATCH --exclusive
 #SBATCH --mem=125G
-#SBATCH --time=00:05:00
+#SBATCH --time=6-00:00
 #SBATCH --job-name="FetchReachEnv-v0"
 #SBATCH --account=def-zaiane
 #SBATCH --output=FetchReachEnv-v0-standard-%j.out
