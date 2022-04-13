@@ -112,10 +112,13 @@ class RobotEnv(gym.GoalEnv):
         # modification here
         new_value = self.sim.data.get_joint_qpos("robot0:elbow_flex_joint").copy()
         delta = new_value - old_value
+
         # slippery_value = old_value + delta * self.np_random.normal(0, 0.1)
-        # slippery_value = new_value + (delta != 0) * 0.05
+        slippery_value = new_value + (delta != 0) * 0.05
+
         # instead of moving delta towards the action applied, I move it against that direction
-        slippery_value = old_value - delta
+        # slippery_value = old_value - delta
+
         self.sim.data.set_joint_qpos("robot0:elbow_flex_joint", slippery_value)
         self.sim.forward()
         # end of modification

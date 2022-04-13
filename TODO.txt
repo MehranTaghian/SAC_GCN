@@ -1,4 +1,4 @@
-TODO are as follows:
+TODOs are as follows:
 
 1) The fill_value argument was removed in torch-scatter>=2.0.0 as it introduced a lot of problems for scatter_max.
 In scatter_max, we usually want to fill missing values with zero, while we also want to allow negative output values
@@ -23,3 +23,6 @@ what desired)
 on melco to train using the velocity-based actions.
 
 10) Running experiments for FetchReachEnv-v3
+
+11) "FetchReachEnv-v3: Wrist flex noisy movement" is working as expected. Try simulating similar faults to understand
+what negative scores mean?
