@@ -5,6 +5,7 @@
 #SBATCH --time=00:05:00
 #SBATCH --job-name="FetchReachEnv-v0"
 #SBATCH --account=def-zaiane
+#SBATCH --output=FetchReachEnv-v0-test-%j.out
 #SBATCH --mail-user=taghianj@ualberta.ca
 #SBATCH --mail-type=ALL
 
