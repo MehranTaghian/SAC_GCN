@@ -1,4 +1,4 @@
-MAIN_FILE="/home/taghianj/Documents/SAC_GCN/main.py"
+MAIN_FILE="/home/taghianj/Documents/SAC_GCN/Controller/graph/main.py"
 
 # FetchReachEnv-v0
 tmux new-session -d -s v0-0 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name FetchReachEnv-v0 --exp-type standard --automatic_entropy_tuning True --num_steps 250000 --start_steps 10000 -dsf 100 --cuda --seed 0"
