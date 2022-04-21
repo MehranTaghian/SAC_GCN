@@ -6,7 +6,7 @@ modified _sample_goal method to eliminate unreachable goals in table
 """
 import numpy as np
 
-from CustomGymEnvs.envs.fetchreach.CustomFetchReach import robot_env, rotations, utils  # modification here
+from CustomGymEnvs.graph_envs.fetchreach.CustomFetchReach import robot_env, rotations, utils  # modification here
 
 
 def goal_distance(goal_a, goal_b):
@@ -89,7 +89,7 @@ class FetchEnv(robot_env.RobotEnv):
         # # The last element of the action array would be dedicated to gripper control and the first part
         # # dedicates to the joint control
         # pos_ctrl, gripper_ctrl = np.array([action[j] for j in range(len(self.joint_list))]), action[-1]
-        # pos_ctrl *= 0.1  # limit maximum change in position
+        # pos_ctrl *= 10  # limit maximum change in position
         # # rot_ctrl = [1., 0., 1., 0.]  # fixed rotation of the end effector, expressed as a quaternion
         # gripper_ctrl = np.array([gripper_ctrl, gripper_ctrl])  # for left and right gripper
         # assert gripper_ctrl.shape == (2,)

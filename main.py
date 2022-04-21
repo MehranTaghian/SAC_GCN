@@ -5,9 +5,9 @@ import CustomGymEnvs
 import numpy as np
 import itertools
 import torch
-from SAC.sac import SAC
+from Graph_SAC.sac import SAC
 # from torch.utils.tensorboard import SummaryWriter
-from SAC.replay_memory import ReplayMemory
+from Graph_SAC.replay_memory import ReplayMemory
 from utils import state_2_graph, state_2_graphbatch
 import pandas as pd
 import os

@@ -58,9 +58,13 @@ def mocap_set_action(sim, action, joint_list=None):
     #     # for quaternion or orientation. Specifically for featchreach, we have 1 mocap.
     #     # MODIFICATION
     #     for j in range(len(joint_list)):
-    #         joint_qpos = sim.data.get_joint_qpos(joint_list[j].attrib['name'])
-    #         delta = action[j]
-    #         sim.data.set_joint_qpos(joint_list[j].attrib['name'], joint_qpos + delta)
+    #         # First type of action using joint qpos delta
+    #         # joint_qpos = sim.data.get_joint_qpos(joint_list[j].attrib['name'])
+    #         # delta = action[j]
+    #         # sim.data.set_joint_qpos(joint_list[j].attrib['name'], joint_qpos + delta)
+    #
+    #         # second type of giving action by joint velocity
+    #         sim.data.set_joint_qvel(joint_list[j].attrib['name'], action[j])
 
     # END MODIFICATION
 
