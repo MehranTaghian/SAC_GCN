@@ -84,10 +84,15 @@ edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
 
 rel_freq_edge = {}
+rel_score_edge = {}
 rel_freq_node = {}
 rel_freq_global = {}
 avg_rel_freq_node = {}
 avg_rel_freq_edge = {}
+
+for j in edge_list:
+    if j is not None:
+        rel_score_edge[j.attrib['name']] = []
 
 
 def set_ax(ax):
@@ -130,19 +135,23 @@ for s in range(len(experiment_seed)):
     agent_relevance.load_checkpoint(checkpoint_path, evaluate=True)
 
     rel_freq_edge[s] = {}
+    rel_score_edge_seed = {}
     rel_freq_node[s] = {}
     rel_freq_global[s] = 0
 
     for j in edge_list:
         if j is not None:
             rel_freq_edge[s][j.attrib['name']] = 0
+            rel_score_edge_seed[j.attrib['name']] = []
+
     for n in node_list:
         if 'name' in n.attrib:
             rel_freq_node[s][n.attrib['name']] = 0
 
     num_samples = 0
     avg_reward = 0.
-    for _ in tqdm(range(episodes)):
+
+    for i in tqdm(range(episodes)):
         state = env.reset()
         episode_reward = 0
         done = False
@@ -159,6 +168,9 @@ for s in range(len(experiment_seed)):
             for id in joint_ids:
                 if edge_list[id] is not None:
                     rel_freq_edge[s][edge_list[id].attrib['name']] += edge_rel[id]
+                    if len(rel_score_edge_seed[edge_list[id].attrib['name']]) - 1 < i:
+                        rel_score_edge_seed[edge_list[id].attrib['name']].append([])
+                    rel_score_edge_seed[edge_list[id].attrib['name']][i].append(edge_rel[id])
 
             for id in body_ids:
                 if 'name' in node_list[id].attrib:
@@ -170,6 +182,11 @@ for s in range(len(experiment_seed)):
             state = next_state
         avg_reward += episode_reward
     avg_reward /= episodes
+
+    # Calculating average relevance scores across episodes for one seed:
+    for k in rel_score_edge.keys():
+        scores = np.array(rel_score_edge_seed[k])
+        rel_score_edge[k].append(np.mean(scores, axis=0))
 
     # writer.add_scalar('avg_reward/test', avg_reward, i_episode)
 
@@ -195,7 +212,6 @@ for s in range(len(experiment_seed)):
     ax3.bar(x3, avg_rel_freq_edge[s], width, label=f'seed{s}')
 
     step += 1
-
 
 def process_keys(keys):
     final_keys = []
@@ -286,5 +302,24 @@ ax5.set_xlabel("Name of the graph's edges (robot's joints)")
 ax5.set_ylabel(f"Average LRP score across {len(experiment_seed)} seeds")
 ax5.set_title("Average LRP score for each part of the input graph's edges")
 fig5.savefig(fig_name, dpi=300)
+
+
+fig_name = os.path.join(exp_path, 'LRP_edge_score_episodes.jpg')
+fig6, ax6 = plt.subplots(figsize=[figure_width, figure_height])
+
+
+for k in rel_score_edge.keys():
+    scores = np.array(rel_score_edge[k])
+    average_score = np.mean(scores, axis=0)
+    std_score = np.std(scores, axis=0) / np.sqrt(scores.shape[0])
+    x = np.linspace(1, average_score.shape[0], average_score.shape[0])
+    ax6.plot(x, average_score, label=k)
+    ax6.fill_between(x, average_score - 2.26 * std_score, average_score + 2.26 * std_score, alpha=0.2)
+
+ax6.set_xlabel("Time steps in an episode")
+ax6.set_ylabel(f"Average LRP score across {len(experiment_seed)} seeds")
+ax6.set_title("Average LRP score for each part of the input graph's edges at each step")
+ax6.legend()
+fig6.savefig(fig_name, dpi=300)
 
 env.close()
