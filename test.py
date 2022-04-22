@@ -7,12 +7,22 @@ from pathlib import Path
 
 print(Path(os.path.abspath(__file__)).parent)
 
+# joint_list = ['robot0:shoulder_lift_joint',
+#               'robot0:elbow_flex_joint',
+#               'robot0:wrist_flex_joint']
 
+joint_list = [
+    'robot0:shoulder_pan_joint',
+    'robot0:shoulder_lift_joint',
+    'robot0:upperarm_roll_joint',
+    'robot0:elbow_flex_joint',
+    'robot0:forearm_roll_joint',
+    'robot0:wrist_flex_joint',
+    'robot0:wrist_roll_joint']
+
+
+env = FetchReachWrapper(gym.make("FetchReachEnv-v0"), joint_list)
 # env = gym.make("FetchReachEnv-v0")
-env = FetchReachWrapper(gym.make("FetchReachEnv-v0"), ['robot0:shoulder_lift_joint',
-                                                             'robot0:elbow_flex_joint',
-                                                             'robot0:wrist_flex_joint'])
-print(env.observation_space.shape)
 # env = gym.make("AntEnv-v0")
 # env = gym.make("FetchReachEnv-v4")
 # env = gym.make("Ant-v2")
@@ -21,6 +31,7 @@ print(env.observation_space.shape)
 
 obs = env.reset()
 print(obs.shape)
+print(env.observation_space.shape)
 # print(env.action_space.shape)
 
 # print(env.sim.model.joint_names)
