@@ -11,14 +11,13 @@ from Graph_SAC.replay_memory import ReplayMemory
 from utils import state_2_graph, state_2_graphbatch
 import pandas as pd
 import os
+from pathlib import Path
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="FetchReachEnv-v0",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--exp-type', default="standard",
                     help='Type of the experiment like normal or abnormal')
-parser.add_argument('--policy', default="Gaussian",
-                    help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
 parser.add_argument('--eval', type=bool, default=True,
                     help='Evaluates a policy a policy every 10 episode (default: True)')
 parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
@@ -54,14 +53,17 @@ parser.add_argument('-dsf', '--data_save_freq', type=int, default=100, metavar='
                     help='Save checkpoint every msf episodes')
 parser.add_argument('-ef', '--evaluation_freq', type=int, default=10, metavar='N',
                     help='Evaluate the policy every ef episodes')
-
 parser.add_argument('--aggregation', default="avg",
                     help='Aggregation type in nodes and globals (default: average)')
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
+
 args = parser.parse_args()
 
-exp_path = os.path.join('Data', args.env_name, args.exp_type, f'seed{args.seed}')
+exp_path = Path(os.path.abspath(__file__)).parent.parent.parent
+exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type, f'seed{args.seed}')
+
+print(exp_path)
 
 if not os.path.exists(exp_path):
     os.makedirs(exp_path)

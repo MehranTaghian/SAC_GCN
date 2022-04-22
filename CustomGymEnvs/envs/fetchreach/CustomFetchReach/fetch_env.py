@@ -50,14 +50,8 @@ class FetchEnv(robot_env.RobotEnv):
         self.reward_type = reward_type
 
         super(FetchEnv, self).__init__(
-            model_path=model_path, n_substeps=n_substeps,
-            weld_joints=['robot0:torso_lift_joint',
-                         'robot0:head_pan_joint',
-                         'robot0:head_tilt_joint',
-                         'robot0:slide0',
-                         'robot0:slide1',
-                         'robot0:slide2']
-            , initial_qpos=initial_qpos)
+            model_path=model_path, n_substeps=n_substeps, n_actions=4,
+            initial_qpos=initial_qpos)
 
     # GoalEnv methods
     # ----------------------------
@@ -65,10 +59,10 @@ class FetchEnv(robot_env.RobotEnv):
     def compute_reward(self, achieved_goal, goal, info):
         # Compute distance between goal and the achieved goal.
         d = goal_distance(achieved_goal, goal)
-        if self.reward_type == 'sparse':
-            return -(d > self.distance_threshold).astype(np.float32)
-        else:
-            return -d
+        # if self.reward_type == 'sparse':
+        #     return -(d > self.distance_threshold).astype(np.float32)
+        # else:
+        return -d
 
     # RobotEnv methods
     # ----------------------------
@@ -80,38 +74,6 @@ class FetchEnv(robot_env.RobotEnv):
             self.sim.forward()
 
     def _set_action(self, action):
-        # TODO: we might want to change the action space so that it applies actions to each joint, changing the
-        #   angular position (velocity) of each joints
-        # MODIFICATION
-
-        # assert action.shape == (self.n_actions,)
-        # action = action.copy()  # ensure that we don't change the action outside of this scope
-        # # The last element of the action array would be dedicated to gripper control and the first part
-        # # dedicates to the joint control
-        # pos_ctrl, gripper_ctrl = np.array([action[j] for j in range(len(self.joint_list))]), action[-1]
-        # pos_ctrl *= 0.1  # limit maximum change in position
-        # # rot_ctrl = [1., 0., 1., 0.]  # fixed rotation of the end effector, expressed as a quaternion
-        # gripper_ctrl = np.array([gripper_ctrl, gripper_ctrl])  # for left and right gripper
-        # assert gripper_ctrl.shape == (2,)
-        # if self.block_gripper:
-        #     gripper_ctrl = np.zeros_like(gripper_ctrl)
-        #
-        # # Apply action to simulation.
-        #
-        # # Here, the action that is applied on the gripper to open and close it would be applied in the
-        # # utils.ctrl_set_action, therefore, we do not need to change this function. The only change applies to the
-        # # utils.mocap_set_action. Instead of changing the mocap, we change joints qpos. The action should of of length
-        # # num-joints.
-        #
-        # # For fetchreach, this one sets the position of the gripper (gripper_ctrl)
-        # utils.ctrl_set_action(self.sim, gripper_ctrl)
-        # # The mocap is controlled by position and rotation control first of which has 3 elements, second of which
-        # # has 4 elements and in total, 7 elements. We change this policy for changing the position of the end-effector
-        # # to a method for calculating it using the qpos of each joint.
-        # utils.mocap_set_action(self.sim, pos_ctrl, self.joint_list)
-
-        # END MODIFICATION
-
         assert action.shape == (4,)
         action = action.copy()  # ensure that we don't change the action outside of this scope
         pos_ctrl, gripper_ctrl = action[:3], action[3]
@@ -148,27 +110,21 @@ class FetchEnv(robot_env.RobotEnv):
             object_pos = object_rot = object_velp = object_velr = object_rel_pos = np.zeros(0)
         gripper_state = robot_qpos[-2:]
         gripper_vel = robot_qvel[-2:] * dt  # change to a scalar if the gripper is made symmetric
+
         if not self.has_object:
             achieved_goal = grip_pos.copy()
         else:
             achieved_goal = np.squeeze(object_pos.copy())
+        obs = np.concatenate([
+            grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
+            object_velp.ravel(), object_velr.ravel(), grip_velp, gripper_vel
+        ])
 
-        # obs = np.concatenate([
-        #     grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
-        #     object_velp.ravel(), object_velr.ravel(), grip_velp, gripper_vel
-        # ])
-
-        # return {
-        #     'observation': obs.copy(),
-        #     'achieved_goal': achieved_goal.copy(),
-        #     'desired_goal': self.goal.copy(),
-        # }
-        obs = self.robot_graph.get_graph_obs()
-        obs['global_features'] = self.goal.copy()
-        obs['observation'] = None
-        obs['achieved_goal'] = achieved_goal.copy()
-        obs['desired_goal'] = self.goal.copy()
-        return obs
+        return {
+            'observation': obs.copy(),
+            'achieved_goal': achieved_goal.copy(),
+            'desired_goal': self.goal.copy(),
+        }
 
     def _viewer_setup(self):
         body_id = self.sim.model.body_name2id('robot0:gripper_link')

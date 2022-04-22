@@ -1,15 +1,10 @@
 import numpy as np
 
 from gym import error
-import torchgraphs as tg
-import torch
-
 try:
     import mujoco_py
 except ImportError as e:
-    raise error.DependencyNotInstalled(
-        "{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(
-            e))
+    raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
 
 
 def robot_get_obs(sim):
@@ -29,10 +24,8 @@ def ctrl_set_action(sim, action):
     """For torque actuators it copies the action into mujoco ctrl field.
     For position actuators it sets the target relative to the current qpos.
     """
-    # MODIFICATION: Comment out the following if condition if using custom orders to the joints
     if sim.model.nmocap > 0:
-        _, action = np.split(action, (sim.model.nmocap * 7,))
-    # END MODIFICATION
+        _, action = np.split(action, (sim.model.nmocap * 7, ))
     if sim.data.ctrl is not None:
         for i in range(action.shape[0]):
             if sim.model.actuator_biastype[i] == 0:
@@ -42,7 +35,7 @@ def ctrl_set_action(sim, action):
                 sim.data.ctrl[i] = sim.data.qpos[idx] + action[i]
 
 
-def mocap_set_action(sim, action, joint_list=None):
+def mocap_set_action(sim, action):
     """The action controls the robot using mocaps. Specifically, bodies
     on the robot (for example the gripper wrist) is controlled with
     mocap bodies. In this case the action is the desired difference
@@ -51,28 +44,16 @@ def mocap_set_action(sim, action, joint_list=None):
     the target body according to the delta, and the MuJoCo equality
     constraint optimizer tries to center the welded body on the mocap.
     """
-    # MODIFICATION HERE
+    if sim.model.nmocap > 0:
+        action, _ = np.split(action, (sim.model.nmocap * 7, ))
+        action = action.reshape(sim.model.nmocap, 7)
 
-    # if sim.model.nmocap > 0:
-    #     # For each mocap, we have a vector of length 7 for control, 3 of which are for setting the pos and last for
-    #     # for quaternion or orientation. Specifically for featchreach, we have 1 mocap.
-    #     # MODIFICATION
-    #     for j in range(len(joint_list)):
-    #         joint_qpos = sim.data.get_joint_qpos(joint_list[j].attrib['name'])
-    #         delta = action[j]
-    #         sim.data.set_joint_qpos(joint_list[j].attrib['name'], joint_qpos + delta)
+        pos_delta = action[:, :3]
+        quat_delta = action[:, 3:]
 
-    # END MODIFICATION
-
-    action, _ = np.split(action, (sim.model.nmocap * 7,))
-    action = action.reshape(sim.model.nmocap, 7)
-
-    pos_delta = action[:, :3]
-    quat_delta = action[:, 3:]
-
-    reset_mocap2body_xpos(sim)
-    sim.data.mocap_pos[:] = sim.data.mocap_pos + pos_delta
-    sim.data.mocap_quat[:] = sim.data.mocap_quat + quat_delta
+        reset_mocap2body_xpos(sim)
+        sim.data.mocap_pos[:] = sim.data.mocap_pos + pos_delta
+        sim.data.mocap_quat[:] = sim.data.mocap_quat + quat_delta
 
 
 def reset_mocap_welds(sim):
@@ -92,8 +73,8 @@ def reset_mocap2body_xpos(sim):
     """
 
     if (sim.model.eq_type is None or
-            sim.model.eq_obj1id is None or
-            sim.model.eq_obj2id is None):
+        sim.model.eq_obj1id is None or
+        sim.model.eq_obj2id is None):
         return
     for eq_type, obj1_id, obj2_id in zip(sim.model.eq_type,
                                          sim.model.eq_obj1id,
