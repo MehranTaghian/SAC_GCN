@@ -39,7 +39,7 @@ class RobotGraph:
         Edge features:
             Edges are joints, therefore edge features are selected among <joint> attributes. These include axis, range,
             armature, damping, frictionloss, stiffness, etc. Some of these attributes are set to default values in
-            <default> tag (e.g. for fetchreach, the default values are in the shared.xml file).
+            <default> tag (e.g. for fetchreach.sh, the default values are in the shared.xml file).
             The edge_features list contains the features of edges in the order the came in the edge_list. (also
             in the order they came in edge_from and edge_to)
 

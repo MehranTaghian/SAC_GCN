@@ -107,7 +107,7 @@ class FetchEnv(robot_env.RobotEnv):
         # # utils.mocap_set_action. Instead of changing the mocap, we change joints qpos. The action should of of length
         # # num-joints.
         #
-        # # For fetchreach, this one sets the position of the gripper (gripper_ctrl)
+        # # For fetchreach.sh, this one sets the position of the gripper (gripper_ctrl)
         # utils.ctrl_set_action(self.sim, gripper_ctrl)
         # # The mocap is controlled by position and rotation control first of which has 3 elements, second of which
         # # has 4 elements and in total, 7 elements. We change this policy for changing the position of the end-effector

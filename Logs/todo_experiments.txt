@@ -6,8 +6,3 @@ transferable or not.
 3) For the faulty environment, as we observed, there are some joints having negative score. Try to:
     i) Change their feature space to show zero all the time
     ii) or break those joints so that they would not have any negative impact on the learning process.
-
-
-
-screen 5562.pts-0.mehran on mehran: full-joints
-screen 7697.pts-0.mehran on mehran: important joints

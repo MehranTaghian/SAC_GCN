@@ -67,18 +67,18 @@ args.exp_path = exp_path
 # env = NormalizedActions(gym.make(args.env_name))
 env = None
 if 'FetchReach' in args.env_name:
-    joint_list = ['robot0:shoulder_lift_joint',
-                  'robot0:elbow_flex_joint',
-                  'robot0:wrist_flex_joint']
+    # joint_list = ['robot0:shoulder_lift_joint',
+    #               'robot0:elbow_flex_joint',
+    #               'robot0:wrist_flex_joint']
 
-    # joint_list = [
-    #     'robot0:shoulder_pan_joint',
-    #     'robot0:shoulder_lift_joint',
-    #     'robot0:upperarm_roll_joint',
-    #     'robot0:elbow_flex_joint',
-    #     'robot0:forearm_roll_joint',
-    #     'robot0:wrist_flex_joint',
-    #     'robot0:wrist_roll_joint']
+    joint_list = [
+        'robot0:shoulder_pan_joint',
+        'robot0:shoulder_lift_joint',
+        'robot0:upperarm_roll_joint',
+        'robot0:elbow_flex_joint',
+        'robot0:forearm_roll_joint',
+        'robot0:wrist_flex_joint',
+        'robot0:wrist_roll_joint']
 
     env = FetchReachWrapper(gym.make(args.env_name), joint_list)
 
