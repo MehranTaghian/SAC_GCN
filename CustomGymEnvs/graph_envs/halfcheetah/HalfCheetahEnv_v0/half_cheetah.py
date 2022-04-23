@@ -4,7 +4,7 @@ from gym.envs.mujoco import mujoco_env
 import os
 from pathlib import Path
 from gym import spaces
-from RobotGraphModel import RobotGraph
+from RobotGraphModel import HalfCheetahGraph
 
 
 class HalfCheetahEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):
@@ -55,7 +55,7 @@ class HalfCheetahEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):
 
         # MODIFICATION
         if self.robot_graph is None:
-            self.robot_graph = RobotGraph(self.sim, env_name='HalfCheetahEnv-v0')
+            self.robot_graph = HalfCheetahGraph(self.sim, env_name='HalfCheetahEnv-v0')
         # END MODIFICATION
         ob = self._get_obs()
 
@@ -65,8 +65,9 @@ class HalfCheetahEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):
         obs = self.robot_graph.get_graph_obs()
         obs['global_features'] = np.empty([0])
         # obs['global_features'] = np.concatenate([self.sim.data.qpos.flat[1:], self.sim.data.qvel.flat])
-        # original_obs = np.concatenate([self.sim.data.qpos.flat[1:], self.sim.data.qvel.flat])
-        # print(original_obs)
+        original_obs = np.concatenate([self.sim.data.qpos.flat[1:], self.sim.data.qvel.flat])
+        print('Original observation', original_obs)
+        # print(obs['edge_features'])
         return obs
 
     def reset_model(self):

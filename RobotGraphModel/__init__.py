@@ -1,2 +1,4 @@
 from RobotGraphModel.ModelParser import ModelParser
-from RobotGraphModel.RobotGraph import RobotGraph
+from RobotGraphModel.FetchReachGraph import FetchReachGraph
+from RobotGraphModel.AntGraph import AntGraph
+from RobotGraphModel.HalfCheetahGraph import HalfCheetahGraph

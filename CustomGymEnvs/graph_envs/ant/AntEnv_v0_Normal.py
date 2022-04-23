@@ -11,7 +11,7 @@ from gym.envs.mujoco import mujoco_env
 from pathlib import Path
 from mujoco_py.generated import const  # do not delete; may need in viewer_setup method
 import os  # modification here
-from RobotGraphModel import RobotGraph
+from RobotGraphModel import AntGraph
 from gym import spaces
 
 
@@ -69,7 +69,7 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
 
         # MODIFICATION
         if self.robot_graph is None:
-            self.robot_graph = RobotGraph(self.sim, env_name='AntEnv-v0')
+            self.robot_graph = AntGraph(self.sim, env_name='AntEnv-v0')
         # END MODIFICATION
 
         ob = self._get_obs()
@@ -82,11 +82,12 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
     def _get_obs(self):
         # MODIFICATION (COMMENTED)
         # print('original', np.concatenate([
-        #     self.sim.data.qpos.flat,
+        #     self.sim.data.qpos.flat[2:],
         #     self.sim.data.qvel.flat,
         #     np.clip(self.sim.data.cfrc_ext, -1, 1).flat,
         # ]))
-        # print(self.sim.data.get_joint_qpos("root").shape)
+        print(self.sim.data.get_joint_qpos("root").shape)
+        print(self.sim.data.get_joint_qvel("root").shape)
         # print('graph', self.robot_graph.get_graph_obs()['node_features'])
         obs = self.robot_graph.get_graph_obs()
         # obs['global_features'] = np.array([self.get_body_com("torso")[0]])

@@ -5,7 +5,7 @@ import numpy as np
 import gym
 from gym import error, spaces
 from gym.utils import seeding
-import RobotGraphModel as rgm
+from RobotGraphModel import FetchReachGraph
 from pathlib import Path
 
 try:
@@ -31,7 +31,7 @@ class RobotEnv(gym.GoalEnv):
         self.sim = mujoco_py.MjSim(model, nsubsteps=n_substeps)
 
         # Modification: robot_graph model added. This model will be used as the observation space.
-        self.robot_graph = rgm.RobotGraph(sim=self.sim, env_name='FetchReachEnv-v0', weld_joints=weld_joints)
+        self.robot_graph = FetchReachGraph(sim=self.sim, env_name='FetchReachEnv-v0', weld_joints=weld_joints)
         # End modification
 
         self.viewer = None
