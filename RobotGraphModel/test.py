@@ -3,8 +3,8 @@ import CustomGymEnvs
 from pathlib import Path
 
 # env = gym.make('FetchReachEnvGraph-v0')
-# env = gym.make('AntEnvGraph-v0')
-env = gym.make('HalfCheetahEnvGraph-v0')
+env = gym.make('AntEnvGraph-v0')
+# env = gym.make('HalfCheetahEnvGraph-v0')
 
 # home = str(Path.home())
 g = env.robot_graph
@@ -29,15 +29,22 @@ print(len(g.node_list))
 #     print(id, env.sim.model.body_id2name(id))
 # print('#' * 100)
 
-edge_id_list = []
-for e in g.edge_list:
-    if e is not None:
-        edge_id_list.append(int(env.sim.model.joint_name2id(e.attrib['name'])))
 
-for id in sorted(edge_id_list):
-    name = env.sim.model.joint_id2name(id)
-    print(id, name, g.edge_features[id, :])
-    # print(name, env.sim.data.get_joint_qpos(name))
+for e, f in zip(g.edge_list.keys(), g.extract_edge_features()):
+    print(e, f)
+
+print(g.extract_edge_features())
+
+
+# edge_id_list = []
+# for e in g.edge_list:
+#     if e is not None:
+#         edge_id_list.append(int(env.sim.model.joint_name2id(e.attrib['name'])))
+#
+# for id in sorted(edge_id_list):
+#     name = env.sim.model.joint_id2name(id)
+#     print(id, name, g.edge_features[id, :])
+#     # print(name, env.sim.data.get_joint_qpos(name))
 
 # print(env.sim.data.get_body_xpos("robot0:forearm_roll_link"))
 # print(env.sim.model.body_name2id("robot0:forearm_roll_link"))

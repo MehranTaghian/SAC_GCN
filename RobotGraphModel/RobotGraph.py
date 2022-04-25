@@ -52,7 +52,7 @@ class RobotGraph:
         self.sim = sim
         self.parser = ModelParser(self.sim.model.get_xml(), env_name)
         self.node_list = set()
-        self.edge_list = []
+        self.edge_list = {}
         # edges_from and edges_to are based on the index of the node in the node_list, not the joint_id or body_id
         self.edges_from = []
         self.edges_to = []
@@ -108,14 +108,8 @@ class RobotGraph:
 
         # with welded parts
         for node1, node2, joint in self.parser.connections:
-            # print(
-            #     f"Edge {joint.attrib['name'] if joint is not None else 'welded'} "
-            #     f"between node {node1.attrib['name']} & {node2.attrib['name']}")
             self.node_list.add(node1)
             self.node_list.add(node2)
-            joint = joint if self.weld_joints is None or (joint is not None and self.weld_joints is not None
-                                                          and joint.attrib['name'] not in self.weld_joints) else None
-            self.edge_list.append(joint)
 
         self.node_list = list(self.node_list)
 
@@ -147,7 +141,19 @@ class RobotGraph:
             edge_to = self.node_list.index(n2)
             self.edges_from.append(edge_from)
             self.edges_to.append(edge_to)
-            # print(f"Edge {j.attrib['name']} between {n1.attrib['name']} & {n2.attrib['name']}")
+            j = j if self.weld_joints is None or (j is not None and self.weld_joints is not None
+                                                  and j.attrib['name'] not in self.weld_joints) else None
+
+            if (edge_from, edge_to) not in self.edge_list.keys():
+                self.edge_list[(edge_from, edge_to)] = j
+            elif j is not None:
+                if isinstance(self.edge_list[(edge_from, edge_to)], list):
+                    self.edge_list[(edge_from, edge_to)].append(j)
+                else:
+                    if self.edge_list[(edge_from, edge_to)] is not None:
+                        self.edge_list[(edge_from, edge_to)] = [self.edge_list[(edge_from, edge_to)], j]
+                    else:
+                        self.edge_list[(edge_from, edge_to)] = j
 
         self.edges_from = np.array(self.edges_from)
         self.edges_to = np.array(self.edges_to)
@@ -191,5 +197,3 @@ class RobotGraph:
         qvel [1]: open or close velocity of each joint
         """
         raise NotImplementedError()
-
-

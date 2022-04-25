@@ -48,7 +48,7 @@ class RobotEnv(gym.GoalEnv):
 
         # MODIFICATION
         # None joints are welded connections
-        self.joint_list = [j for j in self.robot_graph.edge_list if j is not None]
+        self.joint_list = [j for j in self.robot_graph.edge_list.values() if j is not None]
         # First we remove the gripper joints from the joint list. Only one element suffices to change the
         # opening and closing of the gripper.
         self.joint_list = [j for j in self.joint_list if (j.attrib['name'] != 'robot0:r_gripper_finger_joint' and
