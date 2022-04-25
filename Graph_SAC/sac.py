@@ -14,7 +14,6 @@ class SAC(object):
         self.tau = args.tau
         self.alpha = args.alpha
 
-        self.policy_type = args.policy
         self.target_update_interval = args.target_update_interval
         self.automatic_entropy_tuning = args.automatic_entropy_tuning
 
@@ -36,28 +35,20 @@ class SAC(object):
                                             aggregation=args.aggregation).to(self.device)
         hard_update(self.critic_target, self.critic)
 
-        if self.policy_type == "Gaussian":
-            # Target Entropy = −dim(A) (e.g. , -6 for HalfCheetah-v2) as given in the paper
-            if self.automatic_entropy_tuning is True:
-                self.target_entropy = -torch.prod(torch.Tensor(action_space.shape).to(self.device)).item()
-                self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
-                self.alpha_optim = Adam([self.log_alpha], lr=args.lr)
+        # Target Entropy = −dim(A) (e.g. , -6 for HalfCheetah-v2) as given in the paper
+        if self.automatic_entropy_tuning is True:
+            self.target_entropy = -torch.prod(torch.Tensor(action_space.shape).to(self.device)).item()
+            self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
+            self.alpha_optim = Adam([self.log_alpha], lr=args.lr)
 
-            self.policy = GaussianPolicy(num_node_features=num_node_features,
-                                         num_edge_features=num_edge_features,
-                                         num_global_features=num_global_features,
-                                         action_space=action_space,
-                                         hidden_action_size=args.hidden_action_size,
-                                         aggregation=args.aggregation,
-                                         relevance=relevance).to(self.device)
-            self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
-
-        # else:
-        # self.alpha = 0
-        # self.automatic_entropy_tuning = False
-        # self.policy = DeterministicPolicy(num_inputs, action_space.shape[0], args.hidden_size, action_space).to(
-        #     self.device)
-        # self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
+        self.policy = GaussianPolicy(num_node_features=num_node_features,
+                                     num_edge_features=num_edge_features,
+                                     num_global_features=num_global_features,
+                                     action_space=action_space,
+                                     hidden_action_size=args.hidden_action_size,
+                                     aggregation=args.aggregation,
+                                     relevance=relevance).to(self.device)
+        self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
 
     def select_action(self, state, evaluate=False):
         # state = torch.FloatTensor(state).to(self.device).unsqueeze(0)

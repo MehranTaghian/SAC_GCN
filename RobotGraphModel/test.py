@@ -3,8 +3,8 @@ import CustomGymEnvs
 from pathlib import Path
 
 # env = gym.make('FetchReachEnvGraph-v0')
-env = gym.make('AntEnvGraph-v0')
-# env = gym.make('HalfCheetahEnvGraph-v0')
+# env = gym.make('AntEnvGraph-v0')
+env = gym.make('HalfCheetahEnvGraph-v0')
 
 # home = str(Path.home())
 g = env.robot_graph
@@ -30,8 +30,8 @@ print(len(g.node_list))
 # print('#' * 100)
 
 
-for e, f in zip(g.edge_list.keys(), g.extract_edge_features()):
-    print(e, f)
+# for e, f in zip(g.edge_list.keys(), g.extract_edge_features()):
+#     print(e, f)
 
 print(g.extract_edge_features())
 

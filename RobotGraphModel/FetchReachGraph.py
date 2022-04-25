@@ -12,9 +12,10 @@ class FetchReachGraph(RobotGraph):
     def extract_edge_features(self):
         feature_list = []
         for edge in self.edge_list.values():
-            if edge is not None:
-                jnt_qpos = self.sim.data.get_joint_qpos(edge.attrib['name'])
-                jnt_qvel = self.sim.data.get_joint_qvel(edge.attrib['name'])
+            if len(edge) > 0:
+                e = edge[0]
+                jnt_qpos = self.sim.data.get_joint_qpos(e.attrib['name'])
+                jnt_qvel = self.sim.data.get_joint_qvel(e.attrib['name'])
                 edge_feature = np.array([jnt_qpos.copy(), jnt_qvel.copy()])
             else:
                 edge_feature = np.array([0, 0])

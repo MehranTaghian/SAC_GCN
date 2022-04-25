@@ -139,21 +139,16 @@ class RobotGraph:
         for n1, n2, j in self.parser.connections:
             edge_from = self.node_list.index(n1)
             edge_to = self.node_list.index(n2)
-            self.edges_from.append(edge_from)
-            self.edges_to.append(edge_to)
             j = j if self.weld_joints is None or (j is not None and self.weld_joints is not None
                                                   and j.attrib['name'] not in self.weld_joints) else None
 
             if (edge_from, edge_to) not in self.edge_list.keys():
-                self.edge_list[(edge_from, edge_to)] = j
-            elif j is not None:
-                if isinstance(self.edge_list[(edge_from, edge_to)], list):
-                    self.edge_list[(edge_from, edge_to)].append(j)
-                else:
-                    if self.edge_list[(edge_from, edge_to)] is not None:
-                        self.edge_list[(edge_from, edge_to)] = [self.edge_list[(edge_from, edge_to)], j]
-                    else:
-                        self.edge_list[(edge_from, edge_to)] = j
+                self.edge_list[(edge_from, edge_to)] = []
+                self.edges_from.append(edge_from)
+                self.edges_to.append(edge_to)
+
+            if j is not None:
+                self.edge_list[(edge_from, edge_to)].append(j)
 
         self.edges_from = np.array(self.edges_from)
         self.edges_to = np.array(self.edges_to)

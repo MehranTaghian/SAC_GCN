@@ -66,7 +66,7 @@ class HalfCheetahEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):
         obs['global_features'] = np.empty([0])
         # obs['global_features'] = np.concatenate([self.sim.data.qpos.flat[1:], self.sim.data.qvel.flat])
         original_obs = np.concatenate([self.sim.data.qpos.flat[1:], self.sim.data.qvel.flat])
-        print('Original observation', original_obs)
+        # print('Original observation', original_obs)
         # print(obs['edge_features'])
         return obs
 

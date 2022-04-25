@@ -12,20 +12,11 @@ class HalfCheetahGraph(RobotGraph):
     def extract_edge_features(self):
         feature_list = []
         for edge in self.edge_list.values():
-            if edge is not None:
-                # if there was only one joint between two nodes
-                if not isinstance(edge, list):
-                    jnt_qpos = self.sim.data.get_joint_qpos(edge.attrib['name'])
-                    jnt_qvel = self.sim.data.get_joint_qvel(edge.attrib['name'])
-                    edge_feature = np.array([jnt_qpos.copy(), jnt_qvel.copy()])
-                # if two nodes were connected with more than one joint
-                else:
-                    edge_feature = []
-                    for e in edge:
-                        jnt_qpos = self.sim.data.get_joint_qpos(e.attrib['name'])
-                        jnt_qvel = self.sim.data.get_joint_qvel(e.attrib['name'])
-                        edge_feature += [jnt_qpos, jnt_qvel]
-            else:
+            if len(edge) > 0:
+                edge_feature = np.array(
+                    [x for e in edge for x in [self.sim.data.get_joint_qpos(e.attrib['name']).copy(),
+                                               self.sim.data.get_joint_qvel(e.attrib['name']).copy()]])
+            else:  # Welded edges
                 edge_feature = np.zeros([0, 0])
 
             feature_list.append(edge_feature)
