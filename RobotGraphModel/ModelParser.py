@@ -67,7 +67,7 @@ class ModelParser:
 
 if __name__ == "__main__":
     # env_name = 'FetchReachEnv-v0'
-    env_name = 'AntEnv-v0'
+    env_name = 'AntEnv_v0_Normal'
     env = gym.make(env_name)
     p = ModelParser(env.sim.model.get_xml(), env_name)
 

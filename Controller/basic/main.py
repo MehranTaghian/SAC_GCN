@@ -65,7 +65,6 @@ args.exp_path = exp_path
 
 # Environment
 # env = NormalizedActions(gym.make(args.env_name))
-env = None
 if 'FetchReach' in args.env_name:
     joint_list = ['robot0:shoulder_lift_joint',
                   'robot0:elbow_flex_joint',
@@ -81,6 +80,9 @@ if 'FetchReach' in args.env_name:
     #     'robot0:wrist_roll_joint']
 
     env = FetchReachWrapper(gym.make(args.env_name), joint_list)
+
+else:
+    env = gym.make(args.env_name)
 
 env.seed(args.seed)
 env.action_space.seed(args.seed)

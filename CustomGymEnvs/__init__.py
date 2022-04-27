@@ -4,14 +4,31 @@ from .envs.fetchreach.Wrappers.FetchReach import FetchReachWrapper
 # Ant - Graph
 register(
     id="AntEnvGraph-v0",
-    entry_point="CustomGymEnvs.graph_envs.ant.AntEnv_v0_Normal:AntEnvV0",
+    entry_point="CustomGymEnvs.graph_envs.ant.AntEnv_v0_Normal:AntEnv",
+    max_episode_steps=1000,
+)
+
+# Ant
+
+register(
+    id="AntEnv-v0",
+    entry_point="CustomGymEnvs.envs.ant.AntEnv_v0_Normal:AntEnv",
     max_episode_steps=1000,
 )
 
 # HalfCheetah - Graph
+
 register(
     id="HalfCheetahEnvGraph-v0",
-    entry_point="CustomGymEnvs.graph_envs.halfcheetah.HalfCheetahEnv_v0.half_cheetah:HalfCheetahEnvV0",
+    entry_point="CustomGymEnvs.graph_envs.halfcheetah.HalfCheetahEnv_v0_Normal.half_cheetah:HalfCheetahEnv",
+    max_episode_steps=1000,
+)
+
+# HalfCheetah
+
+register(
+    id="HalfCheetahEnv-v0",
+    entry_point="CustomGymEnvs.envs.halfcheetah.HalfCheetahEnv_v0_Normal.half_cheetah:HalfCheetahEnv",
     max_episode_steps=1000,
 )
 

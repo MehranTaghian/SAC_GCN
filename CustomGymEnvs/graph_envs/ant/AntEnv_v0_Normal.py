@@ -15,7 +15,7 @@ from RobotGraphModel import AntGraph
 from gym import spaces
 
 
-class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
+class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
     def __init__(self):
 
         # modification here: start
@@ -69,7 +69,7 @@ class AntEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
 
         # MODIFICATION
         if self.robot_graph is None:
-            self.robot_graph = AntGraph(self.sim, env_name='AntEnv-v0')
+            self.robot_graph = AntGraph(self.sim, env_name='AntEnv_v0_Normal')
         # END MODIFICATION
 
         ob = self._get_obs()

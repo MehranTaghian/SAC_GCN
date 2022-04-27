@@ -7,7 +7,7 @@ from gym import spaces
 from RobotGraphModel import HalfCheetahGraph
 
 
-class HalfCheetahEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):
+class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self):
         self.filepath = os.path.join(Path(__file__).parent, 'half_cheetah.xml')
         self.robot_graph = None
@@ -55,7 +55,7 @@ class HalfCheetahEnvV0(mujoco_env.MujocoEnv, utils.EzPickle):
 
         # MODIFICATION
         if self.robot_graph is None:
-            self.robot_graph = HalfCheetahGraph(self.sim, env_name='HalfCheetahEnv-v0')
+            self.robot_graph = HalfCheetahGraph(self.sim, env_name='HalfCheetahEnv_v0_Normal')
         # END MODIFICATION
         ob = self._get_obs()
 
