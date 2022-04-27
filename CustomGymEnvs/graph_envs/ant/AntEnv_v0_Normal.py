@@ -19,15 +19,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
     def __init__(self):
 
         # modification here: start
-        self.hostname = os.uname()[1]
-        self.localhosts = ["melco", "Legion", "amii", "mehran"]
-        self.computecanada = not any(host in self.hostname for host in self.localhosts)
-        home = str(Path.home())
-        if self.computecanada:
-            self.filepath = home + "/scratch/SAC_GCN/CustomGymEnvs/graph_envs/ant/xml/AntEnv_v0_Normal.xml"
-        else:
-            self.filepath = home + "/Documents/SAC_GCN/CustomGymEnvs/graph_envs/ant/xml/AntEnv_v0_Normal.xml"
-
+        self.filepath = os.path.join(Path(__file__).parent, 'xml/AntEnv_v0_Normal.xml')
         self.robot_graph = None
         # modification here: end
 
@@ -81,11 +73,11 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
 
     def _get_obs(self):
         # MODIFICATION (COMMENTED)
-        print('original', np.concatenate([
-            self.sim.data.qpos.flat[2:],
-            self.sim.data.qvel.flat,
-            np.clip(self.sim.data.cfrc_ext, -1, 1).flat,
-        ]))
+        # print('original', np.concatenate([
+        #     self.sim.data.qpos.flat[2:],
+        #     self.sim.data.qvel.flat,
+        #     np.clip(self.sim.data.cfrc_ext, -1, 1).flat,
+        # ]))
         # print(self.sim.data.get_joint_qpos("root").shape)
         # print(self.sim.data.get_joint_qvel("root").shape)
         # print('graph', self.robot_graph.get_graph_obs()['node_features'])
