@@ -11,3 +11,5 @@ run experiments for half cheetah original environment:
 5 seeds on mehran and 5 seeds on melco
 
 run experiments for fetch reach graph with occluded non-important joints (FetchReachGraph-v7).
+
+experiment for ant-graph is running on melco screen: 1307660.pts-0.melco
