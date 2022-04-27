@@ -7,10 +7,7 @@ transferable or not.
     i) Change their feature space to show zero all the time
     ii) or break those joints so that they would not have any negative impact on the learning process.
 
+run experiments for half cheetah original environment:
+5 seeds on mehran and 5 seeds on melco
 
-run experiments for both occlussion and non-occlusion case for the basic controller. non-occludeds are already added.
-occluded ones are running on melco
-
-run experiments for fetchreach and halfcheetah on melco:
-half cheetah: 1233141.pts-0.melco
-fetchreach: 1233262.pts-0.melco
+run experiments for fetch reach graph with occluded non-important joints (FetchReachGraph-v7).
