@@ -13,7 +13,7 @@ CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name FetchPickAndPlaceEnv-v0 --ex
 
 CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name AntEnv-v0 --exp-type standard --automatic_entropy_tuning True --num_steps 10000000 --start_steps  10000 -dsf 10 --cuda --seed 0 --aggregation sum
 
-CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name AntEnv-v0 --exp-type standard --automatic_entropy_tuning True --num_steps 10000000 --start_steps  10000 -dsf 10 --cuda --seed 0
+CUDA_VISIBLE_DEVICES=1 python $MAIN_FILE --env-name AntEnvGraph-v0 --exp-type test --automatic_entropy_tuning True --num_steps 10000000 --start_steps  10000 -dsf 10 --cuda --seed 0
 
 CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name HalfCheetahEnv-v0 --automatic_entropy_tuning True --num_steps 10000000 --start_steps  10000 -dsf 10 --cuda --seed 0
 

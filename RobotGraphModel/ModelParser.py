@@ -48,12 +48,12 @@ class ModelParser:
                                      and 'laser' not in self.parent_map[b].attrib['name'])
                                     )]
 
-        if 'AntEnv' in env_name:
-            for i in range(len(self.connections_joint)):
-                _, _, j = self.connections_joint[i]
-                if 'name' in j.attrib and j.attrib['name'] == 'root':
-                    del self.connections_joint[i]
-                    break
+        # if 'AntEnv' in env_name:
+        #     for i in range(len(self.connections_joint)):
+        #         _, _, j = self.connections_joint[i]
+        #         if 'name' in j.attrib and j.attrib['name'] == 'root':
+        #             del self.connections_joint[i]
+        #             break
 
         # Removing those connections that have a joint from welded connections list
         for p1, p2, _ in self.connections_joint:

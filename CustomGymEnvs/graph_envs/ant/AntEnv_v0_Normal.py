@@ -81,20 +81,20 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):  # modification here
 
     def _get_obs(self):
         # MODIFICATION (COMMENTED)
-        # print('original', np.concatenate([
-        #     self.sim.data.qpos.flat[2:],
-        #     self.sim.data.qvel.flat,
-        #     np.clip(self.sim.data.cfrc_ext, -1, 1).flat,
-        # ]))
-        print(self.sim.data.get_joint_qpos("root").shape)
-        print(self.sim.data.get_joint_qvel("root").shape)
+        print('original', np.concatenate([
+            self.sim.data.qpos.flat[2:],
+            self.sim.data.qvel.flat,
+            np.clip(self.sim.data.cfrc_ext, -1, 1).flat,
+        ]))
+        # print(self.sim.data.get_joint_qpos("root").shape)
+        # print(self.sim.data.get_joint_qvel("root").shape)
         # print('graph', self.robot_graph.get_graph_obs()['node_features'])
         obs = self.robot_graph.get_graph_obs()
         # obs['global_features'] = np.array([self.get_body_com("torso")[0]])
         # obs['global_features'] = np.array([self.sim.data.get_body_xvelp("torso")[0]])
-        obs['global_features'] = np.concatenate(
-            [self.sim.data.get_joint_qpos("root"), self.sim.data.get_joint_qvel("root")])
-        # obs['global_features'] = np.empty([0])
+        # obs['global_features'] = np.concatenate(
+        #     [self.sim.data.get_joint_qpos("root"), self.sim.data.get_joint_qvel("root")])
+        obs['global_features'] = np.empty([0])
         # obs['global_features'] = np.concatenate([self.sim.data.qpos.flat, self.sim.data.qvel.flat])
         return obs
         # END MODIFICATION

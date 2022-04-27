@@ -19,8 +19,8 @@ from pathlib import Path
 #     'robot0:wrist_roll_joint']
 # env = FetchReachWrapper(gym.make("FetchReachEnv-v0"), joint_list)
 
-env = gym.make("FetchReachEnvGraph-v7")
-# env = gym.make("AntEnvGraph-v0")
+# env = gym.make("FetchReachEnvGraph-v7")
+env = gym.make("AntEnvGraph-v0")
 # env = gym.make("FetchReachEnv-v4")
 # env = gym.make("Ant-v2")
 # env = gym.make("HalfCheetahEnvGraph-v0")

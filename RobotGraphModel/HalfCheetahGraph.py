@@ -17,7 +17,7 @@ class HalfCheetahGraph(RobotGraph):
                     [x for e in edge for x in [self.sim.data.get_joint_qpos(e.attrib['name']).copy(),
                                                self.sim.data.get_joint_qvel(e.attrib['name']).copy()]])
             else:  # Welded edges
-                edge_feature = np.zeros([0, 0])
+                edge_feature = np.zeros(2)
 
             feature_list.append(edge_feature)
 

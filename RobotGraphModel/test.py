@@ -2,8 +2,8 @@ import gym
 import CustomGymEnvs
 from pathlib import Path
 
-env = gym.make('FetchReachEnvGraph-v0')
-# env = gym.make('AntEnvGraph-v0')
+# env = gym.make('FetchReachEnvGraph-v0')
+env = gym.make('AntEnvGraph-v0')
 # env = gym.make('HalfCheetahEnvGraph-v0')
 
 # home = str(Path.home())
