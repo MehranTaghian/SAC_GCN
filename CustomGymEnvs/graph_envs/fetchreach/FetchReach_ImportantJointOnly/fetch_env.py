@@ -6,7 +6,7 @@ modified _sample_goal method to eliminate unreachable goals in table
 """
 import numpy as np
 
-from CustomGymEnvs.graph_envs.fetchreach.FetchReach_Occluded import robot_env, rotations, utils  # modification here
+from CustomGymEnvs.graph_envs.fetchreach.FetchReach_ImportantJointOnly import robot_env, rotations, utils  # modification here
 
 
 def goal_distance(goal_a, goal_b):

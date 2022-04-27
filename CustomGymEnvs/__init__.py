@@ -59,6 +59,12 @@ register(
     max_episode_steps=50,
 )
 
+register(
+    id="FetchReachEnvGraph-v7",
+    entry_point="CustomGymEnvs.graph_envs.fetchreach.FetchReach_ImportantJointOnly.fetch.reach:FetchReachEnv",
+    max_episode_steps=50,
+)
+
 # FetchReach
 
 register(
@@ -66,4 +72,3 @@ register(
     entry_point="CustomGymEnvs.envs.fetchreach.CustomFetchReach.fetch.reach:FetchReachEnv",
     max_episode_steps=50,
 )
-
