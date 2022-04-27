@@ -1,4 +1,4 @@
-MAIN_FILE="/home/mehran/Documents/SAC_GCN/Controller/basic/main.py"
+MAIN_FILE="/home/taghianj/Documents/SAC_GCN/Controller/basic/main.py"
 
 tmux new-session -d -s v0-0 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name HalfCheetahEnv-v0 --exp-type standard --automatic_entropy_tuning True --num_steps 1000000 --start_steps 10000 -dsf 100 --cuda --seed 0"
 tmux new-session -d -s v0-1 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name HalfCheetahEnv-v0 --exp-type standard --automatic_entropy_tuning True --num_steps 1000000 --start_steps 10000 -dsf 100 --cuda --seed 1"
