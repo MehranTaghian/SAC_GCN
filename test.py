@@ -9,26 +9,27 @@ from pathlib import Path
 #               'robot0:elbow_flex_joint',
 #               'robot0:wrist_flex_joint']
 #
-# joint_list = [
-#     'robot0:shoulder_pan_joint',
-#     'robot0:shoulder_lift_joint',
-#     'robot0:upperarm_roll_joint',
-#     'robot0:elbow_flex_joint',
-#     'robot0:forearm_roll_joint',
-#     'robot0:wrist_flex_joint',
-#     'robot0:wrist_roll_joint']
-# env = FetchReachWrapper(gym.make("FetchReachEnv-v0"), joint_list)
+joint_list = [
+    'robot0:shoulder_pan_joint',
+    # 'robot0:shoulder_lift_joint',
+    'robot0:upperarm_roll_joint',
+    # 'robot0:elbow_flex_joint',
+    'robot0:forearm_roll_joint',
+    # 'robot0:wrist_flex_joint',
+    'robot0:wrist_roll_joint']
+env = FetchReachWrapper(gym.make("FetchReachEnv-v0"), joint_list)
 
 # env = gym.make("FetchReachEnvGraph-v7")
-env = gym.make("AntEnvGraph-v0")
+# env = gym.make("AntEnvGraph-v0")
 # env = gym.make("FetchReachEnv-v4")
 # env = gym.make("Ant-v2")
 # env = gym.make("HalfCheetahEnvGraph-v0")
 # env = gym.make("FetchPickAndPlaceEnv-v0")
 
 obs = env.reset()
-print(obs['edge_features'])
-print(obs['global_features'].shape)
+print(obs)
+# print(obs['edge_features'])
+# print(obs['global_features'].shape)
 
 # print(env.observation_space.shape)
 # print(env.action_space.shape)
