@@ -11,5 +11,5 @@ run experiments for fetch reach graph with occluded non-important joints (FetchR
 
 experiment for ant-graph is running on melco screen: 1307660.pts-0.melco
 
-run experiments for halfcheetah graph
-run experiments fetch reach with important joints occluded
+run experiments for halfcheetah graph on melco and mehran
+run experiments fetch reach with important joints occluded on melco
