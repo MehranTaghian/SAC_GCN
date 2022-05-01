@@ -30,3 +30,5 @@ what negative scores mean?
 12) Make edges bidirectional (non-directional graph)
 
 13) Back-propagete the avg of the dist of one action at each time-step for LRP
+
+14) Plot losses for Ant experiment and analyze the change in performance.
