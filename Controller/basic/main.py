@@ -72,11 +72,11 @@ if 'FetchReach' in args.env_name:
 
     joint_list = [
         'robot0:shoulder_pan_joint',
-        # 'robot0:shoulder_lift_joint',
+        'robot0:shoulder_lift_joint',
         'robot0:upperarm_roll_joint',
-        # 'robot0:elbow_flex_joint',
+        'robot0:elbow_flex_joint',
         'robot0:forearm_roll_joint',
-        # 'robot0:wrist_flex_joint',
+        'robot0:wrist_flex_joint',
         'robot0:wrist_roll_joint']
 
     env = FetchReachWrapper(gym.make(args.env_name), joint_list)
@@ -137,7 +137,7 @@ for i_episode in itertools.count(1):
                 critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory,
                                                                                                      args.batch_size,
                                                                                                      updates)
-                np.append(losses, [[updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha]], axis=0)
+                losses = np.append(losses, [[updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha]], axis=0)
                 updates += 1
 
         next_state, reward, done, _ = env.step(action)  # Step

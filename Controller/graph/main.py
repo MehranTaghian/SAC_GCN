@@ -149,7 +149,7 @@ for i_episode in itertools.count(1):
                 # writer.add_scalar('loss/policy', policy_loss, updates)
                 # writer.add_scalar('loss/entropy_loss', ent_loss, updates)
                 # writer.add_scalar('entropy_temprature/alpha', alpha, updates)
-                np.append(losses, [[updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha]], axis=0)
+                losses = np.append(losses, [[updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha]], axis=0)
                 updates += 1
 
         next_state, reward, done, _ = env.step(action)  # Step
