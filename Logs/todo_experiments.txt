@@ -9,7 +9,7 @@ transferable or not.
 
 run experiments for fetch reach graph with occluded non-important joints (FetchReachGraph-v7).
 
-experiment for ant-graph is running on melco screen: 1307660.pts-0.melco
-
 run experiments for halfcheetah graph on melco and mehran
 run experiments fetch reach with important joints occluded on melco
+
+experiments for ant uni and bidirectional are running on mehran. first screen is bi and second is uni
