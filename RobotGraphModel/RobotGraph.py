@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 class RobotGraph:
-    def __init__(self, sim, env_name, weld_joints=None, bidirectional=True):
+    def __init__(self, sim, env_name, weld_joints=None, bidirectional=False):
         """
         Based on the definition in the MuJoCo documentation:
         This element creates a joint. As explained in Kinematic tree, a joint creates motion degrees of freedom
