@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 class RobotGraph:
-    def __init__(self, sim, env_name, weld_joints=None):
+    def __init__(self, sim, env_name, weld_joints=None, bidirectional=True):
         """
         Based on the definition in the MuJoCo documentation:
         This element creates a joint. As explained in Kinematic tree, a joint creates motion degrees of freedom
@@ -49,6 +49,7 @@ class RobotGraph:
         :@param save_log if true, a log of the change in node and edge features would be saved.
         """
         self.weld_joints = weld_joints
+        self.bidirectional = bidirectional
         self.sim = sim
         self.parser = ModelParser(self.sim.model.get_xml(), env_name)
         self.node_list = set()
@@ -67,7 +68,7 @@ class RobotGraph:
         motion, axis, etc.
         :return:
         """
-        self.fill_node_edge_lists()
+        # self.fill_node_edge_lists()
         self.generate_adjacency_matrix()
         self.extract_node_features()
         self.extract_edge_features()
@@ -85,6 +86,7 @@ class RobotGraph:
                 'edges_to': self.edges_to}
 
     def fill_node_edge_lists(self):
+        raise NotImplementedError()
         # removing welded joints
         # for node1, node2, joint in self.parser.connections:
         #     # Note: all the body parts except the world body MUST be named.
@@ -107,11 +109,11 @@ class RobotGraph:
         #         self.edge_list.append(joint)
 
         # with welded parts
-        for node1, node2, joint in self.parser.connections:
-            self.node_list.add(node1)
-            self.node_list.add(node2)
-
-        self.node_list = list(self.node_list)
+        # for node1, node2, joint in self.parser.connections:
+        #     self.node_list.add(node1)
+        #     self.node_list.add(node2)
+        #
+        # self.node_list = list(self.node_list)
 
     def generate_adjacency_matrix(self):
 
@@ -133,10 +135,10 @@ class RobotGraph:
         #         # self.edges_from.append(edge_to)
         #         # self.edges_to.append(edge_from)
 
-        # TODO: turn edges to a dictionary of type edge_list[(node1, node2)] = edge
-
         # with welded parts
         for n1, n2, j in self.parser.connections:
+            self.node_list.add(n1)
+            self.node_list.add(n2)
             edge_from = self.node_list.index(n1)
             edge_to = self.node_list.index(n2)
             j = j if self.weld_joints is None or (j is not None and self.weld_joints is not None
@@ -146,10 +148,17 @@ class RobotGraph:
                 self.edge_list[(edge_from, edge_to)] = []
                 self.edges_from.append(edge_from)
                 self.edges_to.append(edge_to)
+                if self.bidirectional:
+                    self.edge_list[(edge_to, edge_from)] = []
+                    self.edges_from.append(edge_to)
+                    self.edges_to.append(edge_from)
 
             if j is not None:
                 self.edge_list[(edge_from, edge_to)].append(j)
+                if self.bidirectional:
+                    self.edge_list[(edge_to, edge_from)].append(j)
 
+        self.node_list = list(self.node_list)
         self.edges_from = np.array(self.edges_from)
         self.edges_to = np.array(self.edges_to)
 
