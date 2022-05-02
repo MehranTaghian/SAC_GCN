@@ -32,3 +32,5 @@ what negative scores mean?
 13) Back-propagete the avg of the dist of one action at each time-step for LRP
 
 14) Plot losses for Ant experiment and analyze the change in performance.
+
+15) Handle all the graph environements with wrappers

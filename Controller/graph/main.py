@@ -63,8 +63,6 @@ args = parser.parse_args()
 exp_path = Path(os.path.abspath(__file__)).parent.parent.parent
 exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type, f'seed{args.seed}')
 
-print(exp_path)
-
 if not os.path.exists(exp_path):
     os.makedirs(exp_path)
 
@@ -149,7 +147,8 @@ for i_episode in itertools.count(1):
                 # writer.add_scalar('loss/policy', policy_loss, updates)
                 # writer.add_scalar('loss/entropy_loss', ent_loss, updates)
                 # writer.add_scalar('entropy_temprature/alpha', alpha, updates)
-                losses = np.append(losses, [[updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha]], axis=0)
+                losses = np.append(losses, [[updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha]],
+                                   axis=0)
                 updates += 1
 
         next_state, reward, done, _ = env.step(action)  # Step

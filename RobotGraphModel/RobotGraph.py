@@ -68,7 +68,7 @@ class RobotGraph:
         motion, axis, etc.
         :return:
         """
-        # self.fill_node_edge_lists()
+        self.fill_node_edge_lists()
         self.generate_adjacency_matrix()
         self.extract_node_features()
         self.extract_edge_features()
@@ -86,7 +86,6 @@ class RobotGraph:
                 'edges_to': self.edges_to}
 
     def fill_node_edge_lists(self):
-        raise NotImplementedError()
         # removing welded joints
         # for node1, node2, joint in self.parser.connections:
         #     # Note: all the body parts except the world body MUST be named.
@@ -109,11 +108,11 @@ class RobotGraph:
         #         self.edge_list.append(joint)
 
         # with welded parts
-        # for node1, node2, joint in self.parser.connections:
-        #     self.node_list.add(node1)
-        #     self.node_list.add(node2)
-        #
-        # self.node_list = list(self.node_list)
+        for node1, node2, _ in self.parser.connections:
+            self.node_list.add(node1)
+            self.node_list.add(node2)
+
+        self.node_list = list(self.node_list)
 
     def generate_adjacency_matrix(self):
 
@@ -137,8 +136,6 @@ class RobotGraph:
 
         # with welded parts
         for n1, n2, j in self.parser.connections:
-            self.node_list.add(n1)
-            self.node_list.add(n2)
             edge_from = self.node_list.index(n1)
             edge_to = self.node_list.index(n2)
             j = j if self.weld_joints is None or (j is not None and self.weld_joints is not None
@@ -158,7 +155,6 @@ class RobotGraph:
                 if self.bidirectional:
                     self.edge_list[(edge_to, edge_from)].append(j)
 
-        self.node_list = list(self.node_list)
         self.edges_from = np.array(self.edges_from)
         self.edges_to = np.array(self.edges_to)
 
