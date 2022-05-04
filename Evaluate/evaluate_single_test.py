@@ -93,11 +93,6 @@ checkpoint_path = os.path.join(exp_path, 'model')
 agent.load_checkpoint(checkpoint_path, evaluate=True)
 agent_relevance.load_checkpoint(checkpoint_path, evaluate=True)
 
-# Tesnorboard
-# writer = SummaryWriter(
-#     'runs/{}_SAC_{}_{}_{}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), args.env_name,
-#                                   args.policy, "autotune" if args.automatic_entropy_tuning else ""))
-
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
 render = False
 
@@ -119,9 +114,6 @@ for joint_list in edge_list.values():
                 rel_score_edge[i] = {}
             rel_freq_edge[i][joint_name] = 0
             rel_score_edge[i][joint_name] = []
-
-        # rel_freq_edge[joint_name] = 0
-        # rel_score_edge[joint_name] = []
 
 rel_freq_global = {}
 # rel_freq_global = 0
@@ -177,30 +169,6 @@ for i in tqdm(range(episodes)):
         # global_relevance = torch.ones_like(out.global_features) * (out.global_features != 0).float()
         # state.zero_grad_()
         # out.global_features.backward(global_relevance)
-
-        # OLD
-        # state = state_2_graphbatch(state).requires_grad_().to(device)
-        # graph_out = agent_relevance.policy.graph_net(state)
-        # out = agent_relevance.policy.mean_linear(graph_out).global_features
-        # state.zero_grad_()
-        # out.backward(out)
-
-        # node_rel = state.node_features.grad.sum(dim=1)
-        # edge_rel = state.edge_features.grad.sum(dim=1)
-        # global_rel = state.global_features.grad.sum(dim=1)
-        # rel_freq_global += global_rel
-        #
-        # for e, edge in enumerate(edge_list.values()):
-        #     if len(edge) > 0:
-        #         if len(edge) == 1:
-        #             joint_name = edge[0].attrib['name']
-        #         else:
-        #             joint_name = '\n'.join([j.attrib['name'] for j in edge])
-        #
-        #         rel_freq_edge[joint_name] += edge_rel[e]
-        #         if len(rel_score_edge[joint_name]) - 1 < i:
-        #             rel_score_edge[joint_name].append([])
-        #         rel_score_edge[joint_name][i].append(edge_rel[e])
 
         # for id in body_ids:
         #     if 'name' in node_list[id].attrib:
