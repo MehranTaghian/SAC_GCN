@@ -9,11 +9,13 @@ from tqdm import tqdm
 import CustomGymEnvs
 from pathlib import Path
 from Graph_SAC.sac import SAC
-# from torch.utils.tensorboard import SummaryWriter
 from utils import state_2_graphbatch
 
 # matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.style.use('tableau-colorblind10')
 
 plt.rcParams['font.size'] = '20'
 
@@ -87,12 +89,9 @@ node_list = env.robot_graph.node_list
 
 # TODO edit this function to be inline
 def process_joint_name(joint_name):
-    if 'robot0' in joint_name:
-        sep_key = joint_name.split(':')[1].split('_')
-    else:
-        sep_key = joint_name.split('_')
+    separated = joint_name.split(':')[1].split('_') if 'robot0' in joint_name else joint_name.split('_')
     final_key = ''
-    for sk in sep_key:
+    for sk in separated:
         if len(sk) == 1:
             final_key += sk + '-'
         else:
@@ -109,145 +108,147 @@ for joint_list in edge_list.values():
             else '\n'.join([process_joint_name(j.attrib['name']) for j in joint_list])
         )
 
-# rel_edge_sum[joint_index, action_index, seed] = [sum of relevance scores within an episode]
-# rel_edge_episode[joint_index, action_index, seed, num_episodes, episode_steps] =
+action_indices = [a for a in range(env.action_space.shape[0])]
+
+# edge_relevance[joint_index, action_index, seed, num_episodes, episode_steps] =
 #                 [relevance score for each time-step of episode]
-# rel_global_sum[action_index, seed] = [sum of relevance scores for global feature within an episode]
-rel_edge_sum = np.zeros([len(joint_names), env.action_space.shape[0], len(experiment_seed)])
-rel_edge_episode = np.zeros(
+# global_relevance[action_index, seed] = [sum of relevance scores for global feature within an episode]
+edge_relevance = np.zeros(
     [len(joint_names),
      env.action_space.shape[0],
      len(experiment_seed),
      num_episodes,
      env.spec.max_episode_steps])
 
-rel_global_sum = np.zeros([env.action_space.shape[0], len(experiment_seed)])
+global_relevance = np.zeros([env.action_space.shape[0], len(experiment_seed)])
 
 
-def set_ax(ax, n_rows, n_cols):
-    for i in range(n_rows):
-        for j in range(n_cols):
-            ax[i, j].spines['top'].set_visible(False)
-            ax[i, j].spines['right'].set_visible(False)
-            ax[i, j].spines['left'].set_visible(False)
-            ax[i, j].spines['bottom'].set_color('#DDDDDD')
-            ax[i, j].tick_params(bottom=False, left=False)
-            ax[i, j].set_axisbelow(True)
-            ax[i, j].yaxis.grid(True, color='#EEEEEE')
-            ax[i, j].xaxis.grid(False)
+def calculate_relevance():
+    for s in range(len(experiment_seed)):
+        env.seed(s)
+        env.action_space.seed(s)
+        torch.manual_seed(s)
+        np.random.seed(s)
+        # Agent
+        checkpoint_path = os.path.join(exp_path, f'seed{s}', 'model')
+        agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, False, args)
+        agent_relevance = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, True, args)
+
+        agent.load_checkpoint(checkpoint_path, evaluate=True)
+        agent_relevance.load_checkpoint(checkpoint_path, evaluate=True)
+
+        avg_reward = 0.
+
+        for episode in tqdm(range(num_episodes)):
+            state = env.reset()
+            episode_reward = 0
+            done = False
+            step = 0
+            while not done:
+                for action_index in range(env.action_space.shape[0]):
+                    batch_state = state_2_graphbatch(state).requires_grad_().to(device)
+                    out = agent_relevance.policy.graph_net(batch_state)
+                    out = agent_relevance.policy.mean_linear(out)[0]
+                    output_relevance = torch.zeros_like(out.global_features)
+                    output_relevance[action_index] = out.global_features[action_index]
+                    batch_state.zero_grad_()
+                    out.global_features.backward(output_relevance)
+
+                    edge_rel = batch_state.edge_features.grad.sum(dim=1)
+                    global_rel = batch_state.global_features.grad.sum(dim=1)
+                    global_relevance[action_index, s] += global_rel
+
+                    for joint_index, joint_name in enumerate(joint_names):
+                        edge_relevance[joint_index, action_index, s, episode, step] = edge_rel[joint_index]
+                step += 1
+                action = agent.select_action(state_2_graphbatch(state), evaluate=True)
+                next_state, reward, done, _ = env.step(action)
+                episode_reward += reward
+                state = next_state
+            avg_reward += episode_reward
+        avg_reward /= num_episodes
+
+        print("----------------------------------------")
+        print("Test Episodes: {}, Avg. Reward: {}".format(num_episodes, round(avg_reward, 2)))
+        print("----------------------------------------")
+
+    env.close()
 
 
-for s in range(len(experiment_seed)):
-    env.seed(s)
-    env.action_space.seed(s)
-    torch.manual_seed(s)
-    np.random.seed(s)
-    # Agent
-    checkpoint_path = os.path.join(exp_path, f'seed{s}', 'model')
-    agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, False, args)
-    agent_relevance = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, True, args)
+def plot_joint_action_heatmap(fig, ax, data, title, file_name):
+    im = ax.imshow(data)
+    cbar = ax.figure.colorbar(im, ax=ax)
+    cbar.ax.set_ylabel('Avg relevance score across seeds', rotation=-90, va="bottom")
+    ax.set_xticks(np.arange(len(action_indices)), labels=action_indices)
+    ax.set_yticks(np.arange(len(joint_names)), labels=[j for j in reversed(joint_names)])
+    ax.set_xlabel("Action index")
+    ax.set_ylabel(f"Joints' names")
+    ax.set_title(title)
+    fig.savefig(file_name, dpi=300)
 
-    agent.load_checkpoint(checkpoint_path, evaluate=True)
-    agent_relevance.load_checkpoint(checkpoint_path, evaluate=True)
 
-    num_samples = 0
-    avg_reward = 0.
-
-    for episode in tqdm(range(num_episodes)):
-        state = env.reset()
-        episode_reward = 0
-        done = False
-        step = 0
-        while not done:
-            for action_index in range(env.action_space.shape[0]):
-                batch_state = state_2_graphbatch(state).requires_grad_().to(device)
-                out = agent_relevance.policy.graph_net(batch_state)
-                out = agent_relevance.policy.mean_linear(out)[0]
-                global_relevance = torch.zeros_like(out.global_features)
-                global_relevance[action_index] = out.global_features[action_index]
-                batch_state.zero_grad_()
-                out.global_features.backward(global_relevance)
-
-                edge_rel = batch_state.edge_features.grad.sum(dim=1)
-                global_rel = batch_state.global_features.grad.sum(dim=1)
-                rel_global_sum[action_index, s] += global_rel
-
-                for joint_index, joint_name in enumerate(joint_names):
-                    rel_edge_sum[joint_index, action_index, s] += edge_rel[joint_index]
-                    rel_edge_episode[joint_index, action_index, s, episode, step] = edge_rel[joint_index]
-            step += 1
-            num_samples += 1
-            action = agent.select_action(state_2_graphbatch(state), evaluate=True)
-            next_state, reward, done, _ = env.step(action)
-            episode_reward += reward
-            state = next_state
-        avg_reward += episode_reward
-    avg_reward /= num_episodes
-
-    # Calculating average relevance scores across episodes for one seed, also average of total relevance:
-    rel_edge_sum[:, :, s] /= num_samples
-
-    print("----------------------------------------")
-    print("Test Episodes: {}, Avg. Reward: {}".format(num_episodes, round(avg_reward, 2)))
-    print("----------------------------------------")
-
-    step += 1
-
-env.close()
-
-figure_width = 35
-figure_height = 16
-label_rotation = 0
-
-fig_edge_avg, ax_edge_avg = plt.subplots(figsize=[figure_width, figure_height])
-fig_name = os.path.join(exp_path, 'edge_relevance_heatmap.jpg')
-
-action_indices = [a for a in range(env.action_space.shape[0])]
-edge_relevances = np.zeros([len(joint_names), len(action_indices)])
-# average relevances over seeds
-for joint_index in range(len(joint_names)):
-    for action_index in action_indices:
-        edge_relevances[joint_index, action_index] = np.mean(rel_edge_sum[joint_index, action_index, :])
-
-edge_relevances = edge_relevances / np.abs(edge_relevances).max(axis=0)
-
-im = ax_edge_avg.imshow(edge_relevances)
-cbar = ax_edge_avg.figure.colorbar(im, ax=ax_edge_avg)
-cbar.ax.set_ylabel('Avg relevance score across seeds', rotation=-90, va="bottom")
-ax_edge_avg.set_xticks(np.arange(len(action_indices)), labels=action_indices)
-ax_edge_avg.set_yticks(np.arange(len(joint_names)), labels=[j for j in reversed(joint_names)])
-ax_edge_avg.set_xlabel("Action index")
-ax_edge_avg.set_ylabel(f"Joints' names")
-ax_edge_avg.set_title("Average relevance score of each action given to each joint")
-fig_edge_avg.savefig(fig_name, dpi=300)
-
-################ PLOT EPISODIC
-
-fig_num_cols = int(np.ceil(np.sqrt(env.action_space.shape[0])))
-fig_rows, fig_cols = (int(env.action_space.shape[0] / fig_num_cols)
-                      if env.action_space.shape[0] % fig_num_cols == 0
-                      else int(env.action_space.shape[0] / fig_num_cols)), fig_num_cols
-fig_name = os.path.join(exp_path, f'LRP_score_episodic.jpg')
-fig_episodic, ax_episodic = plt.subplots(fig_rows, fig_cols, figsize=[figure_width, figure_height])
-
-for action_index in range(env.action_space.shape[0]):
-    scores = rel_edge_episode[:, action_index, :, :, :]
-    avg_episode_scores = np.mean(scores, axis=2)
-    avg_score = np.mean(avg_episode_scores, axis=1)
-    std_score = np.std(avg_episode_scores, axis=1) / np.sqrt(avg_episode_scores.shape[0])
-    x = np.linspace(1, avg_score.shape[1], avg_score.shape[1])
-
-    ax_row, ax_col = int(action_index / fig_num_cols), int(action_index % fig_num_cols)
+def plot_joint_action_timestep_curve(ax, data, title, palette=sns.color_palette('colorblind'), label_y_axis=True):
+    avg_episodes = np.mean(data, axis=2)
+    avg_seeds = np.mean(avg_episodes, axis=1)
+    std_seeds = np.std(avg_episodes, axis=1) / np.sqrt(avg_episodes.shape[0])
+    x = np.linspace(1, avg_seeds.shape[1], avg_seeds.shape[1])
+    label_list = []
     for joint_index, joint_name in enumerate(joint_names):
-        ax_episodic[ax_row, ax_col].plot(x, avg_score[joint_index], label=joint_name)
-        ax_episodic[ax_row, ax_col].fill_between(x, avg_score[joint_index] - 2.26 * std_score[joint_index],
-                                                 avg_score[joint_index] + 2.26 * std_score[joint_index],
-                                                 alpha=0.2)
+        ax.plot(x, avg_seeds[joint_index], label=joint_name, color=palette[joint_index])
+        ax.fill_between(x, avg_seeds[joint_index] - 2.26 * std_seeds[joint_index],
+                        avg_seeds[joint_index] + 2.26 * std_seeds[joint_index],
+                        alpha=0.2, color=palette[joint_index])
 
-    ax_episodic[ax_row, ax_col].set_xlabel("Time steps in an episode")
-    ax_episodic[ax_row, ax_col].set_ylabel(f"Average LRP score across {len(experiment_seed)} seeds")
+    ax.set_xlabel("Time steps")
+    if label_y_axis:
+        ax.set_ylabel(f"Average LRP score across {len(experiment_seed)} seeds")
+    ax.set_title(title)
+    ax.legend()
 
-    ax_episodic[ax_row, ax_col].set_title("Average LRP score for each part of the input graph's edges at each step")
-    ax_episodic[ax_row, ax_col].legend()
+    return label_list
 
-fig_episodic.savefig(fig_name, dpi=300)
+
+if __name__ == '__main__':
+    figure_width = 35
+    figure_height = 16
+
+    calculate_relevance()
+
+    fig_edge_avg, ax_edge_avg = plt.subplots(figsize=[figure_width, figure_height])
+    fig_name = os.path.join(exp_path, 'edge_relevance_heatmap.jpg')
+    # average across steps in an episode, across episodes, then across seeds
+    avg_edge_rel = edge_relevance.mean(axis=4).mean(axis=3).mean(axis=2)
+    plot_joint_action_heatmap(fig_edge_avg,
+                              ax_edge_avg,
+                              avg_edge_rel,
+                              "Avg actions' relevance scores given to joints",
+                              fig_name)
+
+    fig_num_cols = int(np.ceil(np.sqrt(env.action_space.shape[0])))
+    fig_rows, fig_cols = (int(env.action_space.shape[0] / fig_num_cols)
+                          if env.action_space.shape[0] % fig_num_cols == 0
+                          else int(env.action_space.shape[0] / fig_num_cols)), fig_num_cols
+    fig_episodic, ax_episodic = plt.subplots(fig_rows, fig_cols, figsize=[figure_width, figure_height])
+    fig_name = os.path.join(exp_path, f'LRP_score_episodic.jpg')
+    # labels = []
+    for action_index in range(env.action_space.shape[0]):
+        scores = edge_relevance[:, action_index, :, :, :]
+        row, col = int(action_index / fig_num_cols), int(action_index % fig_num_cols)
+        labels = plot_joint_action_timestep_curve(ax_episodic[row, col],
+                                                   scores,
+                                                   "Average LRP score for each part of "
+                                                   "the input graph's edges at each step",
+                                                   label_y_axis=(col == 0))
+
+    fig_episodic.legend(labels,  # The line objects
+                        labels=joint_names,  # The labels for each line
+                        loc="center right",  # Position of legend
+                        borderaxespad=0.1,  # Small spacing around legend box
+                        title="Joints"  # Title for the legend
+                        )
+
+    # Adjust the scaling factor to fit your legend text completely outside the plot
+    # (smaller value results in more space being made for the legend)
+    plt.subplots_adjust(right=0.85)
+
+    fig_episodic.savefig(fig_name, dpi=300)
