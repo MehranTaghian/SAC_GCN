@@ -68,7 +68,7 @@ args = parser.parse_args()
 exp_path = os.path.join(Path(__file__).parent.parent, 'Data', args.env_name, args.exp_type)
 experiment_seed = os.listdir(exp_path)
 experiment_seed = [d for d in experiment_seed if os.path.isdir(os.path.join(exp_path, d))]
-experiment_seed = experiment_seed[:2]
+# experiment_seed = experiment_seed[:2]
 
 # Environment
 # env = NormalizedActions(gym.make(args.env_name))
@@ -81,7 +81,7 @@ num_global_features = env.observation_space['global_features'].shape[0]
 
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
 
-num_episodes = 1
+num_episodes = 10
 
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
@@ -179,10 +179,10 @@ def plot_joint_action_heatmap(fig, ax, data, title, file_name):
     im = ax.imshow(data)
     cbar = ax.figure.colorbar(im, ax=ax)
     cbar.ax.set_ylabel('Avg relevance score across seeds', rotation=-90, va="bottom")
-    ax.set_xticks(np.arange(len(action_indices)), labels=action_indices)
-    ax.set_yticks(np.arange(len(joint_names)), labels=[j for j in reversed(joint_names)])
-    ax.set_xlabel("Action index")
-    ax.set_ylabel(f"Joints' names")
+    ax.set_yticks(np.arange(len(action_indices)), labels=action_indices)
+    ax.set_xticks(np.arange(len(joint_names)), labels=[j for j in reversed(joint_names)], rotation=45)
+    ax.set_ylabel("Action index")
+    ax.set_xlabel(f"Joints' names")
     ax.set_title(title)
     fig.savefig(file_name, dpi=300)
 
@@ -192,7 +192,6 @@ def plot_joint_action_timestep_curve(ax, data, title, palette=sns.color_palette(
     avg_seeds = np.mean(avg_episodes, axis=1)
     std_seeds = np.std(avg_episodes, axis=1) / np.sqrt(avg_episodes.shape[0])
     x = np.linspace(1, avg_seeds.shape[1], avg_seeds.shape[1])
-    label_list = []
     for joint_index, joint_name in enumerate(joint_names):
         ax.plot(x, avg_seeds[joint_index], label=joint_name, color=palette[joint_index])
         ax.fill_between(x, avg_seeds[joint_index] - 2.26 * std_seeds[joint_index],
@@ -203,9 +202,8 @@ def plot_joint_action_timestep_curve(ax, data, title, palette=sns.color_palette(
     if label_y_axis:
         ax.set_ylabel(f"Average LRP score across {len(experiment_seed)} seeds")
     ax.set_title(title)
-    ax.legend()
 
-    return label_list
+    return ax.get_legend_handles_labels()
 
 
 if __name__ == '__main__':
@@ -218,9 +216,10 @@ if __name__ == '__main__':
     fig_name = os.path.join(exp_path, 'edge_relevance_heatmap.jpg')
     # average across steps in an episode, across episodes, then across seeds
     avg_edge_rel = edge_relevance.mean(axis=4).mean(axis=3).mean(axis=2)
+    avg_edge_rel /= np.max(np.abs(avg_edge_rel), axis=0)
     plot_joint_action_heatmap(fig_edge_avg,
                               ax_edge_avg,
-                              avg_edge_rel,
+                              avg_edge_rel.T,
                               "Avg actions' relevance scores given to joints",
                               fig_name)
 
@@ -230,25 +229,24 @@ if __name__ == '__main__':
                           else int(env.action_space.shape[0] / fig_num_cols)), fig_num_cols
     fig_episodic, ax_episodic = plt.subplots(fig_rows, fig_cols, figsize=[figure_width, figure_height])
     fig_name = os.path.join(exp_path, f'LRP_score_episodic.jpg')
-    # labels = []
+    handles, labels = None, None
     for action_index in range(env.action_space.shape[0]):
         scores = edge_relevance[:, action_index, :, :, :]
         row, col = int(action_index / fig_num_cols), int(action_index % fig_num_cols)
-        labels = plot_joint_action_timestep_curve(ax_episodic[row, col],
-                                                   scores,
-                                                   "Average LRP score for each part of "
-                                                   "the input graph's edges at each step",
-                                                   label_y_axis=(col == 0))
+        handles, labels = plot_joint_action_timestep_curve(ax_episodic[row, col],
+                                                           scores,
+                                                           f'Relevance scores for action {action_index}',
+                                                           label_y_axis=(col == 0))
 
-    fig_episodic.legend(labels,  # The line objects
-                        labels=joint_names,  # The labels for each line
+    fig_episodic.legend(handles,  # The line objects
+                        labels,  # The labels for each line
                         loc="center right",  # Position of legend
                         borderaxespad=0.1,  # Small spacing around legend box
                         title="Joints"  # Title for the legend
                         )
 
+    fig_episodic.suptitle("Average actions' relevance scores given to each joint at each step")
     # Adjust the scaling factor to fit your legend text completely outside the plot
     # (smaller value results in more space being made for the legend)
     plt.subplots_adjust(right=0.85)
-
     fig_episodic.savefig(fig_name, dpi=300)
