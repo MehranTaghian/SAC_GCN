@@ -14,25 +14,11 @@ scatter_max(src, index, dim=..., out=out)
 3) Why are you using your left hand to write? Because my right hand is damaged -> my dynamics changed. In life-long learning,
 we can analyze the change in the policy and change in the pattern of relevance scores.
 
-4) design an experiment for a specific joint to malfunction and misbehave (move accidentally more than
-what desired)
-
-5) Double-check the relevance score calculation procedure to see whether it is correct or not
-
 9) Try to train the joint velocity-based actions for better relevance calculations. Already the experiment is running
 on melco to train using the velocity-based actions.
 
 10) Running experiments for FetchReachEnv-v3
 
-11) "FetchReachEnv-v3: Wrist flex noisy movement" is working as expected. Try simulating similar faults to understand
-what negative scores mean?
-
-12) Make edges bidirectional (non-directional graph)
-
-13) Back-propagete the avg of the dist of one action at each time-step for LRP
-
-14) Plot losses for Ant experiment and analyze the change in performance.
-
 15) Handle all the graph environements with wrappers
 
-16) plot all the separate action relevance plots on the same plot.
+17) For ant, check the loss function of the critic. it is close to zero (maybe not!). why?

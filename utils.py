@@ -1,6 +1,6 @@
 import torchgraphs as tg
 import torch
-import numpy as np
+import pickle
 
 
 def state_2_graph(obs):
@@ -35,3 +35,16 @@ def state_2_graphbatch(obs):
     )
 
     return tg.GraphBatch.collate([g])
+
+
+def save_object(obj, path):
+    file_to_store = open(path, "wb")
+    pickle.dump(obj, file_to_store)
+    file_to_store.close()
+
+
+def load_object(path):
+    file_to_read = open(path, "rb")
+    loaded_object = pickle.load(file_to_read)
+    file_to_read.close()
+    return loaded_object

@@ -8,7 +8,7 @@ import torch
 from Graph_SAC.sac import SAC
 # from torch.utils.tensorboard import SummaryWriter
 from Graph_SAC.replay_memory import ReplayMemory
-from utils import state_2_graph, state_2_graphbatch
+from utils import state_2_graph, state_2_graphbatch, save_object
 import pandas as pd
 import os
 from pathlib import Path
@@ -66,6 +66,7 @@ exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type, f'seed{a
 if not os.path.exists(exp_path):
     os.makedirs(exp_path)
 
+save_object(args, os.path.join(exp_path, 'parameters.pkl'))
 # Environment
 # env = NormalizedActions(gym.make(args.env_name))
 env = gym.make(args.env_name)
