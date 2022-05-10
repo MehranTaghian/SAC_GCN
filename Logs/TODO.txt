@@ -22,3 +22,5 @@ on melco to train using the velocity-based actions.
 15) Handle all the graph environements with wrappers
 
 17) For ant, check the loss function of the critic. it is close to zero (maybe not!). why?
+
+18) HalfCheetah running on mehran with 200 time-steps max
