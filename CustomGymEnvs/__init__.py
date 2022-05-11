@@ -5,7 +5,7 @@ from .envs.fetchreach.Wrappers.FetchReach import FetchReachWrapper
 register(
     id="AntEnvGraph-v0",
     entry_point="CustomGymEnvs.graph_envs.ant.AntEnv_v0_Normal:AntEnv",
-    max_episode_steps=1000,
+    max_episode_steps=200,
 )
 
 # Ant
