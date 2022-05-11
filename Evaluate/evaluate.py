@@ -86,7 +86,7 @@ num_global_features = env.observation_space['global_features'].shape[0]
 
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
 
-num_episodes = 10
+num_episodes = 5
 
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
@@ -130,13 +130,14 @@ global_relevance = np.zeros([env.action_space.shape[0], len(experiment_seed)])
 
 
 def calculate_relevance():
-    for s in range(len(experiment_seed)):
-        env.seed(s)
-        env.action_space.seed(s)
-        torch.manual_seed(s)
-        np.random.seed(s)
+    for s, seed in enumerate(experiment_seed):
+        seed = int(seed[-1])
+        env.seed(seed)
+        env.action_space.seed(seed)
+        torch.manual_seed(seed)
+        np.random.seed(seed)
         # Agent
-        checkpoint_path = os.path.join(exp_path, f'seed{s}', 'model') \
+        checkpoint_path = os.path.join(exp_path, f'seed{seed}', 'model') \
             if len(experiment_seed) > 1 \
             else os.path.join(exp_path, 'model')
         agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, False, args)
@@ -182,11 +183,16 @@ def calculate_relevance():
 
 
 def plot_joint_action_heatmap(fig, ax, data, title, file_name):
-    im = ax.imshow(data)
+    im = ax.imshow(data, cmap="YlGn")
     cbar = ax.figure.colorbar(im, ax=ax)
     cbar.ax.set_ylabel('Avg relevance score across seeds', rotation=-90, va="bottom")
     ax.set_yticks(np.arange(len(action_indices)), labels=action_indices)
     ax.set_xticks(np.arange(len(joint_names)), labels=[j for j in joint_names], rotation=45)
+    print(data)
+    for i in range(data.shape[0]):
+        for j in range(data.shape[1]):
+            ax.text(j, i, round(data[i, j], 3),
+                    ha="center", va="center", color="black")
     ax.set_ylabel("Action index")
     ax.set_xlabel(f"Joints' names")
     ax.set_title(title)
