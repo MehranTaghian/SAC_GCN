@@ -24,6 +24,8 @@ parser.add_argument('--env-name', default="FetchReachEnvGraph-v0",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--exp-type', default="standard",
                     help='Type of the experiment like normal or abnormal')
+parser.add_argument('--seed', type=int, default=123456, metavar='N',
+                    help='random seed (default: 123456)')
 parser.add_argument('--policy', default="Gaussian",
                     help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
 parser.add_argument('--eval', type=bool, default=True,
@@ -69,6 +71,9 @@ exp_path = os.path.join(Path(__file__).parent.parent, 'Data', args.env_name, arg
 experiment_seed = os.listdir(exp_path)
 experiment_seed = [d for d in experiment_seed if os.path.isdir(os.path.join(exp_path, d))]
 # experiment_seed = experiment_seed[:2]
+if args.seed < len(experiment_seed):
+    experiment_seed = [f'seed{args.seed}']
+    exp_path = os.path.join(exp_path, experiment_seed[0])
 
 # Environment
 # env = NormalizedActions(gym.make(args.env_name))
@@ -87,7 +92,6 @@ edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
 
 
-# TODO edit this function to be inline
 def process_joint_name(joint_name):
     separated = joint_name.split(':')[1].split('_') if 'robot0' in joint_name else joint_name.split('_')
     final_key = ''
@@ -100,13 +104,15 @@ def process_joint_name(joint_name):
 
 
 joint_names = []
-for joint_list in edge_list.values():
+joint_indices = []
+for edge_id, joint_list in enumerate(edge_list.values()):
     if len(joint_list) > 0:
         joint_names.append(
             process_joint_name(joint_list[0].attrib['name'])
             if len(joint_list) == 1
             else '\n'.join([process_joint_name(j.attrib['name']) for j in joint_list])
         )
+        joint_indices.append(edge_id)
 
 action_indices = [a for a in range(env.action_space.shape[0])]
 
@@ -130,7 +136,9 @@ def calculate_relevance():
         torch.manual_seed(s)
         np.random.seed(s)
         # Agent
-        checkpoint_path = os.path.join(exp_path, f'seed{s}', 'model')
+        checkpoint_path = os.path.join(exp_path, f'seed{s}', 'model') \
+            if len(experiment_seed) > 1 \
+            else os.path.join(exp_path, 'model')
         agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, False, args)
         agent_relevance = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, True, args)
 
@@ -157,9 +165,7 @@ def calculate_relevance():
                     edge_rel = batch_state.edge_features.grad.sum(dim=1)
                     global_rel = batch_state.global_features.grad.sum(dim=1)
                     global_relevance[action_index, s] += global_rel
-
-                    for joint_index, joint_name in enumerate(joint_names):
-                        edge_relevance[joint_index, action_index, s, episode, step] = edge_rel[joint_index]
+                    edge_relevance[:, action_index, s, episode, step] = edge_rel[joint_indices]
                 step += 1
                 action = agent.select_action(state_2_graphbatch(state), evaluate=True)
                 next_state, reward, done, _ = env.step(action)
@@ -180,7 +186,7 @@ def plot_joint_action_heatmap(fig, ax, data, title, file_name):
     cbar = ax.figure.colorbar(im, ax=ax)
     cbar.ax.set_ylabel('Avg relevance score across seeds', rotation=-90, va="bottom")
     ax.set_yticks(np.arange(len(action_indices)), labels=action_indices)
-    ax.set_xticks(np.arange(len(joint_names)), labels=[j for j in reversed(joint_names)], rotation=45)
+    ax.set_xticks(np.arange(len(joint_names)), labels=[j for j in joint_names], rotation=45)
     ax.set_ylabel("Action index")
     ax.set_xlabel(f"Joints' names")
     ax.set_title(title)
