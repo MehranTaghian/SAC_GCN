@@ -11,6 +11,7 @@ from SAC.replay_memory import ReplayMemory
 import pandas as pd
 import os
 from pathlib import Path
+from utils import save_object
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="FetchReachEnv-v0",
@@ -61,6 +62,7 @@ exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type, f'seed{a
 if not os.path.exists(exp_path):
     os.makedirs(exp_path)
 
+save_object(args, os.path.join(exp_path, 'parameters.pkl'))
 args.exp_path = exp_path
 
 # Environment
@@ -73,9 +75,9 @@ if 'FetchReach' in args.env_name:
     joint_list = [
         'robot0:shoulder_pan_joint',
         'robot0:shoulder_lift_joint',
-        'robot0:upperarm_roll_joint',
+        # 'robot0:upperarm_roll_joint',
         'robot0:elbow_flex_joint',
-        'robot0:forearm_roll_joint',
+        # 'robot0:forearm_roll_joint',
         'robot0:wrist_flex_joint',
         'robot0:wrist_roll_joint']
 
@@ -137,7 +139,8 @@ for i_episode in itertools.count(1):
                 critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory,
                                                                                                      args.batch_size,
                                                                                                      updates)
-                losses = np.append(losses, [[updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha]], axis=0)
+                losses = np.append(losses, [[updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha]],
+                                   axis=0)
                 updates += 1
 
         next_state, reward, done, _ = env.step(action)  # Step

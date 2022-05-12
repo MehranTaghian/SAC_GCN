@@ -13,7 +13,7 @@ register(
 register(
     id="AntEnv-v0",
     entry_point="CustomGymEnvs.envs.ant.AntEnv_v0_Normal:AntEnv",
-    max_episode_steps=1000,
+    max_episode_steps=200,
 )
 
 # HalfCheetah - Graph
@@ -29,7 +29,7 @@ register(
 register(
     id="HalfCheetahEnv-v0",
     entry_point="CustomGymEnvs.envs.halfcheetah.HalfCheetahEnv_v0_Normal.half_cheetah:HalfCheetahEnv",
-    max_episode_steps=1000,
+    max_episode_steps=200,
 )
 
 # FetchReach - Graph
