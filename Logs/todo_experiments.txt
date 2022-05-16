@@ -10,3 +10,5 @@ transferable or not.
 experiments for fetchreach with occluded upperarm-roll-joint and forearm-roll-joint running on melco
 
 also experiments for fetchreachgraph with new graph model are running on melco and mehran
+
+run halfcheetah with new graph model
