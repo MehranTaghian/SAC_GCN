@@ -23,7 +23,7 @@ class SAC(object):
                                      num_edge_features=num_edge_features,
                                      num_global_features=num_global_features,
                                      num_actions=action_space.shape[0],
-                                     hidden_action_size=args.hidden_action_size,
+                                     hidden_action_size=args.hidden_size,
                                      aggregation=args.aggregation).to(device=self.device)
         self.critic_optim = Adam(self.critic.parameters(), lr=args.lr)
 
@@ -31,7 +31,7 @@ class SAC(object):
                                             num_edge_features=num_edge_features,
                                             num_global_features=num_global_features,
                                             num_actions=action_space.shape[0],
-                                            hidden_action_size=args.hidden_action_size,
+                                            hidden_action_size=args.hidden_size,
                                             aggregation=args.aggregation).to(self.device)
         hard_update(self.critic_target, self.critic)
 
@@ -45,7 +45,7 @@ class SAC(object):
                                      num_edge_features=num_edge_features,
                                      num_global_features=num_global_features,
                                      action_space=action_space,
-                                     hidden_action_size=args.hidden_action_size,
+                                     hidden_action_size=args.hidden_size,
                                      aggregation=args.aggregation,
                                      relevance=relevance).to(self.device)
         self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
