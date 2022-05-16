@@ -26,4 +26,4 @@ on melco to train using the velocity-based actions.
 18) HalfCheetah running on mehran with 200 time-steps max
 
 19) change the main.py file and instead of using np.append for collecting data, use a constant numpy.zero before running
-the experiments. This way, you would have a constant amount of memory throughout the experiments.
+the experiments. This way, you would have a constant amount of memory throughout the experiments. for both main files
