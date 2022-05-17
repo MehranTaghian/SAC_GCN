@@ -1,6 +1,5 @@
 from RobotGraphModel.ModelParser import ModelParser
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 class RobotGraph:
