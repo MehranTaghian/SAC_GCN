@@ -12,7 +12,7 @@ register(
 
 register(
     id="AntEnv-v0",
-    entry_point="CustomGymEnvs.envs.ant.AntEnv_v0_Normal:AntEnv",
+    entry_point="CustomGymEnvs.envs.ant.AntEnv_v0_Normal.ant:AntEnv",
     max_episode_steps=200,
 )
 

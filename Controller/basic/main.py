@@ -1,5 +1,11 @@
 import argparse
 import datetime
+import os
+
+parallel_procs = "1"
+os.environ["OMP_NUM_THREADS"] = parallel_procs
+os.environ["MKL_NUM_THREADS"] = parallel_procs
+
 import gym
 import CustomGymEnvs
 from CustomGymEnvs import *
@@ -9,7 +15,6 @@ import torch
 from SAC.sac import SAC
 from SAC.replay_memory import ReplayMemory
 import pandas as pd
-import os
 from pathlib import Path
 from utils import save_object
 
@@ -35,8 +40,8 @@ parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
 parser.add_argument('--batch_size', type=int, default=256, metavar='N',
                     help='batch size (default: 256)')
-parser.add_argument('--num_steps', type=int, default=1000001, metavar='N',
-                    help='maximum number of steps (default: 1000000)')
+parser.add_argument('--num_episodes', type=int, default=10000, metavar='N',
+                    help='maximum number of steps (default: 10000)')
 parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
                     help='hidden size (default: 256)')
 parser.add_argument('--updates_per_step', type=int, default=1, metavar='N',
@@ -102,9 +107,14 @@ memory = ReplayMemory(args.replay_size, args.seed)
 total_numsteps = 0
 updates = 0
 
-losses = np.empty([0, 6])
-train_reward = np.empty([0, 5])
-eval_reward = np.empty([0, 4])
+# losses = np.empty([0, 6])
+# train_reward = np.empty([0, 5])
+# eval_reward = np.empty([0, 4])
+
+max_episode_steps = env.spec.max_episode_steps
+losses = np.zeros([args.updates_per_step * max_episode_steps * args.num_episodes, 6])
+train_reward = np.zeros([args.num_episodes, 5])
+eval_reward = np.zeros([int(args.num_episodes / args.evaluation_freq), 4])
 
 
 def save_data():
@@ -120,7 +130,7 @@ def save_data():
     eval_reward_df.to_csv(os.path.join(exp_path, 'eval.csv'), index=False)
 
 
-for i_episode in itertools.count(1):
+for i_episode in range(args.num_episodes):
     episode_reward = 0
     episode_steps = 0
     done = False
@@ -139,8 +149,9 @@ for i_episode in itertools.count(1):
                 critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory,
                                                                                                      args.batch_size,
                                                                                                      updates)
-                losses = np.append(losses, [[updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha]],
-                                   axis=0)
+                # losses = np.append(losses, [[updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha]],
+                #                    axis=0)
+                losses[updates] = np.array([updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha])
                 updates += 1
 
         next_state, reward, done, _ = env.step(action)  # Step
@@ -156,23 +167,21 @@ for i_episode in itertools.count(1):
 
         state = next_state
 
-    if total_numsteps > args.num_steps:
-        break
-
-    train_reward = np.append(train_reward, [[i_episode, total_numsteps, updates, episode_steps, episode_reward]],
-                             axis=0)
+    # train_reward = np.append(train_reward, [[i_episode, total_numsteps, updates, episode_steps, episode_reward]],
+    #                          axis=0)
+    train_reward[i_episode] = np.array([i_episode, total_numsteps, updates, episode_steps, episode_reward])
 
     print("Episode: {}, total numsteps: {}, episode steps: {}, reward: {}".format(i_episode, total_numsteps,
                                                                                   episode_steps,
                                                                                   round(episode_reward, 2)))
 
     # save checkpoint
-    if i_episode % args.data_save_freq == 0:
+    if (i_episode + 1) % args.data_save_freq == 0:
         print('Saving ...')
         agent.save_checkpoint()
         save_data()
 
-    if i_episode % 10 == 0 and args.eval is True:
+    if (i_episode + 1) % 10 == 0 and args.eval is True:
         avg_reward = 0.
         episodes = 10
         for _ in range(episodes):
@@ -189,7 +198,8 @@ for i_episode in itertools.count(1):
             avg_reward += episode_reward
         avg_reward /= episodes
 
-        eval_reward = np.append(eval_reward, [[i_episode, total_numsteps, updates, avg_reward]], axis=0)
+        # eval_reward = np.append(eval_reward, [[i_episode, total_numsteps, updates, avg_reward]], axis=0)
+        eval_reward[int(i_episode / args.evaluation_freq)] = np.array([i_episode, total_numsteps, updates, avg_reward])
         print("----------------------------------------")
         print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
         print("----------------------------------------")

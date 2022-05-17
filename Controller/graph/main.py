@@ -1,5 +1,11 @@
 import argparse
 import datetime
+import os
+
+parallel_procs = "1"
+os.environ["OMP_NUM_THREADS"] = parallel_procs
+os.environ["MKL_NUM_THREADS"] = parallel_procs
+
 import gym
 import CustomGymEnvs
 import numpy as np
@@ -145,12 +151,6 @@ for i_episode in range(args.num_episodes):
                 critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory,
                                                                                                      args.batch_size,
                                                                                                      updates)
-
-                # writer.add_scalar('loss/critic_1', critic_1_loss, updates)
-                # writer.add_scalar('loss/critic_2', critic_2_loss, updates)
-                # writer.add_scalar('loss/policy', policy_loss, updates)
-                # writer.add_scalar('loss/entropy_loss', ent_loss, updates)
-                # writer.add_scalar('entropy_temprature/alpha', alpha, updates)
                 # losses = np.append(losses, [[updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha]],
                 #                    axis=0)
                 losses[updates] = np.array([updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha])
