@@ -2,7 +2,7 @@ import argparse
 import datetime
 import os
 
-parallel_procs = "1"
+parallel_procs = "2"
 os.environ["OMP_NUM_THREADS"] = parallel_procs
 os.environ["MKL_NUM_THREADS"] = parallel_procs
 
