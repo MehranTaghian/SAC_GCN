@@ -1,28 +1,13 @@
 import argparse
-import datetime
 import os
-
-parallel_procs = "2"
-os.environ["OMP_NUM_THREADS"] = parallel_procs
-os.environ["MKL_NUM_THREADS"] = parallel_procs
-
-import gym
-import CustomGymEnvs
-from CustomGymEnvs import *
-import numpy as np
-import itertools
-import torch
-from SAC.sac import SAC
-from SAC.replay_memory import ReplayMemory
-import pandas as pd
-from pathlib import Path
-from utils import save_object
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="FetchReachEnv-v0",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--exp-type', default="standard",
                     help='Type of the experiment like normal or abnormal')
+parser.add_argument('--num-threads', default="2",
+                    help='Number of parallel threads')
 parser.add_argument('--eval', type=bool, default=True,
                     help='Evaluates a policy a policy every 10 episode (default: True)')
 parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
@@ -60,6 +45,21 @@ parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
 
 args = parser.parse_args()
+
+parallel_procs = args.num_threads
+os.environ["OMP_NUM_THREADS"] = parallel_procs
+os.environ["MKL_NUM_THREADS"] = parallel_procs
+
+import gym
+import CustomGymEnvs
+from CustomGymEnvs import *
+import numpy as np
+import torch
+from SAC.sac import SAC
+from SAC.replay_memory import ReplayMemory
+import pandas as pd
+from pathlib import Path
+from utils import save_object
 
 exp_path = Path(os.path.abspath(__file__)).parent.parent.parent
 exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type, f'seed{args.seed}')
