@@ -41,8 +41,11 @@ def draw():
             train_average_returns = np.zeros([num_seeds, len(data_train)])
             eval_average_returns = np.zeros([num_seeds, len(data_eval)])
             first = False
-        train_average_returns[seed] = data_train['train_reward']
-        eval_average_returns[seed] = data_eval['eval_reward']
+        try:
+            train_average_returns[seed] = data_train['train_reward']
+            eval_average_returns[seed] = data_eval['eval_reward']
+        except ValueError:
+            print(seed)
 
     train_average = np.mean(train_average_returns, axis=0)
     train_standard_error = np.std(train_average_returns, axis=0) / np.sqrt(train_average_returns.shape[0])

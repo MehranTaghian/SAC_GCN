@@ -9,6 +9,6 @@ python $PLOT_FILE --env-name AntEnv-v0 --exp-type standard
 
 python $PLOT_FILE --env-name HalfCheetahEnv-v0 --exp-type standard
 
-python $PLOT_MULTIPLE_FILE --env-name FetchReachEnv-v0
+python $PLOT_MULTIPLE_FILE --env-name FetchReachEnvGraph-v0
 
 python $PLOT_LOSS --env-name FetchReachEnv-v0 --exp-type standard

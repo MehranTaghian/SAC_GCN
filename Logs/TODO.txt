@@ -27,3 +27,9 @@ on melco to train using the velocity-based actions.
 
 19) change the main.py file and instead of using np.append for collecting data, use a constant numpy.zero before running
 the experiments. This way, you would have a constant amount of memory throughout the experiments. for both main files
+
+20) TODO ASAP:
+ -i) rerun the experiments for halfcheetah original model for 10 seeds
+ i) The original model was wayyy better according to the experiments on fetchreach
+ ii) compare the new model with the original model on halfcheetah
+ iii) add walker and hopper to the analysis
