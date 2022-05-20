@@ -29,9 +29,6 @@ from pathlib import Path
 # env = gym.make("FetchReachEnvGraph-v0")
 env = gym.make("Walker2dEnvGraph-v0")
 obs = env.reset()
-print(obs)
-print(env.action_space.shape)
-print(env.spec.max_episode_steps)
 # print(obs['edge_features'])
 # print(obs['global_features'].shape)
 

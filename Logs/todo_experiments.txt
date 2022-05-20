@@ -7,8 +7,13 @@ transferable or not.
     i) Change their feature space to show zero all the time
     ii) or break those joints so that they would not have any negative impact on the learning process.
 
-experiments for fetchreach with occluded upperarm-roll-joint and forearm-roll-joint running on melco
-
 also experiments for fetchreachgraph with new graph model are running on melco and mehran
 
-run halfcheetah with new graph model
+halfcheetah with new graph model is running on melco1 and mehran
+
+experiments for original graph model for halfcheetah is running on melco2
+
+Ant experiment running on melco1
+
+walker2d experiments running on melco1
+
