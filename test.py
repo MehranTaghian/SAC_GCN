@@ -26,8 +26,8 @@ from pathlib import Path
 # env = gym.make("Ant-v2")
 # env = gym.make("HalfCheetahEnvGraph-v0")
 # env = gym.make("FetchPickAndPlaceEnv-v0")
-env = gym.make("FetchReachEnvGraph-v0")
-
+# env = gym.make("FetchReachEnvGraph-v0")
+env = gym.make("Walker2dEnvGraph-v0")
 obs = env.reset()
 print(obs)
 print(env.action_space.shape)
