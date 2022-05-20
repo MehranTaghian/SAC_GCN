@@ -3,3 +3,4 @@ from RobotGraphModel.FetchReachGraph import FetchReachGraph
 from RobotGraphModel.AntGraph import AntGraph
 from RobotGraphModel.HalfCheetahGraph import HalfCheetahGraph
 from RobotGraphModel.Walker2dGraph import Walker2dGraph
+from RobotGraphModel.HopperGraph import HopperGraph
