@@ -1,5 +1,6 @@
 from gym.envs.registration import register
-from .envs.fetchreach.Wrappers.FetchReach import FetchReachWrapper
+from CustomGymEnvs.envs.Wrappers.FetchReach import FetchReachWrapper
+from CustomGymEnvs.envs.Wrappers.HalfCheetah import HalfCheetahWrapper
 
 # Ant - Graph
 register(

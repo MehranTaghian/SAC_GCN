@@ -6,7 +6,7 @@ import numpy as np
 class FetchReachWrapper(gym.ObservationWrapper):
     def __init__(self, env, joint_list):
         super().__init__(env)
-        assert 'FetchReachEnv' in env.unwrapped.spec.id, 'Environment must be FetchReachEnv-v0'
+        assert 'FetchReachEnv' in env.unwrapped.spec.id, 'Environment must be FetchReach'
         self.env = env
         self.joint_list = joint_list
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(len(self.joint_list) * 2 + 3,), dtype='float32')

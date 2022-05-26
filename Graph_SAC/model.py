@@ -235,7 +235,6 @@
 #         self.noise = self.noise.to(device)
 #         return super(DeterministicPolicy, self).to(device)
 
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

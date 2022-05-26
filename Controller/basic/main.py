@@ -87,7 +87,6 @@ if 'FetchReach' in args.env_name:
         'robot0:wrist_roll_joint']
 
     env = FetchReachWrapper(gym.make(args.env_name), joint_list)
-
 else:
     env = gym.make(args.env_name)
 

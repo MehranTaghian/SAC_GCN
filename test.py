@@ -1,7 +1,8 @@
 import gym
 import numpy as np
 import CustomGymEnvs
-from CustomGymEnvs import FetchReachWrapper
+from CustomGymEnvs import FetchReachWrapper, HalfCheetahWrapper
+from RobotGraphModel import ModelParser
 import os
 from pathlib import Path
 
@@ -17,8 +18,12 @@ from pathlib import Path
 #     'robot0:forearm_roll_joint',
 #     'robot0:wrist_flex_joint',
 #     'robot0:wrist_roll_joint']
-#
+
 # env = FetchReachWrapper(gym.make("FetchReachEnv-v0"), joint_list)
+env = gym.make("HalfCheetahEnv-v0")
+parser = ModelParser(env.sim.model.get_xml(), "HalfCheetahEnv-v0")
+print([j.attrib['name'] for j in parser.joints])
+env = HalfCheetahWrapper(gym.make("HalfCheetahEnv-v0"))
 
 # env = gym.make("FetchReachEnvGraph-v7")
 # env = gym.make("AntEnvGraph-v0")
@@ -27,7 +32,7 @@ from pathlib import Path
 # env = gym.make("HalfCheetahEnvGraph-v0")
 # env = gym.make("FetchPickAndPlaceEnv-v0")
 # env = gym.make("FetchReachEnvGraph-v0")
-env = gym.make("Walker2dEnvGraph-v0")
+# env = gym.make("Walker2dEnvGraph-v0")
 obs = env.reset()
 # print(obs['edge_features'])
 # print(obs['global_features'].shape)
