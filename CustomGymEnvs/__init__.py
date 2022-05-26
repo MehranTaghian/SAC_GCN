@@ -32,6 +32,24 @@ register(
     max_episode_steps=200,
 )
 
+# Walker2d
+
+# Walker2d - graph
+register(
+    id="Walker2dEnvGraph-v0",
+    entry_point="CustomGymEnvs.graph_envs.walker2d.Walker2dEnv_v0.walker2d:Walker2dEnv",
+    max_episode_steps=200,
+)
+
+# Hopper
+
+# Hopper - graph
+register(
+    id="HopperEnvGraph-v0",
+    entry_point="CustomGymEnvs.graph_envs.hopper.HopperEnv_v0.hopper:HopperEnv",
+    max_episode_steps=200,
+)
+
 # FetchReach - Graph
 
 register(
