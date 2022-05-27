@@ -20,10 +20,14 @@ from pathlib import Path
 #     'robot0:wrist_roll_joint']
 
 # env = FetchReachWrapper(gym.make("FetchReachEnv-v0"), joint_list)
-env = gym.make("HalfCheetahEnv-v0")
-parser = ModelParser(env.sim.model.get_xml(), "HalfCheetahEnv-v0")
-print([j.attrib['name'] for j in parser.joints])
 env = HalfCheetahWrapper(gym.make("HalfCheetahEnv-v0"))
+env2 = HalfCheetahWrapper(gym.make("HalfCheetahEnv-v0"), 'bfoot')
+env2 = HalfCheetahWrapper(gym.make("HalfCheetahEnv-v0"), 'fthigh')
+
+print(env.reset().shape)
+print(env2.reset().shape)
+print(env.joint_list)
+print(env2.joint_list)
 
 # env = gym.make("FetchReachEnvGraph-v7")
 # env = gym.make("AntEnvGraph-v0")
@@ -33,7 +37,7 @@ env = HalfCheetahWrapper(gym.make("HalfCheetahEnv-v0"))
 # env = gym.make("FetchPickAndPlaceEnv-v0")
 # env = gym.make("FetchReachEnvGraph-v0")
 # env = gym.make("Walker2dEnvGraph-v0")
-obs = env.reset()
+# obs = env.reset()
 # print(obs['edge_features'])
 # print(obs['global_features'].shape)
 
