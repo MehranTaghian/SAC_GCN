@@ -36,7 +36,7 @@ env4 = MujocoWrapper(gym.make("Walker2d-v2"), occluded_joint='standard')
 print(env.reset().shape)
 # print(env2.reset().shape)
 print(env.joint_list)
-# print(env2.joint_list)
+print(env._max_episode_steps)
 
 # env = gym.make("FetchReachEnvGraph-v7")
 # env = gym.make("AntEnvGraph-v0")
