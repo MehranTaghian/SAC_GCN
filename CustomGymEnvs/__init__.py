@@ -1,6 +1,8 @@
 from gym.envs.registration import register
-from CustomGymEnvs.envs.Wrappers.FetchReach import FetchReachWrapper
-from CustomGymEnvs.envs.Wrappers.MujocoWrapper import MujocoWrapper
+from CustomGymEnvs.envs.wrappers.FetchReach import FetchReachWrapper
+from CustomGymEnvs.envs.wrappers.MujocoWrapper import MujocoWrapper
+from CustomGymEnvs.graph_envs.wrappers.MujocoGraph import MujocoGraphWrapper
+from CustomGymEnvs.graph_envs.wrappers.FetchReachGraph import FetchReachGraphWrapper
 
 # Ant - Graph
 register(
@@ -9,27 +11,11 @@ register(
     max_episode_steps=200,
 )
 
-# Ant
-
-register(
-    id="AntEnv-v0",
-    entry_point="CustomGymEnvs.envs.ant.AntEnv_v0_Normal.ant:AntEnv",
-    max_episode_steps=200,
-)
-
 # HalfCheetah - Graph
 
 register(
     id="HalfCheetahEnvGraph-v0",
     entry_point="CustomGymEnvs.graph_envs.halfcheetah.HalfCheetahEnv_v0.half_cheetah:HalfCheetahEnv",
-    max_episode_steps=200,
-)
-
-# HalfCheetah
-
-register(
-    id="HalfCheetahEnv-v0",
-    entry_point="CustomGymEnvs.envs.halfcheetah.HalfCheetahEnv_v0_Normal.half_cheetah:HalfCheetahEnv",
     max_episode_steps=200,
 )
 

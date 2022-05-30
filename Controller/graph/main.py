@@ -54,6 +54,7 @@ os.environ["MKL_NUM_THREADS"] = parallel_procs
 
 import gym
 import CustomGymEnvs
+from CustomGymEnvs import MujocoGraphWrapper, FetchReachGraphWrapper
 import numpy as np
 import torch
 from Graph_SAC.sac import SAC
@@ -71,8 +72,11 @@ if not os.path.exists(exp_path):
 
 save_object(args, os.path.join(exp_path, 'parameters.pkl'))
 # Environment
-# env = NormalizedActions(gym.make(args.env_name))
-env = gym.make(args.env_name)
+if 'FetchReach' in args.env_name:
+    env = FetchReachGraphWrapper(gym.make(args.env_name))
+else:
+    env = MujocoGraphWrapper(gym.make(args.env_name))
+
 env.seed(args.seed)
 env.action_space.seed(args.seed)
 
@@ -163,7 +167,6 @@ for i_episode in range(args.num_episodes):
         # Ignore the "done" signal if it comes from hitting the time horizon.
         # (https://github.com/openai/spinningup/blob/master/spinup/algos/sac/sac.py)
         mask = 1 if episode_steps == env._max_episode_steps else float(not done)
-
         memory.push(state_2_graph(state), action, reward, state_2_graph(next_state),
                     mask)  # Append transition to memory
 

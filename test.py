@@ -1,94 +1,27 @@
 import gym
 import numpy as np
 import CustomGymEnvs
-from CustomGymEnvs import FetchReachWrapper, MujocoWrapper
+from CustomGymEnvs import FetchReachWrapper, MujocoWrapper, FetchReachGraphWrapper, MujocoGraphWrapper
 from RobotGraphModel import ModelParser
 import os
 from pathlib import Path
 
-# joint_list = ['robot0:shoulder_lift_joint',
-#               'robot0:elbow_flex_joint',
-#               'robot0:wrist_flex_joint']
-#
-# joint_list = [
-#     'robot0:shoulder_pan_joint',
-#     'robot0:shoulder_lift_joint',
-#     'robot0:upperarm_roll_joint',
-#     'robot0:elbow_flex_joint',
-#     'robot0:forearm_roll_joint',
-#     'robot0:wrist_flex_joint',
-#     'robot0:wrist_roll_joint']
-
-# env = FetchReachWrapper(gym.make("FetchReachEnv-v0"), joint_list)
+# env = FetchReachWrapper(gym.make("FetchReachDense-v1"), 'robot0:shoulder_lift_joint')
+# env = FetchReachWrapper(gym.make("FetchReachDense-v1"), 'standard')
+env = FetchReachGraphWrapper(gym.make("FetchReachDense-v1"))
+print(env.observation_space)
 # env = MujocoWrapper(gym.make("HalfCheetahEnv-v0"))
 # env2 = MujocoWrapper(gym.make("HalfCheetahEnv-v0"), 'bfoot')
 # env2 = MujocoWrapper(gym.make("HalfCheetahEnv-v0"), 'fthigh')
 
-env = MujocoWrapper(gym.make("Walker2d-v2"), occluded_joint='foot_left_joint')
-env2 = MujocoWrapper(gym.make("Walker2d-v2"), occluded_joint='leg_left_joint')
-env3 = MujocoWrapper(gym.make("Walker2d-v2"), occluded_joint='thigh_left_joint')
-env4 = MujocoWrapper(gym.make("Walker2d-v2"), occluded_joint='standard')
+# env = MujocoWrapper(gym.make("Walker2d-v2"), occluded_joint='foot_left_joint')
+# env2 = MujocoWrapper(gym.make("Walker2d-v2"), occluded_joint='leg_left_joint')
+# env3 = MujocoWrapper(gym.make("Walker2d-v2"), occluded_joint='thigh_left_joint')
+# env4 = MujocoWrapper(gym.make("Walker2d-v2"), occluded_joint='standard')
 
+env = MujocoGraphWrapper(gym.make('Ant-v2'))
 
 # env2 = MujocoWrapper(gym.make("Walker2d-v2"))
 # env2 = MujocoWrapper(gym.make("Walker2d-v2"))
 
-print(env.reset().shape)
-# print(env2.reset().shape)
-print(env.joint_list)
-print(env._max_episode_steps)
-
-# env = gym.make("FetchReachEnvGraph-v7")
-# env = gym.make("AntEnvGraph-v0")
-# env = gym.make("FetchReachEnv-v4")
-# env = gym.make("Ant-v2")
-# env = gym.make("HalfCheetahEnvGraph-v0")
-# env = gym.make("FetchPickAndPlaceEnv-v0")
-# env = gym.make("FetchReachEnvGraph-v0")
-# env = gym.make("Walker2dEnvGraph-v0")
-# obs = env.reset()
-# print(obs['edge_features'])
-# print(obs['global_features'].shape)
-
-# print(env.observation_space.shape)
-# print(env.action_space.shape)
-
-# print(env.sim.model.joint_names)
-# print()
-
-# print(env.action_space.shape[0])
-# print(env.observation_space)
-
-# print([j.attrib['name'] for j in env.joint_list])
-# print(len(env.joint_list))
-# print(env.sim.data.qpos)
-# print(env.sim.model.get_xml())
-# print(env.robot_graph.edge_features)
-# g = env.robot_graph
-# while True:
-#     action = env.action_space.sample()
-#     # print(action.shape)
-#     # print(obs['global_features'])
-#     # print(env.sim.data.qpos)
-#     # print(env.sim.data.qvel)
-#     # print(env.sim.data.cfrc_ext.flat)
-#
-#     # edge_id_list = []
-#     # for e in g.edge_list:
-#     #     if e is not None:
-#     #         edge_id_list.append(int(env.sim.model.joint_name2id(e.attrib['name'])))
-#     #
-#     # for id in sorted(edge_id_list):
-#     #     name = env.sim.model.joint_id2name(id)
-#     #     # print(id, name, g.edge_features[id, :])
-#     #     print(id, name, env.sim.data.get_joint_qpos(env.sim.model.joint_id2name(id)))
-#
-#     # print(action)
-#     # action = np.array([0, 0, 0, 0, 0, 0, 0, 0])
-#     # action[:4] = [0, 0, 0, 0]
-#     # print(action)
-#     obs, _, _, _ = env.step(action)
-#     # print('node_features', obs['observation']['node_features'])
-#     # print('edge_features', obs['observation']['edge_features'])
-#     # print(obs)
-#     env.render()
+print(env.reset())
