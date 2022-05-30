@@ -91,6 +91,8 @@ num_episodes = 5
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
 
+render = True
+
 
 def process_joint_name(joint_name):
     separated = joint_name.split(':')[1].split('_') if 'robot0' in joint_name else joint_name.split('_')
@@ -172,6 +174,8 @@ def calculate_relevance():
                 next_state, reward, done, _ = env.step(action)
                 episode_reward += reward
                 state = next_state
+                if render:
+                    env.render()
             avg_reward += episode_reward
         avg_reward /= num_episodes
 

@@ -4,19 +4,19 @@ import numpy as np
 from RobotGraphModel import ModelParser
 
 
-class HalfCheetahWrapper(gym.ObservationWrapper):
+class MujocoWrapper(gym.ObservationWrapper):
     def __init__(self, env, occluded_joint=None):
         super().__init__(env)
-        assert 'HalfCheetahEnv' in env.unwrapped.spec.id, 'Environment must be HalfCheetah'
         self.env = env
 
-        parser = ModelParser(env.sim.model.get_xml(), "HalfCheetahEnv-v0")
+        parser = ModelParser(env.sim.model.get_xml(), env.unwrapped.spec.id)
         self.joint_list = [j.attrib['name'] for j in parser.joints]
-        if occluded_joint is not None:
+        if occluded_joint is not None and occluded_joint in self.joint_list:
             self.joint_list.remove(occluded_joint)
 
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2 * len(self.joint_list),), dtype='float32')
-        self._max_episode_steps = env._max_episode_steps
+        # self._max_episode_steps = env._max_episode_steps
+        env.spec.max_episode_steps = 200
 
     def observation(self, obs):
         joint_features = []

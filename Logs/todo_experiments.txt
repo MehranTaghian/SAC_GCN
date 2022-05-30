@@ -8,7 +8,4 @@ transferable or not.
     ii) or break those joints so that they would not have any negative impact on the learning process.
 
 
-1) run experiments for halfcheetah standard basic on melco1 to compare with the graph one
-2) run experiments for halfcheetah basic and occluding joints in order of their importance
-3) check the current learned policy for half-cheetah graph.
 

@@ -33,3 +33,5 @@ the experiments. This way, you would have a constant amount of memory throughout
  i) The original model was wayyy better according to the experiments on fetchreach
  ii) compare the new model with the original model on halfcheetah
  iii) add walker and hopper to the analysis
+
+21) Add load parameters in evaluation processes

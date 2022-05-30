@@ -1,6 +1,6 @@
 from gym.envs.registration import register
 from CustomGymEnvs.envs.Wrappers.FetchReach import FetchReachWrapper
-from CustomGymEnvs.envs.Wrappers.HalfCheetah import HalfCheetahWrapper
+from CustomGymEnvs.envs.Wrappers.MujocoWrapper import MujocoWrapper
 
 # Ant - Graph
 register(
@@ -33,9 +33,9 @@ register(
     max_episode_steps=200,
 )
 
-# Walker2d
+# walker2d
 
-# Walker2d - graph
+# walker2d - graph
 register(
     id="Walker2dEnvGraph-v0",
     entry_point="CustomGymEnvs.graph_envs.walker2d.Walker2dEnv_v0.walker2d:Walker2dEnv",

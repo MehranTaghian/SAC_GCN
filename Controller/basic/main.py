@@ -87,10 +87,8 @@ if 'FetchReach' in args.env_name:
         'robot0:wrist_roll_joint']
 
     env = FetchReachWrapper(gym.make(args.env_name), joint_list)
-elif 'HalfCheetah' in args.env_name:
-    env = HalfCheetahWrapper(gym.make(args.env_name), args.exp_type)
 else:
-    env = gym.make(args.env_name)
+    env = MujocoWrapper(gym.make(args.env_name), args.exp_type)
 
 env.seed(args.seed)
 env.action_space.seed(args.seed)

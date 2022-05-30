@@ -98,7 +98,7 @@ agent_relevance.load_checkpoint(checkpoint_path, evaluate=True)
 #                                   args.policy, "autotune" if args.automatic_entropy_tuning else ""))
 
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
-render = False
+render = True
 
 num_samples = 0
 edge_list = env.robot_graph.edge_list
