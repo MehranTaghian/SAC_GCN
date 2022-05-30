@@ -7,5 +7,10 @@ transferable or not.
     i) Change their feature space to show zero all the time
     ii) or break those joints so that they would not have any negative impact on the learning process.
 
+4) Experiments for walker are running on melco. The most important joint according to the heatmap was leg_left_joint
+and the least important one was foot_left_joint. Another important joint was thigh_left_joint, which we haven't run
+its experiment,yet. Consider running it after finishing current experiments.
+
+
 
 
