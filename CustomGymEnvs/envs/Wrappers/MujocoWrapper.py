@@ -15,8 +15,8 @@ class MujocoWrapper(gym.ObservationWrapper):
             self.joint_list.remove(occluded_joint)
 
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2 * len(self.joint_list),), dtype='float32')
-        # self._max_episode_steps = env._max_episode_steps
         env.spec.max_episode_steps = 200
+        self._max_episode_steps = env._max_episode_steps
 
     def observation(self, obs):
         joint_features = []
