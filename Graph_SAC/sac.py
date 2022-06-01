@@ -3,7 +3,7 @@ import torch
 import torch.nn.functional as F
 from torch.optim import Adam
 from Graph_SAC.utils import soft_update, hard_update
-from Graph_SAC.model import GaussianPolicy, DoubleQNetwork, DeterministicPolicy
+from Graph_SAC.model import GaussianPolicy, DoubleQNetwork
 
 
 class SAC(object):
