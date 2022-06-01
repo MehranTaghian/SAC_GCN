@@ -25,8 +25,6 @@ exp_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data', args.env_n
 
 def draw():
     env_exp_types = os.listdir(exp_path)
-    if 'graph' in env_exp_types:
-        env_exp_types.remove('graph')
     env_exp_types = [d for d in env_exp_types if os.path.isdir(os.path.join(exp_path, d))]
     exp_type_train_results = {}
     exp_type_eval_results = {}
@@ -42,10 +40,7 @@ def draw():
         data_eval = None
         for seed in range(len(experiment_seed)):
             data_train = pd.read_csv(os.path.join(exp_type_path, experiment_seed[seed], 'train.csv'))
-            data_train = data_train[(data_train.T != 0).any()]
             data_eval = pd.read_csv(os.path.join(exp_type_path, experiment_seed[seed], 'eval.csv'))
-            data_eval = data_eval[(data_eval.T != 0).any()]
-
             if first:
                 train_average_returns = np.zeros([num_seeds, len(data_train)])
                 eval_average_returns = np.zeros([num_seeds, len(data_eval)])
