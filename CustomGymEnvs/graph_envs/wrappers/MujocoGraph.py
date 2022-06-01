@@ -1,14 +1,25 @@
 import gym
 from gym import spaces
 import numpy as np
-from RobotGraphModel import AntGraph
+from RobotGraphModel import AntGraph, Walker2dGraph, HalfCheetahGraph, HopperGraph
 
 
 class MujocoGraphWrapper(gym.ObservationWrapper):
     def __init__(self, env):
         super().__init__(env)
         self.env = env
-        self.robot_graph = AntGraph(self.env.sim, env_name='Ant-v2')
+        env_name = env.spec.id
+        self.robot_graph = None
+        if env_name == 'Ant-v2':
+            self.robot_graph = AntGraph(self.env.sim, env_name=env_name)
+        elif env_name == 'Walker2d-v2':
+            self.robot_graph = Walker2dGraph(self.env.sim, env_name=env_name)
+        elif env_name == 'HalfCheetah-v2':
+            self.robot_graph = HalfCheetahGraph(self.env.sim, env_name=env_name)
+        elif env_name == 'Hopper-v2':
+            self.robot_graph = HopperGraph(self.env.sim, env_name=env_name)
+        else:
+            raise "Environment not found! Consider using version 2 of the Mujoco environments."
 
         obs = self.robot_graph.get_graph_obs()
         obs['global_features'] = np.empty([0])

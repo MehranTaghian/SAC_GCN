@@ -1,10 +1,10 @@
-from RobotGraphModel.RobotGraph import RobotGraph
+from RobotGraphModel.robot_graph import RobotGraph
 import numpy as np
 
 
-class HopperGraph(RobotGraph):
+class Walker2dGraph(RobotGraph):
     def __init__(self, sim, env_name, weld_joints=None):
-        super(HopperGraph, self).__init__(sim, env_name, weld_joints)
+        super(Walker2dGraph, self).__init__(sim, env_name, weld_joints)
 
     def extract_node_features(self):
         return np.zeros([len(self.node_list), 0])

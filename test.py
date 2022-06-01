@@ -20,7 +20,9 @@ print(env.observation_space)
 # env4 = MujocoWrapper(gym.make("Walker2d-v2"), occluded_joint='standard')
 
 env = MujocoGraphWrapper(gym.make('Ant-v2'))
+env = MujocoGraphWrapper(gym.make('Hopper-v2'))
 
+print(env.spec.id)
 # env2 = MujocoWrapper(gym.make("Walker2d-v2"))
 # env2 = MujocoWrapper(gym.make("Walker2d-v2"))
 

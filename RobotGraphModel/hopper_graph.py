@@ -1,10 +1,10 @@
-from RobotGraphModel.RobotGraph import RobotGraph
+from RobotGraphModel.robot_graph import RobotGraph
 import numpy as np
 
 
-class HalfCheetahGraph(RobotGraph):
+class HopperGraph(RobotGraph):
     def __init__(self, sim, env_name, weld_joints=None):
-        super(HalfCheetahGraph, self).__init__(sim, env_name, weld_joints)
+        super(HopperGraph, self).__init__(sim, env_name, weld_joints)
 
     def extract_node_features(self):
         return np.zeros([len(self.node_list), 0])
@@ -15,7 +15,8 @@ class HalfCheetahGraph(RobotGraph):
             if len(edge) > 0:
                 edge_feature = np.array(
                     [x for e in edge for x in [self.sim.data.get_joint_qpos(e.attrib['name']).copy(),
-                                               self.sim.data.get_joint_qvel(e.attrib['name']).copy()]])
+                                               np.clip(self.sim.data.get_joint_qvel(e.attrib['name']).copy(), -10,
+                                                       10)]])
             else:  # Welded edges
                 edge_feature = np.zeros(2)
 

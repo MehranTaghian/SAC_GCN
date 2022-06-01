@@ -1,4 +1,4 @@
-from RobotGraphModel.ModelParser import ModelParser
+from RobotGraphModel import ModelParser
 import numpy as np
 
 

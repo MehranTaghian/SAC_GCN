@@ -1,4 +1,4 @@
-from RobotGraphModel.RobotGraph import RobotGraph
+from RobotGraphModel.robot_graph import RobotGraph
 import numpy as np
 
 
