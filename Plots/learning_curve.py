@@ -36,7 +36,9 @@ def draw():
     data_eval = None
     for seed in range(len(experiment_seed)):
         data_train = pd.read_csv(os.path.join(exp_path, experiment_seed[seed], 'train.csv'))
+        data_train = data_train[(data_train.T != 0).any()]
         data_eval = pd.read_csv(os.path.join(exp_path, experiment_seed[seed], 'eval.csv'))
+        data_eval = data_eval[(data_eval.T != 0).any()]
         if first:
             train_average_returns = np.zeros([num_seeds, len(data_train)])
             eval_average_returns = np.zeros([num_seeds, len(data_eval)])

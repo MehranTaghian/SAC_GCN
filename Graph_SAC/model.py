@@ -39,16 +39,7 @@ class GraphNetwork(nn.Module):
                                        node_features=256,
                                        edge_features=256,
                                        aggregation=aggregation),
-            'global1_relu': tg.GlobalReLU(),
-            'edge2': tg.EdgeLinear(128,
-                                   edge_features=256),
-            'edge2_relu': tg.EdgeReLU(),
-            'node2': tg.NodeLinear(128,
-                                   node_features=256,
-                                   incoming_features=128,
-                                   outgoing_features=128,
-                                   aggregation=aggregation),
-            'node2_relu': tg.NodeReLU()
+            'global1_relu': tg.GlobalReLU()
         }))
 
     def forward(self, g):
@@ -56,7 +47,7 @@ class GraphNetwork(nn.Module):
 
 
 class GraphNetworkRelevance(nn.Module):
-    def __init__(self, num_node_features, num_edge_features, num_global_features, aggregation='avg'):
+    def __init__(self, num_node_features, num_edge_features, num_global_features, output_size, aggregation='avg'):
         super(GraphNetworkRelevance, self).__init__()
 
         self.layers = nn.Sequential(OrderedDict({
@@ -74,16 +65,7 @@ class GraphNetworkRelevance(nn.Module):
                                                        node_features=256,
                                                        edge_features=256,
                                                        aggregation=aggregation),
-            'global1_relu': Relevance.GlobalReLURelevance(),
-            'edge2': Relevance.EdgeLinearRelevance(128,
-                                                   edge_features=256),
-            'edge2_relu': Relevance.EdgeReLURelevance(),
-            'node2': Relevance.NodeLinearRelevance(128,
-                                                   node_features=256,
-                                                   incoming_features=128,
-                                                   outgoing_features=128,
-                                                   aggregation=aggregation),
-            'node2_relu': Relevance.NodeReLURelevance()
+            'global1_relu': Relevance.GlobalReLURelevance()
         }))
 
     def forward(self, g):
@@ -97,11 +79,7 @@ class QNetwork(nn.Module):
         super(QNetwork, self).__init__()
         self.graph_net = GraphNetwork(num_node_features, num_edge_features, num_global_features,
                                       aggregation=aggregation)
-        self.global_output = tg.GlobalLinear(state_output_size,
-                                             global_features=256,
-                                             node_features=128,
-                                             edge_features=128,
-                                             aggregation=aggregation)
+        self.global_avg = tg.GlobalLinear(state_output_size, global_features=256, aggregation=aggregation)
 
         self.action_value_layer = nn.Sequential(
             nn.Linear(state_output_size + num_actions, hidden_action_size),
@@ -116,7 +94,7 @@ class QNetwork(nn.Module):
 
     def forward(self, g, a):
         g = self.graph_net(g)
-        state_value = self.global_output(g).global_features
+        state_value = self.global_avg(g).global_features
         state_action = torch.cat([state_value, a], 1)
         action_value = self.action_value_layer(state_action)
         return action_value
@@ -155,31 +133,24 @@ class GaussianPolicy(nn.Module):
         if not relevance:
             self.graph_net = GraphNetwork(num_node_features, num_edge_features, num_global_features,
                                           aggregation=aggregation)
-
             self.mean_linear = tg.GlobalLinear(num_actions,
                                                global_features=256,
-                                               node_features=128,
-                                               edge_features=128,
                                                aggregation=aggregation)
             self.log_std_linear = tg.GlobalLinear(num_actions,
                                                   global_features=256,
-                                                  node_features=128,
-                                                  edge_features=128,
                                                   aggregation=aggregation)
+
         else:
             self.graph_net = GraphNetworkRelevance(num_node_features, num_edge_features, num_global_features,
-                                                   aggregation=aggregation)
+                                                   output_size=hidden_action_size, aggregation=aggregation)
 
             self.mean_linear = Relevance.GlobalLinearRelevance(num_actions,
                                                                global_features=256,
-                                                               node_features=128,
-                                                               edge_features=128,
                                                                aggregation=aggregation)
             self.log_std_linear = Relevance.GlobalLinearRelevance(num_actions,
                                                                   global_features=256,
-                                                                  node_features=128,
-                                                                  edge_features=128,
                                                                   aggregation=aggregation)
+
         for params in self.parameters():
             weights_init_(params)
 
@@ -208,5 +179,3 @@ class GaussianPolicy(nn.Module):
         self.action_scale = self.action_scale.to(device)
         self.action_bias = self.action_bias.to(device)
         return super(GaussianPolicy, self).to(device)
-
-
