@@ -11,6 +11,6 @@ transferable or not.
 and the least important one was foot_left_joint. Another important joint was thigh_left_joint, which we haven't run
 its experiment,yet. Consider running it after finishing current experiments.
 
-
+5) those halfcheetahgraph experiments seed 3,6,9 that failed on melco2 are running on mehran
 
 
