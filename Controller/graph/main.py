@@ -53,7 +53,6 @@ os.environ["OMP_NUM_THREADS"] = parallel_procs
 os.environ["MKL_NUM_THREADS"] = parallel_procs
 
 import gym
-import CustomGymEnvs
 from CustomGymEnvs import MujocoGraphWrapper, FetchReachGraphWrapper
 import numpy as np
 import torch
@@ -63,6 +62,7 @@ from utils import state_2_graph, state_2_graphbatch, save_object
 import pandas as pd
 import os
 from pathlib import Path
+import time
 
 exp_path = Path(os.path.abspath(__file__)).parent.parent.parent
 exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type, f'seed{args.seed}')
@@ -118,6 +118,7 @@ max_episode_steps = env.spec.max_episode_steps
 losses = np.zeros([args.updates_per_step * max_episode_steps * args.num_episodes, 6])
 train_reward = np.zeros([args.num_episodes, 5])
 eval_reward = np.zeros([int(args.num_episodes / args.evaluation_freq), 4])
+time_evaluation = np.zeros([args.num_episodes, 5])
 
 
 def save_data():
@@ -127,10 +128,12 @@ def save_data():
     train_reward_df = pd.DataFrame(train_reward, columns=['num_episodes', 'num_steps', 'num_updates', 'episode_steps',
                                                           'train_reward'])
     eval_reward_df = pd.DataFrame(eval_reward, columns=['num_episodes', 'num_steps', 'num_updates', 'eval_reward'])
+    time_df = pd.DataFrame(time_evaluation, columns=['num_episodes', 'action', 'update', 'env step', 'store'])
 
     loss_df.to_csv(os.path.join(exp_path, 'loss.csv'), index=False)
     train_reward_df.to_csv(os.path.join(exp_path, 'train.csv'), index=False)
     eval_reward_df.to_csv(os.path.join(exp_path, 'eval.csv'), index=False)
+    time_df.to_csv(os.path.join(exp_path, 'time.csv'), index=False)
 
 
 for i_episode in range(args.num_episodes):
@@ -139,27 +142,40 @@ for i_episode in range(args.num_episodes):
     done = False
     state = env.reset()
 
+    action_time = 0
+    update_time = 0
+    env_step_time = 0
+    store_time = 0
+
     while not done:
         # print('#' * 50)
         # print(state['observation']['node_features'])
         if args.start_steps > total_numsteps:
             action = env.action_space.sample()  # Sample random action
         else:
+            action_time_begin = round(time.time() * 1000)
             action = agent.select_action(state_2_graphbatch(state).to(device))  # Sample action from policy
+            action_time_end = round(time.time() * 1000)
+            action_time = action_time_end - action_time_begin
 
         if len(memory) > args.batch_size:
             # Number of updates per step in environment
+            update_time_begin = round(time.time() * 1000)
             for i in range(args.updates_per_step):
                 # Update parameters of all the networks
                 critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory,
                                                                                                      args.batch_size,
                                                                                                      updates)
-                # losses = np.append(losses, [[updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha]],
-                #                    axis=0)
+
                 losses[updates] = np.array([updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha])
                 updates += 1
+            update_time_end = round(time.time() * 1000)
+            update_time += update_time_end - update_time_begin
 
+        env_step_begin = round(time.time() * 1000)
         next_state, reward, done, _ = env.step(action)  # Step
+        env_step_end = round(time.time() * 1000)
+        env_step_time = env_step_end - env_step_begin
         episode_steps += 1
         total_numsteps += 1
         episode_reward += reward
@@ -167,14 +183,14 @@ for i_episode in range(args.num_episodes):
         # Ignore the "done" signal if it comes from hitting the time horizon.
         # (https://github.com/openai/spinningup/blob/master/spinup/algos/sac/sac.py)
         mask = 1 if episode_steps == env._max_episode_steps else float(not done)
+        memory_store_begin = round(time.time() * 1000)
         memory.push(state_2_graph(state), action, reward, state_2_graph(next_state),
                     mask)  # Append transition to memory
-
+        memory_store_end = round(time.time() * 1000)
+        store_time += memory_store_end - memory_store_begin
         state = next_state
 
-    # train_reward = np.append(train_reward, [[i_episode, total_numsteps, updates, episode_steps, episode_reward]],
-    #                          axis=0)
-
+    time_evaluation[i_episode] = np.array([i_episode, action_time, update_time, env_step_time, store_time])
     train_reward[i_episode] = np.array([i_episode, total_numsteps, updates, episode_steps, episode_reward])
 
     # writer.add_scalar('reward/train', episode_reward, i_episode)

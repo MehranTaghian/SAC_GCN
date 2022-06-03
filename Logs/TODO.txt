@@ -42,3 +42,5 @@ the experiments. This way, you would have a constant amount of memory throughout
 its left leg. That can explain the reason of higher relevance scores in the left leg on the heatmap.
 
 24) remove redundant data from custom gym envs and add wrappers instead
+
+25) plot the time of storing and updating through time

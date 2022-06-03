@@ -4,39 +4,6 @@ from CustomGymEnvs.envs.wrappers.MujocoWrapper import MujocoWrapper
 from CustomGymEnvs.graph_envs.wrappers.MujocoGraph import MujocoGraphWrapper
 from CustomGymEnvs.graph_envs.wrappers.FetchReachGraph import FetchReachGraphWrapper
 
-# Ant - Graph
-register(
-    id="AntEnvGraph-v0",
-    entry_point="CustomGymEnvs.graph_envs.ant.AntEnv_v0_Normal:AntEnv",
-    max_episode_steps=200,
-)
-
-# HalfCheetah - Graph
-
-register(
-    id="HalfCheetahEnvGraph-v0",
-    entry_point="CustomGymEnvs.graph_envs.halfcheetah.HalfCheetahEnv_v0.half_cheetah:HalfCheetahEnv",
-    max_episode_steps=200,
-)
-
-# walker2d
-
-# walker2d - graph
-register(
-    id="Walker2dEnvGraph-v0",
-    entry_point="CustomGymEnvs.graph_envs.walker2d.Walker2dEnv_v0.walker2d:Walker2dEnv",
-    max_episode_steps=200,
-)
-
-# Hopper
-
-# Hopper - graph
-register(
-    id="HopperEnvGraph-v0",
-    entry_point="CustomGymEnvs.graph_envs.hopper.HopperEnv_v0.hopper:HopperEnv",
-    max_episode_steps=200,
-)
-
 # FetchReach - Graph
 
 register(
@@ -84,13 +51,5 @@ register(
 register(
     id="FetchReachEnvGraph-v7",
     entry_point="CustomGymEnvs.graph_envs.fetchreach.FetchReach_ImportantJointOnly.fetch.reach:FetchReachEnv",
-    max_episode_steps=50,
-)
-
-# FetchReach
-
-register(
-    id="FetchReachEnv-v0",
-    entry_point="CustomGymEnvs.envs.fetchreach.CustomFetchReach.fetch.reach:FetchReachEnv",
     max_episode_steps=50,
 )
