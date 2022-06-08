@@ -34,8 +34,6 @@ the experiments. This way, you would have a constant amount of memory throughout
  ii) compare the new model with the original model on halfcheetah
  iii) add walker and hopper to the analysis
 
-21) Add load parameters in evaluation processes
-
 22) The relation between actions (torques applied to specific joints) and joints can be nicely seen in Walker2d heatmap.
 
 23) If you render the simulation in Walker2d, you can see that from a specific time-step onward, it is mostly using

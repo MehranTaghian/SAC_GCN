@@ -21,12 +21,16 @@ parser.add_argument('--env-name', default="FetchReachDense-v1",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--exp-type', default="standard",
                     help='Type of the experiment like normal or abnormal')
+parser.add_argument('--seed', type=int, default=123456, metavar='N',
+                    help='random seed (default: 123456)')
 
 args = parser.parse_args()
 env_name = args.env_name
+seed = args.seed
 exp_path = os.path.join(Path(__file__).parent.parent, 'Data', args.env_name, args.exp_type)
 args = load_object(os.path.join(exp_path, 'seed0', 'parameters.pkl'))
 args.env_name = env_name
+args.seed = seed
 
 experiment_seed = os.listdir(exp_path)
 experiment_seed = [d for d in experiment_seed if os.path.isdir(os.path.join(exp_path, d))]
@@ -47,14 +51,16 @@ num_node_features = env.observation_space['node_features'].shape[1]
 num_edge_features = env.observation_space['edge_features'].shape[1]
 num_global_features = env.observation_space['global_features'].shape[0]
 
-device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
+# device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
+device = torch.device('cpu')
+args.cuda = False
 
 num_episodes = 5
 
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
 
-render = True
+render = False
 
 
 def process_joint_name(joint_name):
@@ -127,7 +133,7 @@ def calculate_relevance():
                     output_relevance[action_index] = out.global_features[action_index]
                     batch_state.zero_grad_()
                     out.global_features.backward(output_relevance)
-                    
+
                     edge_rel = batch_state.edge_features.grad.sum(dim=1)
                     global_rel = batch_state.global_features.grad.sum(dim=1)
                     global_relevance[action_index, s] += global_rel
@@ -155,7 +161,6 @@ def plot_joint_action_heatmap(fig, ax, data, title, file_name):
     cbar.ax.set_ylabel('Avg relevance score across seeds', rotation=-90, va="bottom")
     ax.set_yticks(np.arange(len(action_indices)), labels=action_indices)
     ax.set_xticks(np.arange(len(joint_names)), labels=[j for j in joint_names], rotation=45)
-    print(data)
     for i in range(data.shape[0]):
         for j in range(data.shape[1]):
             ax.text(j, i, round(data[i, j], 3),

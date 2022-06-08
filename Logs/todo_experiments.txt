@@ -13,4 +13,6 @@ its experiment,yet. Consider running it after finishing current experiments.
 
 5) those halfcheetahgraph experiments seed 3,6,9 that failed on melco2 are running on mehran
 
+6) Run experiments for halfcheetah according to the generated heatmap
 
+7) hopper experiments running on melco
