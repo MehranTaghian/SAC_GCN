@@ -16,3 +16,6 @@ its experiment,yet. Consider running it after finishing current experiments.
 6) Run experiments for halfcheetah according to the generated heatmap
 
 7) hopper experiments running on melco
+
+8) bthigh experiments running on melco
+9) run ffoot experiments
