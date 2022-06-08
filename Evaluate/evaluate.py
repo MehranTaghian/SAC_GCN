@@ -1,16 +1,13 @@
 import argparse
 import os
-
 import gym
-import matplotlib
 import numpy as np
 import torch
 from tqdm import tqdm
-import CustomGymEnvs
+from CustomGymEnvs import MujocoGraphWrapper, FetchReachGraphWrapper
 from pathlib import Path
 from Graph_SAC.sac import SAC
-from utils import state_2_graphbatch
-
+from utils import state_2_graphbatch, load_object
 # matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -20,54 +17,17 @@ plt.style.use('tableau-colorblind10')
 plt.rcParams['font.size'] = '20'
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
-parser.add_argument('--env-name', default="FetchReachEnvGraph-v0",
+parser.add_argument('--env-name', default="FetchReachDense-v1",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--exp-type', default="standard",
                     help='Type of the experiment like normal or abnormal')
-parser.add_argument('--seed', type=int, default=123456, metavar='N',
-                    help='random seed (default: 123456)')
-parser.add_argument('--policy', default="Gaussian",
-                    help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
-parser.add_argument('--eval', type=bool, default=True,
-                    help='Evaluates a policy a policy every 10 episode (default: True)')
-parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
-                    help='discount factor for reward (default: 0.99)')
-parser.add_argument('--tau', type=float, default=0.005, metavar='G',
-                    help='target smoothing coefficient(τ) (default: 0.005)')
-parser.add_argument('--lr', type=float, default=0.0003, metavar='G',
-                    help='learning rate (default: 0.0003)')
-parser.add_argument('--alpha', type=float, default=0.2, metavar='G',
-                    help='Temperature parameter α determines the relative importance of the entropy\
-                            term against the reward (default: 0.2)')
-parser.add_argument('--automatic_entropy_tuning', type=bool, default=False, metavar='G',
-                    help='Automaically adjust α (default: False)')
-parser.add_argument('--batch_size', type=int, default=256, metavar='N',
-                    help='batch size (default: 256)')
-parser.add_argument('--num_steps', type=int, default=1000001, metavar='N',
-                    help='maximum number of steps (default: 1000000)')
-parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
-                    help='hidden size (default: 256)')
-parser.add_argument('--hidden_action_size', type=int, default=256, metavar='N',
-                    help='hidden size for action layer in Q-function (default: 32)')
-parser.add_argument('--updates_per_step', type=int, default=1, metavar='N',
-                    help='model updates per simulator step (default: 1)')
-parser.add_argument('--start_steps', type=int, default=10000, metavar='N',
-                    help='Steps sampling random actions (default: 10000)')
-parser.add_argument('--target_update_interval', type=int, default=1, metavar='N',
-                    help='Value target update per no. of updates per step (default: 1)')
-parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
-                    help='size of replay buffer (default: 10000000)')
-parser.add_argument('-msf', '--model_save_freq', type=int, default=100, metavar='N',
-                    help='Save checkpoint every msf episodes')
-parser.add_argument('-ef', '--evaluation_freq', type=int, default=10, metavar='N',
-                    help='Evaluate the policy every ef episodes')
-parser.add_argument('--aggregation', default="avg",
-                    help='Mujoco Gym environment (default: HalfCheetah-v2)')
-parser.add_argument('--cuda', action="store_true",
-                    help='run on CUDA (default: False)')
-args = parser.parse_args()
 
+args = parser.parse_args()
+env_name = args.env_name
 exp_path = os.path.join(Path(__file__).parent.parent, 'Data', args.env_name, args.exp_type)
+args = load_object(os.path.join(exp_path, 'seed0', 'parameters.pkl'))
+args.env_name = env_name
+
 experiment_seed = os.listdir(exp_path)
 experiment_seed = [d for d in experiment_seed if os.path.isdir(os.path.join(exp_path, d))]
 # experiment_seed = experiment_seed[:2]
@@ -76,8 +36,11 @@ if args.seed < len(experiment_seed):
     exp_path = os.path.join(exp_path, experiment_seed[0])
 
 # Environment
-# env = NormalizedActions(gym.make(args.env_name))
-env = gym.make(args.env_name)
+if 'FetchReach' in args.env_name:
+    env = FetchReachGraphWrapper(gym.make(args.env_name))
+else:
+    env = MujocoGraphWrapper(gym.make(args.env_name))
+
 num_nodes = env.observation_space['node_features'].shape[0]
 num_edges = env.observation_space['edge_features'].shape[0]
 num_node_features = env.observation_space['node_features'].shape[1]
@@ -164,7 +127,7 @@ def calculate_relevance():
                     output_relevance[action_index] = out.global_features[action_index]
                     batch_state.zero_grad_()
                     out.global_features.backward(output_relevance)
-
+                    
                     edge_rel = batch_state.edge_features.grad.sum(dim=1)
                     global_rel = batch_state.global_features.grad.sum(dim=1)
                     global_relevance[action_index, s] += global_rel
