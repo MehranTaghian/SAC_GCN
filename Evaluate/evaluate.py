@@ -155,19 +155,27 @@ def calculate_relevance():
     env.close()
 
 
-def plot_joint_action_heatmap(fig, ax, data, title, file_name):
-    im = ax.imshow(data, cmap="YlGn")
-    cbar = ax.figure.colorbar(im, ax=ax)
-    cbar.ax.set_ylabel('Avg relevance score across seeds', rotation=-90, va="bottom")
-    ax.set_yticks(np.arange(len(action_indices)), labels=action_indices)
-    ax.set_xticks(np.arange(len(joint_names)), labels=[j for j in joint_names], rotation=45)
+def plot_joint_action_heatmap(data, width, height, title, file_name):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(width, height), gridspec_kw={'width_ratios': (30, 1)})
+    sns.heatmap(data, ax=ax1, cbar=False, cmap="YlGn", linewidth=1, vmin=0, vmax=1)
+    ax1.set_xticks(np.arange(len(joint_names)) + 0.5, labels=[j for j in joint_names], rotation=45)
+    ax1.set_title(title, fontsize=20, pad=40)
+    ax1.set_ylabel("Action index")
+    ax1.set_xlabel(f"Joints' names")
+
+    ax3 = ax1.twiny()
+    ax3.set_xlim([0, ax1.get_xlim()[1]])
+    ax3.set_xticks(ax1.get_xticks())
+    ax3.set_xticklabels(np.round(data.mean(axis=0), 2))
+
+    plt.colorbar(plt.cm.ScalarMappable(cmap="YlGn", norm=plt.Normalize(vmin=0, vmax=1)), cax=ax2)
+    ax2.yaxis.set_ticks_position('left')
+    ax2.set_ylabel('Avg relevance score across seeds')
+
     for i in range(data.shape[0]):
         for j in range(data.shape[1]):
-            ax.text(j, i, round(data[i, j], 3),
-                    ha="center", va="center", color="black")
-    ax.set_ylabel("Action index")
-    ax.set_xlabel(f"Joints' names")
-    ax.set_title(title)
+            ax1.text(j + 0.5, i + 0.5, round(data[i, j], 3), color="black")
+
     fig.savefig(file_name, dpi=300)
 
 
@@ -186,7 +194,6 @@ def plot_joint_action_timestep_curve(ax, data, title, palette=sns.color_palette(
     if label_y_axis:
         ax.set_ylabel(f"Average LRP score across {len(experiment_seed)} seeds")
     ax.set_title(title)
-
     return ax.get_legend_handles_labels()
 
 
@@ -196,14 +203,13 @@ if __name__ == '__main__':
 
     calculate_relevance()
 
-    fig_edge_avg, ax_edge_avg = plt.subplots(figsize=[figure_width, figure_height])
     fig_name = os.path.join(exp_path, 'edge_relevance_heatmap.jpg')
     # average across steps in an episode, across episodes, then across seeds
-    avg_edge_rel = edge_relevance.mean(axis=4).mean(axis=3).mean(axis=2)
+    avg_edge_rel = np.abs(edge_relevance).mean(axis=4).mean(axis=3).mean(axis=2)
     avg_edge_rel /= np.max(np.abs(avg_edge_rel), axis=0)
-    plot_joint_action_heatmap(fig_edge_avg,
-                              ax_edge_avg,
-                              avg_edge_rel.T,
+    plot_joint_action_heatmap(avg_edge_rel.T,
+                              figure_width,
+                              figure_height,
                               "Avg actions' relevance scores given to joints",
                               fig_name)
 
