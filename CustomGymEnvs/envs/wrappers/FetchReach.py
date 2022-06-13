@@ -12,8 +12,11 @@ class FetchReachWrapper(gym.ObservationWrapper):
 
         parser = ModelParser(env.sim.model.get_xml(), env.unwrapped.spec.id)
         self.joint_list = [j.attrib['name'] for j in parser.joints]
-        if occluded_joint is not None and occluded_joint in self.joint_list:
-            self.joint_list.remove(occluded_joint)
+        if occluded_joint is not None:
+            if occluded_joint in self.joint_list:
+                self.joint_list.remove(occluded_joint)
+            else:
+                raise Exception('Occluded joint is not in the list of joints')
 
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(len(self.joint_list) * 2 + 3,), dtype='float32')
         self._max_episode_steps = env._max_episode_steps
