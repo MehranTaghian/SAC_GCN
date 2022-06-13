@@ -45,3 +45,4 @@ its left leg. That can explain the reason of higher relevance scores in the left
 
 26) Change experiment type for grpah environements to "graph"
 
+27) Increase number of episodes for evaluation in evaluation process
