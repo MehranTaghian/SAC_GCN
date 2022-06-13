@@ -10,6 +10,7 @@ python $PLOT_FILE --env-name AntEnv-v0 --exp-type standard
 
 python $PLOT_FILE --env-name Walker2d-v2 --exp-type graph
 python $PLOT_FILE --env-name HalfCheetah-v2 --exp-type graph
+python $PLOT_FILE --env-name Hopper-v2 --exp-type graph
 
 python $PLOT_MULTIPLE_FILE --env-name FetchReachDense-v1
 python $PLOT_MULTIPLE_FILE --env-name HalfCheetah-v2

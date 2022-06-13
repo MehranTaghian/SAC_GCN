@@ -7,7 +7,7 @@ from tqdm import tqdm
 from CustomGymEnvs import MujocoGraphWrapper, FetchReachGraphWrapper
 from pathlib import Path
 from Graph_SAC.sac import SAC
-from utils import state_2_graphbatch, load_object
+from utils import state_2_graphbatch, load_object, save_object
 # matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -45,8 +45,6 @@ if 'FetchReach' in args.env_name:
 else:
     env = MujocoGraphWrapper(gym.make(args.env_name))
 
-num_nodes = env.observation_space['node_features'].shape[0]
-num_edges = env.observation_space['edge_features'].shape[0]
 num_node_features = env.observation_space['node_features'].shape[1]
 num_edge_features = env.observation_space['edge_features'].shape[1]
 num_global_features = env.observation_space['global_features'].shape[0]
@@ -55,7 +53,7 @@ num_global_features = env.observation_space['global_features'].shape[0]
 device = torch.device('cpu')
 args.cuda = False
 
-num_episodes = 5
+num_episodes = 10
 
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
@@ -72,7 +70,6 @@ def process_joint_name(joint_name):
         else:
             final_key += sk + ' '
     return final_key
-
 
 joint_names = []
 joint_indices = []
@@ -202,10 +199,12 @@ if __name__ == '__main__':
     figure_height = 16
 
     calculate_relevance()
+    save_object(edge_relevance, os.path.join(exp_path, 'edge_relevance.pkl'))
 
     fig_name = os.path.join(exp_path, 'edge_relevance_heatmap.jpg')
     # average across steps in an episode, across episodes, then across seeds
-    avg_edge_rel = np.abs(edge_relevance).mean(axis=4).mean(axis=3).mean(axis=2)
+    # avg_edge_rel = np.abs(edge_relevance).mean(axis=4).mean(axis=3).mean(axis=2)
+    avg_edge_rel = edge_relevance.sum(axis=4).mean(axis=3).mean(axis=2)
     avg_edge_rel /= np.max(np.abs(avg_edge_rel), axis=0)
     plot_joint_action_heatmap(avg_edge_rel.T,
                               figure_width,
@@ -213,30 +212,30 @@ if __name__ == '__main__':
                               "Avg actions' relevance scores given to joints",
                               fig_name)
 
-    fig_num_cols = int(np.ceil(np.sqrt(env.action_space.shape[0])))
-    fig_rows, fig_cols = (int(env.action_space.shape[0] / fig_num_cols)
-                          if env.action_space.shape[0] % fig_num_cols == 0
-                          else int(env.action_space.shape[0] / fig_num_cols)), fig_num_cols
-    fig_episodic, ax_episodic = plt.subplots(fig_rows, fig_cols, figsize=[figure_width, figure_height])
-    fig_name = os.path.join(exp_path, f'LRP_score_episodic.jpg')
-    handles, labels = None, None
-    for action_index in range(env.action_space.shape[0]):
-        scores = edge_relevance[:, action_index, :, :, :]
-        row, col = int(action_index / fig_num_cols), int(action_index % fig_num_cols)
-        handles, labels = plot_joint_action_timestep_curve(ax_episodic[row, col],
-                                                           scores,
-                                                           f'Relevance scores for action {action_index}',
-                                                           label_y_axis=(col == 0))
-
-    fig_episodic.legend(handles,  # The line objects
-                        labels,  # The labels for each line
-                        loc="center right",  # Position of legend
-                        borderaxespad=0.1,  # Small spacing around legend box
-                        title="Joints"  # Title for the legend
-                        )
-
-    fig_episodic.suptitle("Average actions' relevance scores given to each joint at each step")
-    # Adjust the scaling factor to fit your legend text completely outside the plot
-    # (smaller value results in more space being made for the legend)
-    plt.subplots_adjust(right=0.85)
-    fig_episodic.savefig(fig_name, dpi=300)
+    # fig_num_cols = int(np.ceil(np.sqrt(env.action_space.shape[0])))
+    # fig_rows, fig_cols = (int(env.action_space.shape[0] / fig_num_cols)
+    #                       if env.action_space.shape[0] % fig_num_cols == 0
+    #                       else int(env.action_space.shape[0] / fig_num_cols)), fig_num_cols
+    # fig_episodic, ax_episodic = plt.subplots(fig_rows, fig_cols, figsize=[figure_width, figure_height])
+    # fig_name = os.path.join(exp_path, f'LRP_score_episodic.jpg')
+    # handles, labels = None, None
+    # for action_index in range(env.action_space.shape[0]):
+    #     scores = edge_relevance[:, action_index, :, :, :]
+    #     row, col = int(action_index / fig_num_cols), int(action_index % fig_num_cols)
+    #     handles, labels = plot_joint_action_timestep_curve(ax_episodic[row, col],
+    #                                                        scores,
+    #                                                        f'Relevance scores for action {action_index}',
+    #                                                        label_y_axis=(col == 0))
+    #
+    # fig_episodic.legend(handles,  # The line objects
+    #                     labels,  # The labels for each line
+    #                     loc="center right",  # Position of legend
+    #                     borderaxespad=0.1,  # Small spacing around legend box
+    #                     title="Joints"  # Title for the legend
+    #                     )
+    #
+    # fig_episodic.suptitle("Average actions' relevance scores given to each joint at each step")
+    # # Adjust the scaling factor to fit your legend text completely outside the plot
+    # # (smaller value results in more space being made for the legend)
+    # plt.subplots_adjust(right=0.85)
+    # fig_episodic.savefig(fig_name, dpi=300)
