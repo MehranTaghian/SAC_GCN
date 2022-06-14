@@ -1,4 +1,4 @@
-MAIN_FILE="/local/melco3/taghianj/SAC_GCN/Controller/basic/main.py"
+MAIN_FILE="/home/taghianj/Documents/SAC_GCN/Controller/basic/main.py"
 
 # standard
 #tmux new-session -d -s halfcheetah-0 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name HalfCheetah-v2 --exp-type standard --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 0"
