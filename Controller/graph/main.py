@@ -115,25 +115,30 @@ device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cp
 # eval_reward = np.empty([0, 4])
 
 max_episode_steps = env.spec.max_episode_steps
-losses = np.zeros([args.updates_per_step * max_episode_steps * args.num_episodes, 6])
-train_reward = np.zeros([args.num_episodes, 5])
-eval_reward = np.zeros([int(args.num_episodes / args.evaluation_freq), 4])
-time_evaluation = np.zeros([args.num_episodes, 5])
+losses = np.zeros([args.updates_per_step * max_episode_steps * args.num_episodes, 6], dtype=np.float32)
+train_reward = np.zeros([args.num_episodes, 5], dtype=np.float32)
+eval_reward = np.zeros([int(args.num_episodes / args.evaluation_freq), 4], dtype=np.float32)
+time_evaluation = np.zeros([args.num_episodes, 5], np.int)
 
 
 def save_data():
-    loss_df = pd.DataFrame(losses,
-                           columns=['num_updates', 'critic_1_loss', 'critic_2_loss', 'policy_loss', 'ent_loss',
-                                    'alpha'])
-    train_reward_df = pd.DataFrame(train_reward, columns=['num_episodes', 'num_steps', 'num_updates', 'episode_steps',
-                                                          'train_reward'])
-    eval_reward_df = pd.DataFrame(eval_reward, columns=['num_episodes', 'num_steps', 'num_updates', 'eval_reward'])
-    time_df = pd.DataFrame(time_evaluation, columns=['num_episodes', 'action', 'update', 'env step', 'store'])
+    # loss_df = pd.DataFrame(losses,
+    #                        columns=['num_updates', 'critic_1_loss', 'critic_2_loss', 'policy_loss', 'ent_loss',
+    #                                 'alpha'])
+    # train_reward_df = pd.DataFrame(train_reward, columns=['num_episodes', 'num_steps', 'num_updates', 'episode_steps',
+    #                                                       'train_reward'])
+    # eval_reward_df = pd.DataFrame(eval_reward, columns=['num_episodes', 'num_steps', 'num_updates', 'eval_reward'])
+    # time_df = pd.DataFrame(time_evaluation, columns=['num_episodes', 'action', 'update', 'env step', 'store'])
+    #
+    # loss_df.to_csv(os.path.join(exp_path, 'loss.csv'), index=False)
+    # train_reward_df.to_csv(os.path.join(exp_path, 'train.csv'), index=False)
+    # eval_reward_df.to_csv(os.path.join(exp_path, 'eval.csv'), index=False)
+    # time_df.to_csv(os.path.join(exp_path, 'time.csv'), index=False)
 
-    loss_df.to_csv(os.path.join(exp_path, 'loss.csv'), index=False)
-    train_reward_df.to_csv(os.path.join(exp_path, 'train.csv'), index=False)
-    eval_reward_df.to_csv(os.path.join(exp_path, 'eval.csv'), index=False)
-    time_df.to_csv(os.path.join(exp_path, 'time.csv'), index=False)
+    save_object(losses, os.path.join(exp_path, 'loss.pkl'))
+    save_object(train_reward, os.path.join(exp_path, 'train.pkl'))
+    save_object(eval_reward, os.path.join(exp_path, 'eval.pkl'))
+    save_object(time_evaluation, os.path.join(exp_path, 'time.pkl'))
 
 
 for i_episode in range(args.num_episodes):
