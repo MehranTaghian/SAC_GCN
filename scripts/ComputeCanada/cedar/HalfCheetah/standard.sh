@@ -1,15 +1,15 @@
 #!/bin/bash
 
 #SBATCH --nodes=1
-#SBATCH --gpus-per-node=p100:4
-#SBATCH --ntasks-per-node=24
+#SBATCH --gpus-per-node=v100:4
+#SBATCH --ntasks-per-node=32
 #SBATCH --exclusive
-#SBATCH --mem=125G
-#SBATCH --time=6-00:00
-#SBATCH --job-name="FetchReachEnv-v0"
+#SBATCH --mem=187G
+#SBATCH --time=14-00:00
+#SBATCH --job-name="HalfCheetah-14Seeds"
 #SBATCH --account=def-zaiane
-#SBATCH --output=FetchReachEnv-v0-standard-%j.out
+#SBATCH --output=HalfCheetah-%j.out
 #SBATCH --mail-user=taghianj@ualberta.ca
 #SBATCH --mail-type=ALL
 
-parallel < /home/taghianj/scratch/SAC_GCN/scripts/ComputeCanada/cedar/HalfCheetah/standard.txt
+parallel </home/taghianj/scratch/SAC_GCN/scripts/ComputeCanada/cedar/HalfCheetah/standard.txt
