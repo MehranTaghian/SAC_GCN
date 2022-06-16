@@ -6,3 +6,6 @@ rsync -a taghianj@melco2.cs.ualberta.ca:/home/taghianj/Documents/SAC_GCN/Data /h
 
 # MEHRAN
 rsync -a taghianj@mehran.cs.ualberta.ca:/home/taghianj/Documents/SAC_GCN/Data /home/mehran/Documents/SAC_GCN
+
+# cedar
+rsync -a taghianj@cedar.computecanada.ca:/home/taghianj/scratch/SAC_GCN/Data /home/mehran/Documents/SAC_GCN/Data/cedar
