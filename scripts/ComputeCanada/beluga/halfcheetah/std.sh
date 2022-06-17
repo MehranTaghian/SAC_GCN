@@ -3,10 +3,9 @@
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=v100:4
 #SBATCH --ntasks-per-node=40
-#SBATCH --exclusive
-#SBATCH --mem=191000M
+#SBATCH --mem=190000M
 #SBATCH --time=15-00:00
-#SBATCH --job-name="HalfCheetah-15Seeds"
+#SBATCH --job-name="HalfCheetah"
 #SBATCH --account=def-zaiane
 #SBATCH --output=HalfCheetah-%j.out
 #SBATCH --mail-user=taghianj@ualberta.ca
