@@ -5,7 +5,7 @@
 #SBATCH --ntasks-per-node=40
 #SBATCH --exclusive
 #SBATCH --mem=191000M
-#SBATCH --time=15-00:00
+#SBATCH --time=14-00:00
 #SBATCH --job-name="information"
 #SBATCH --account=def-zaiane
 #SBATCH --output=information-%j.out
