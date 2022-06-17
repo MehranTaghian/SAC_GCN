@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --nodes=1
-#SBATCH --gpus-per-node=v100s:4
+#SBATCH --gpus-per-node=v100:4
 #SBATCH --ntasks-per-node=40
 #SBATCH --exclusive
 #SBATCH --mem=185G
