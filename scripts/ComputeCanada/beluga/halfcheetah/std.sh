@@ -3,6 +3,7 @@
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=v100:4
 #SBATCH --ntasks-per-node=40
+#SBATCH --exclusive
 #SBATCH --mem=1G
 #SBATCH --time=00:03:00
 #SBATCH --job-name="information"
