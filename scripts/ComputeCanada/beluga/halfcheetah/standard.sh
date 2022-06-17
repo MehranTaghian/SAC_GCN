@@ -5,7 +5,7 @@
 #SBATCH --ntasks-per-node=40
 #SBATCH --exclusive
 #SBATCH --mem=191000M
-#SBATCH --time=13-00:00
+#SBATCH --time=12-00:00
 #SBATCH --job-name="HalfCheetah-15Seeds"
 #SBATCH --account=def-zaiane
 #SBATCH --output=HalfCheetah-%j.out
