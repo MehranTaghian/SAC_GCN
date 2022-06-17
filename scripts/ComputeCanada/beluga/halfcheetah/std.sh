@@ -4,7 +4,7 @@
 #SBATCH --gpus-per-node=v100:4
 #SBATCH --ntasks-per-node=40
 #SBATCH --exclusive
-#SBATCH --mem=1G
+#SBATCH --mem=191000M
 #SBATCH --time=00:03:00
 #SBATCH --job-name="information"
 #SBATCH --account=def-zaiane
