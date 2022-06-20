@@ -10,4 +10,4 @@
 #SBATCH --mail-user=taghianj@ualberta.ca
 #SBATCH --mail-type=ALL
 
-parallel < /home/taghianj/scratch/SAC_GCN/scripts/ComputeCanada/beluga/halfcheetah/test.txt
+parallel < /home/taghianj/scratch/SAC_GCN/scripts/ComputeCanada/run/halfcheetah/test.txt

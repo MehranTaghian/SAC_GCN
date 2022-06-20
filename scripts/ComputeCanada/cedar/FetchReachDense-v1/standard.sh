@@ -6,9 +6,9 @@
 #SBATCH --exclusive
 #SBATCH --mem=125G
 #SBATCH --time=6-00:00
-#SBATCH --job-name="FetchReachEnv-v0"
+#SBATCH --job-name="FetchReachDense-v1"
 #SBATCH --account=def-zaiane
-#SBATCH --output=FetchReachEnv-v0-standard-%j.out
+#SBATCH --output=FetchReachDense-v1-standard-%j.out
 #SBATCH --mail-user=taghianj@ualberta.ca
 #SBATCH --mail-type=ALL
 

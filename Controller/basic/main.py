@@ -2,7 +2,7 @@ import argparse
 import os
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
-parser.add_argument('--env-name', default="FetchReachEnv-v0",
+parser.add_argument('--env-name', default="FetchReachDense-v1",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--exp-type', default="standard",
                     help='Type of the experiment like normal or abnormal')

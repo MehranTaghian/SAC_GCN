@@ -1,6 +1,6 @@
 MAIN_FILE="/local/melco3/taghianj/SAC_GCN/Controller/graph/main.py"
 
-# FetchReachEnv-v0
+# FetchReachDense-v1
 tmux new-session -d -s fetchreach-0 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type graph --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 0"
 tmux new-session -d -s fetchreach-1 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type graph --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 1"
 tmux new-session -d -s fetchreach-2 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type graph --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 2"

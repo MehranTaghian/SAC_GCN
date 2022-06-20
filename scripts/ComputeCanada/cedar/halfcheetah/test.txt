@@ -1,3 +1,0 @@
-CUDA_VISIBLE_DEVICES=0 python /home/taghianj/scratch/SAC_GCN/Controller/graph/main.py --env-name HalfCheetah-v2 --exp-type test --automatic_entropy_tuning True --num_episodes 10 --start_steps 0 -dsf 5 --cuda --seed 0
-CUDA_VISIBLE_DEVICES=0 python /home/taghianj/scratch/SAC_GCN/Controller/graph/main.py --env-name HalfCheetah-v2 --exp-type test --automatic_entropy_tuning True --num_episodes 10 --start_steps 0 -dsf 5 --cuda --seed 1
-CUDA_VISIBLE_DEVICES=0 python /home/taghianj/scratch/SAC_GCN/Controller/graph/main.py --env-name HalfCheetah-v2 --exp-type test --automatic_entropy_tuning True --num_episodes 10 --start_steps 0 -dsf 5 --cuda --seed 2

@@ -31,7 +31,7 @@ class RobotEnv(gym.GoalEnv):
         self.sim = mujoco_py.MjSim(model, nsubsteps=n_substeps)
 
         # Modification: robot_graph model added. This model will be used as the observation space.
-        self.robot_graph = FetchReachGraph(sim=self.sim, env_name='FetchReachEnv-v0', weld_joints=weld_joints)
+        self.robot_graph = FetchReachGraph(sim=self.sim, env_name='FetchReachDense-v1', weld_joints=weld_joints)
         # End modification
 
         self.viewer = None
