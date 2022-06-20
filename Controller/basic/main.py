@@ -75,7 +75,8 @@ args.exp_path = exp_path
 if 'FetchReach' in args.env_name:
     env = FetchReachWrapper(gym.make(args.env_name), 'robot0:' + args.exp_type)
 else:
-    env = MujocoWrapper(gym.make(args.env_name), args.exp_type)
+    occluded_joint = None if args.exp_type == 'standard' else args.exp_type
+    env = MujocoWrapper(gym.make(args.env_name), occluded_joint)
 
 env.seed(args.seed)
 env.action_space.seed(args.seed)
