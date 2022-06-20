@@ -45,6 +45,8 @@ parser.add_argument('--aggregation', default="avg",
                     help='Aggregation type in nodes and globals (default: average)')
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
+parser.add_argument('--resume', action="store_true",
+                    help='run on CUDA (default: False)')
 
 args = parser.parse_args()
 
@@ -58,7 +60,7 @@ import numpy as np
 import torch
 from Graph_SAC.sac import SAC
 from Graph_SAC.replay_memory import ReplayMemory
-from utils import state_2_graph, state_2_graphbatch, save_object
+from utils import state_2_graph, state_2_graphbatch, save_object, load_object
 import pandas as pd
 import os
 from pathlib import Path
@@ -67,10 +69,17 @@ import time
 exp_path = Path(os.path.abspath(__file__)).parent.parent.parent
 exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type, f'seed{args.seed}')
 
-if not os.path.exists(exp_path):
-    os.makedirs(exp_path)
+if not args.resume:
+    if not os.path.exists(exp_path):
+        os.makedirs(exp_path)
+    save_object(args, os.path.join(exp_path, 'parameters.pkl'))
+else:
+    if not os.path.exists(exp_path):
+        raise Exception("No experiment found to resume!")
+    num_episodes = args.num_episodes
+    args = load_object(os.path.join(exp_path, 'parameters.pkl'))
+    args.num_episodes = num_episodes
 
-save_object(args, os.path.join(exp_path, 'parameters.pkl'))
 # Environment
 if 'FetchReach' in args.env_name:
     env = FetchReachGraphWrapper(gym.make(args.env_name))
@@ -96,17 +105,13 @@ print('num_global_features', num_global_features)
 # Agent
 agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, relevance=False, args=args)
 
-# Tesnorboard
-# writer = SummaryWriter(
-#     'runs/{}_SAC_{}_{}_{}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), args.env_name,
-#                                   args.policy, "autotune" if args.automatic_entropy_tuning else ""))
-
 # Memory
 memory = ReplayMemory(args.replay_size, args.seed)
 
 # Training Loop
 total_numsteps = 0
 updates = 0
+start_episode = 0
 
 device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
 
@@ -120,28 +125,32 @@ train_reward = np.zeros([args.num_episodes, 5], dtype=np.float32)
 eval_reward = np.zeros([int(args.num_episodes / args.evaluation_freq), 4], dtype=np.float32)
 time_evaluation = np.zeros([args.num_episodes, 5], np.int)
 
+if args.resume:
+    agent.load_checkpoint(ckpt_path=os.path.join(exp_path, 'model'), evaluate=False)
+    memory.load_buffer(os.path.join(exp_path, 'buffer.pkl'))
+    losses_tmp = load_object(os.path.join(exp_path, 'loss.pkl'))
+    train_reward_tmp = load_object(os.path.join(exp_path, 'train.pkl'))
+    eval_reward_tmp = load_object(os.path.join(exp_path, 'eval.pkl'))
+    time_evaluation_tmp = load_object(os.path.join(exp_path, 'time.pkl'))
+    start_episode = train_reward_tmp.shape[0]
+    updates = losses_tmp.shape[0]
+
+    losses[:updates] = losses_tmp
+    train_reward[:start_episode] = train_reward_tmp
+    eval_reward[:int(start_episode / args.evaluation_freq) + 1] = eval_reward_tmp
+    time_evaluation[:start_episode] = time_evaluation_tmp
+
 
 def save_data():
-    # loss_df = pd.DataFrame(losses,
-    #                        columns=['num_updates', 'critic_1_loss', 'critic_2_loss', 'policy_loss', 'ent_loss',
-    #                                 'alpha'])
-    # train_reward_df = pd.DataFrame(train_reward, columns=['num_episodes', 'num_steps', 'num_updates', 'episode_steps',
-    #                                                       'train_reward'])
-    # eval_reward_df = pd.DataFrame(eval_reward, columns=['num_episodes', 'num_steps', 'num_updates', 'eval_reward'])
-    # time_df = pd.DataFrame(time_evaluation, columns=['num_episodes', 'action', 'update', 'env step', 'store'])
-    #
-    # loss_df.to_csv(os.path.join(exp_path, 'loss.csv'), index=False)
-    # train_reward_df.to_csv(os.path.join(exp_path, 'train.csv'), index=False)
-    # eval_reward_df.to_csv(os.path.join(exp_path, 'eval.csv'), index=False)
-    # time_df.to_csv(os.path.join(exp_path, 'time.csv'), index=False)
-
-    save_object(losses, os.path.join(exp_path, 'loss.pkl'))
-    save_object(train_reward, os.path.join(exp_path, 'train.pkl'))
-    save_object(eval_reward, os.path.join(exp_path, 'eval.pkl'))
-    save_object(time_evaluation, os.path.join(exp_path, 'time.pkl'))
+    agent.save_checkpoint(exp_path)
+    memory.save_buffer(exp_path)
+    save_object(losses[~np.all(losses == 0, axis=1)], os.path.join(exp_path, 'loss.pkl'))
+    save_object(train_reward[~np.all(train_reward == 0, axis=1)], os.path.join(exp_path, 'train.pkl'))
+    save_object(eval_reward[~np.all(eval_reward == 0, axis=1)], os.path.join(exp_path, 'eval.pkl'))
+    save_object(time_evaluation[~np.all(time_evaluation == 0, axis=1)], os.path.join(exp_path, 'time.pkl'))
 
 
-for i_episode in range(args.num_episodes):
+for i_episode in range(start_episode, args.num_episodes):
     episode_reward = 0
     episode_steps = 0
     done = False
@@ -206,7 +215,6 @@ for i_episode in range(args.num_episodes):
     # save checkpoint
     if (i_episode + 1) % args.data_save_freq == 0:
         print('Saving ...')
-        agent.save_checkpoint(exp_path)
         save_data()
 
     if (i_episode + 1) % args.evaluation_freq == 0 and args.eval is True:
