@@ -6,9 +6,9 @@
 #SBATCH --exclusive
 #SBATCH --mem=191000M
 #SBATCH --time=7-00:00
-#SBATCH --job-name="HalfCheetah-15Seeds"
+#SBATCH --job-name="Walker2d-15Seeds"
 #SBATCH --account=def-zaiane
-#SBATCH --output=HalfCheetah-%j.out
+#SBATCH --output=Walker2d-%j.out
 #SBATCH --mail-user=taghianj@ualberta.ca
 #SBATCH --mail-type=ALL
 
