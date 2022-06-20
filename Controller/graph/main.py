@@ -64,7 +64,6 @@ from utils import state_2_graph, state_2_graphbatch, save_object, load_object
 import pandas as pd
 import os
 from pathlib import Path
-import time
 
 exp_path = Path(os.path.abspath(__file__)).parent.parent.parent
 exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type, f'seed{args.seed}')
@@ -79,6 +78,7 @@ else:
     num_episodes = args.num_episodes
     args = load_object(os.path.join(exp_path, 'parameters.pkl'))
     args.num_episodes = num_episodes
+    args.resume = True
 
 # Environment
 if 'FetchReach' in args.env_name:
@@ -123,7 +123,6 @@ max_episode_steps = env.spec.max_episode_steps
 losses = np.zeros([args.updates_per_step * max_episode_steps * args.num_episodes, 6], dtype=np.float32)
 train_reward = np.zeros([args.num_episodes, 5], dtype=np.float32)
 eval_reward = np.zeros([int(args.num_episodes / args.evaluation_freq), 4], dtype=np.float32)
-time_evaluation = np.zeros([args.num_episodes, 5], np.int)
 
 if args.resume:
     agent.load_checkpoint(ckpt_path=os.path.join(exp_path, 'model'), evaluate=False)
@@ -131,14 +130,20 @@ if args.resume:
     losses_tmp = load_object(os.path.join(exp_path, 'loss.pkl'))
     train_reward_tmp = load_object(os.path.join(exp_path, 'train.pkl'))
     eval_reward_tmp = load_object(os.path.join(exp_path, 'eval.pkl'))
-    time_evaluation_tmp = load_object(os.path.join(exp_path, 'time.pkl'))
-    start_episode = train_reward_tmp.shape[0]
+
+    start_episode = int(train_reward_tmp[-1, 0]) + 1
+    total_numsteps = int(train_reward_tmp[-1, 1])
     updates = losses_tmp.shape[0]
 
     losses[:updates] = losses_tmp
     train_reward[:start_episode] = train_reward_tmp
-    eval_reward[:int(start_episode / args.evaluation_freq) + 1] = eval_reward_tmp
-    time_evaluation[:start_episode] = time_evaluation_tmp
+    eval_reward[:eval_reward_tmp.shape[0]] = eval_reward_tmp
+
+    exp_path = Path(os.path.abspath(__file__)).parent.parent.parent
+    exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type + '_resumed', f'seed{args.seed}')
+    if not os.path.exists(exp_path):
+        os.makedirs(exp_path)
+    save_object(args, os.path.join(exp_path, 'parameters.pkl'))
 
 
 def save_data():
@@ -147,7 +152,6 @@ def save_data():
     save_object(losses[~np.all(losses == 0, axis=1)], os.path.join(exp_path, 'loss.pkl'))
     save_object(train_reward[~np.all(train_reward == 0, axis=1)], os.path.join(exp_path, 'train.pkl'))
     save_object(eval_reward[~np.all(eval_reward == 0, axis=1)], os.path.join(exp_path, 'eval.pkl'))
-    save_object(time_evaluation[~np.all(time_evaluation == 0, axis=1)], os.path.join(exp_path, 'time.pkl'))
 
 
 for i_episode in range(start_episode, args.num_episodes):
@@ -167,14 +171,10 @@ for i_episode in range(start_episode, args.num_episodes):
         if args.start_steps > total_numsteps:
             action = env.action_space.sample()  # Sample random action
         else:
-            action_time_begin = round(time.time() * 1000)
             action = agent.select_action(state_2_graphbatch(state).to(device))  # Sample action from policy
-            action_time_end = round(time.time() * 1000)
-            action_time = action_time_end - action_time_begin
 
         if len(memory) > args.batch_size:
             # Number of updates per step in environment
-            update_time_begin = round(time.time() * 1000)
             for i in range(args.updates_per_step):
                 # Update parameters of all the networks
                 critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory,
@@ -183,13 +183,8 @@ for i_episode in range(start_episode, args.num_episodes):
 
                 losses[updates] = np.array([updates, critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha])
                 updates += 1
-            update_time_end = round(time.time() * 1000)
-            update_time += update_time_end - update_time_begin
 
-        env_step_begin = round(time.time() * 1000)
         next_state, reward, done, _ = env.step(action)  # Step
-        env_step_end = round(time.time() * 1000)
-        env_step_time = env_step_end - env_step_begin
         episode_steps += 1
         total_numsteps += 1
         episode_reward += reward
@@ -197,25 +192,16 @@ for i_episode in range(start_episode, args.num_episodes):
         # Ignore the "done" signal if it comes from hitting the time horizon.
         # (https://github.com/openai/spinningup/blob/master/spinup/algos/sac/sac.py)
         mask = 1 if episode_steps == env._max_episode_steps else float(not done)
-        memory_store_begin = round(time.time() * 1000)
         memory.push(state_2_graph(state), action, reward, state_2_graph(next_state),
                     mask)  # Append transition to memory
-        memory_store_end = round(time.time() * 1000)
-        store_time += memory_store_end - memory_store_begin
         state = next_state
 
-    time_evaluation[i_episode] = np.array([i_episode, action_time, update_time, env_step_time, store_time])
     train_reward[i_episode] = np.array([i_episode, total_numsteps, updates, episode_steps, episode_reward])
 
     # writer.add_scalar('reward/train', episode_reward, i_episode)
     print("Episode: {}, total numsteps: {}, episode steps: {}, reward: {}".format(i_episode, total_numsteps,
                                                                                   episode_steps,
                                                                                   round(episode_reward, 2)))
-
-    # save checkpoint
-    if (i_episode + 1) % args.data_save_freq == 0:
-        print('Saving ...')
-        save_data()
 
     if (i_episode + 1) % args.evaluation_freq == 0 and args.eval is True:
         avg_reward = 0.
@@ -240,5 +226,10 @@ for i_episode in range(start_episode, args.num_episodes):
         print("----------------------------------------")
         print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
         print("----------------------------------------")
+
+    # save checkpoint
+    if (i_episode + 1) % args.data_save_freq == 0:
+        print('Saving data...')
+        save_data()
 
 env.close()

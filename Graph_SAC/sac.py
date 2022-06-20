@@ -118,7 +118,6 @@ class SAC(object):
     # Save model parameters
     def save_checkpoint(self, exp_path):
         ckpt_path = os.path.join(exp_path, 'model')
-        print('Saving models to {}'.format(ckpt_path))
         torch.save({'policy_state_dict': self.policy.state_dict(),
                     'critic_state_dict': self.critic.state_dict(),
                     'critic_target_state_dict': self.critic_target.state_dict(),
