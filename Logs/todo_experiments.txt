@@ -1,3 +1,1 @@
-10) run experiments for walker2d thigh, leg, and foot joints.
-
-hopper experiments running on melco. Continue running them on melco (the rest of the experiments)
+run 10 more seeds for foot, leg, and thigh joints walker2d
