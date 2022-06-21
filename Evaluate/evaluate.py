@@ -164,7 +164,7 @@ def plot_joint_action_heatmap(data, width, height, title, file_name):
     ax3 = ax1.twiny()
     ax3.set_xlim([0, ax1.get_xlim()[1]])
     ax3.set_xticks(ax1.get_xticks())
-    ax3.set_xticklabels(np.round(np.abs(data).mean(axis=0), 2))
+    ax3.set_xticklabels(np.round(data.mean(axis=0), 2))
 
     plt.colorbar(plt.cm.ScalarMappable(cmap="YlGn", norm=plt.Normalize(vmin=np.min(data), vmax=np.max(data))), cax=ax2)
     ax2.yaxis.set_ticks_position('left')
@@ -206,7 +206,7 @@ if __name__ == '__main__':
     # average across steps in an episode, across episodes, then across seeds
     avg_edge_rel = edge_relevance.mean(axis=4).mean(axis=3).mean(axis=2)
     avg_edge_rel /= np.max(np.abs(avg_edge_rel), axis=0)
-    plot_joint_action_heatmap(avg_edge_rel.T,
+    plot_joint_action_heatmap(np.abs(avg_edge_rel.T),
                               figure_width,
                               figure_height,
                               "Avg actions' relevance scores given to joints",
