@@ -6,10 +6,10 @@ from RobotGraphModel import ModelParser
 import os
 from pathlib import Path
 
-# env = FetchReachWrapper(gym.make("FetchReachDense-v1"), 'robot0:shoulder_lift_joint')
+
 # env = FetchReachWrapper(gym.make("FetchReachDense-v1"), 'standard')
-env = FetchReachGraphWrapper(gym.make("FetchReachDense-v1"))
-print(env.observation_space)
+# env = FetchReachGraphWrapper(gym.make("FetchReachDense-v1"))
+# print(env.observation_space)
 # env = MujocoWrapper(gym.make("HalfCheetahEnv-v0"))
 # env2 = MujocoWrapper(gym.make("HalfCheetahEnv-v0"), 'bfoot')
 # env2 = MujocoWrapper(gym.make("HalfCheetahEnv-v0"), 'fthigh')
@@ -19,11 +19,9 @@ print(env.observation_space)
 # env3 = MujocoWrapper(gym.make("Walker2d-v2"), occluded_joint='thigh_left_joint')
 # env4 = MujocoWrapper(gym.make("Walker2d-v2"), occluded_joint='standard')
 
-env = MujocoGraphWrapper(gym.make('Ant-v2'))
-env = MujocoGraphWrapper(gym.make('Hopper-v2'))
+# env = MujocoGraphWrapper(gym.make('Ant-v2'))
+# env = MujocoGraphWrapper(gym.make('Hopper-v2'))
 
-print(env.spec.id)
 # env2 = MujocoWrapper(gym.make("Walker2d-v2"))
 # env2 = MujocoWrapper(gym.make("Walker2d-v2"))
 
-print(env.reset())

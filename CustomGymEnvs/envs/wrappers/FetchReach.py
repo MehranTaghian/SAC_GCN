@@ -5,7 +5,7 @@ from RobotGraphModel import ModelParser
 
 
 class FetchReachWrapper(gym.ObservationWrapper):
-    def __init__(self, env, occluded_joint):
+    def __init__(self, env, occluded_joint=None):
         super().__init__(env)
         assert 'FetchReach' in env.unwrapped.spec.id, 'Environment must be FetchReach'
         self.env = env
