@@ -1,1 +1,5 @@
 run experiments for fetchreach occlusion
+
+run 10 more seeds for walker environment
+
+run 10 more seeds for hopper

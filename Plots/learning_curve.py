@@ -5,8 +5,6 @@ import numpy as np
 import argparse
 import pathlib
 import os, shutil, pickle
-from matplotlib.patches import ConnectionPatch
-from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description="Draw results of the experiments inside a directory")
 
