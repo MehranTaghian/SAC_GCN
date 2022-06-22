@@ -1,1 +1,1 @@
-run 10 more seeds for foot, leg, and thigh joints walker2d
+run experiments for fetchreach occlusion
