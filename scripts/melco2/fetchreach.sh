@@ -49,11 +49,11 @@ MAIN_FILE="/home/taghianj/Documents/SAC_GCN/Controller/basic/main.py"
 #tmux new-session -d -s upperarm-9 "CUDA_VISIBLE_DEVICES=7 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type upperarm_roll_joint --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 9"
 
 # ELBOW FLEX JOINT
-#tmux new-session -d -s elbowflex-0 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type elbow_flex_joint --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 0"
+tmux new-session -d -s elbowflex-0 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type elbow_flex_joint --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 0"
 #tmux new-session -d -s elbowflex-1 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type elbow_flex_joint --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 1"
 #tmux new-session -d -s elbowflex-2 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type elbow_flex_joint --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 2"
 #tmux new-session -d -s elbowflex-3 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type elbow_flex_joint --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 3"
-#tmux new-session -d -s elbowflex-4 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type elbow_flex_joint --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 4"
+tmux new-session -d -s elbowflex-4 "CUDA_VISIBLE_DEVICES=0 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type elbow_flex_joint --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 4"
 #tmux new-session -d -s elbowflex-5 "CUDA_VISIBLE_DEVICES=1 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type elbow_flex_joint --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 5"
 #tmux new-session -d -s elbowflex-6 "CUDA_VISIBLE_DEVICES=1 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type elbow_flex_joint --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 6"
 #tmux new-session -d -s elbowflex-7 "CUDA_VISIBLE_DEVICES=1 python $MAIN_FILE --env-name FetchReachDense-v1 --exp-type elbow_flex_joint --automatic_entropy_tuning True --num_episodes 20000 --start_steps 10000 -dsf 100 --cuda --seed 7"

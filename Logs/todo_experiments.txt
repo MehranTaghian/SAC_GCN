@@ -3,3 +3,13 @@ run experiments for fetchreach occlusion
 run 10 more seeds for walker environment
 
 run 10 more seeds for hopper
+
+For FetchReachDense-v1:
+    run seeds 1, 5 for standard
+    elbow flex joint seed 0, 4
+    forearm roll joint seed 5
+    shoulder lift jont seed 5, 6
+    shoulder pan joint seed 5
+    upperarm roll joint seed 5, 6
+    wrist flex joint seed 5
+    wrist roll joint seed 5

@@ -12,6 +12,9 @@ parser = argparse.ArgumentParser(description="Draw results of the experiments in
 
 parser.add_argument('--env-name', default="FetchReachEnvGraph-v0",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
+parser.add_argument('--percentage', default=1, type=int,
+                    help='Mujoco Gym environment (default: HalfCheetah-v2)')
+
 
 args = parser.parse_args()
 
@@ -25,8 +28,8 @@ exp_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data', args.env_n
 
 def draw():
     env_exp_types = os.listdir(exp_path)
-    # if 'graph' in env_exp_types:
-    #     env_exp_types.remove('graph')
+    if 'graph' in env_exp_types:
+        env_exp_types.remove('graph')
     env_exp_types = [d for d in env_exp_types if os.path.isdir(os.path.join(exp_path, d))]
     exp_type_train_results = {}
     exp_type_eval_results = {}
@@ -45,25 +48,28 @@ def draw():
             data_eval = pd.read_csv(os.path.join(exp_type_path, experiment_seed[seed], 'eval.csv'))
             data_train = data_train.loc[~(data_train == 0).all(axis=1)]
             data_eval = data_eval.loc[~(data_eval == 0).all(axis=1)]
+            num_data_points_train = int(len(data_train) / args.percentage)
+            num_data_points_eval = int(len(data_eval) / args.percentage)
+
             if first:
-                train_average_returns = np.zeros([num_seeds, len(data_train)])
-                eval_average_returns = np.zeros([num_seeds, len(data_eval)])
+                train_average_returns = np.zeros([num_seeds, num_data_points_train])
+                eval_average_returns = np.zeros([num_seeds, num_data_points_eval])
                 first = False
-            train_average_returns[seed] = data_train['train_reward']
-            eval_average_returns[seed] = data_eval['eval_reward']
+            train_average_returns[seed] = data_train['train_reward'][:num_data_points_train]
+            eval_average_returns[seed] = data_eval['eval_reward'][:num_data_points_eval]
 
         train_average = np.mean(train_average_returns, axis=0)
         train_standard_error = np.std(train_average_returns, axis=0) / np.sqrt(train_average_returns.shape[0])
         eval_average = np.mean(eval_average_returns, axis=0)
         eval_standard_error = np.std(eval_average_returns, axis=0) / np.sqrt(eval_average_returns.shape[0])
 
-        train_x = {'num_time_steps': np.array(data_train['num_steps']),
-                   'num_updates': np.array(data_train['num_updates']),
-                   'num_samples': np.array(data_train['num_episodes'])}
+        train_x = {'num_time_steps': np.array(data_train['num_steps'][:num_data_points_train]),
+                   'num_updates': np.array(data_train['num_updates'][:num_data_points_train]),
+                   'num_samples': np.array(data_train['num_episodes'][:num_data_points_train])}
 
-        eval_x = {'num_time_steps': np.array(data_eval['num_steps']),
-                  'num_updates': np.array(data_eval['num_updates']),
-                  'num_samples': np.array(data_eval['num_episodes'])}
+        eval_x = {'num_time_steps': np.array(data_eval['num_steps'][:num_data_points_eval]),
+                  'num_updates': np.array(data_eval['num_updates'][:num_data_points_eval]),
+                  'num_samples': np.array(data_eval['num_episodes'][:num_data_points_eval])}
 
         exp_type_train_results[type] = (train_x, train_average, train_standard_error)
         exp_type_eval_results[type] = (eval_x, eval_average, eval_standard_error)
