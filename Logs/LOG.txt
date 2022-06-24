@@ -17,3 +17,4 @@ that all the joint's relevance scores became negative.
 7) Since the sum of relevance scores would be equal, one should not consider summing or averaging the abs value of
 relevance scores.
 
+8) write a piece of code to diagnose those experimetns causing the std to increase a lot 
