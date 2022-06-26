@@ -15,23 +15,24 @@ parser.add_argument('--env-name', default="FetchReachEnvGraph-v0",
 parser.add_argument('--percentage', default=1, type=int,
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 
-
 args = parser.parse_args()
 
-X_AXIS = ['num_time_steps', 'num_updates', 'num_samples']
+X_AXIS = ['num_episodes', 'num_time_steps', 'num_updates', 'num_samples']
 X_AXIS_TO_LABEL = {'num_time_steps': 'Time step',
                    'num_updates': 'Number of updates',
-                   'num_samples': 'Number of samples'}
+                   'num_samples': 'Number of samples',
+                   'num_episodes': 'Number of episodes'}
 
 exp_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data', args.env_name)
 
 
 def draw():
     env_exp_types = os.listdir(exp_path)
+    env_exp_types.remove("standard")
     if 'graph' in env_exp_types:
         env_exp_types.remove('graph')
     env_exp_types = [d for d in env_exp_types if os.path.isdir(os.path.join(exp_path, d))]
-    exp_type_train_results = {}
+    # exp_type_train_results = {}
     exp_type_eval_results = {}
     for type in env_exp_types:
         exp_type_path = os.path.join(exp_path, type)
@@ -52,31 +53,32 @@ def draw():
             num_data_points_eval = int(len(data_eval) / args.percentage)
 
             if first:
-                train_average_returns = np.zeros([num_seeds, num_data_points_train])
+                # train_average_returns = np.zeros([num_seeds, num_data_points_train])
                 eval_average_returns = np.zeros([num_seeds, num_data_points_eval])
                 first = False
-            train_average_returns[seed] = data_train['train_reward'][:num_data_points_train]
+            # train_average_returns[seed] = data_train['train_reward'][:num_data_points_train]
             eval_average_returns[seed] = data_eval['eval_reward'][:num_data_points_eval]
-
-        train_average = np.mean(train_average_returns, axis=0)
-        train_standard_error = np.std(train_average_returns, axis=0) / np.sqrt(train_average_returns.shape[0])
+        # train_average = np.mean(train_average_returns, axis=0)
+        # train_standard_error = np.std(train_average_returns, axis=0) / np.sqrt(train_average_returns.shape[0])
         eval_average = np.mean(eval_average_returns, axis=0)
         eval_standard_error = np.std(eval_average_returns, axis=0) / np.sqrt(eval_average_returns.shape[0])
 
-        train_x = {'num_time_steps': np.array(data_train['num_steps'][:num_data_points_train]),
-                   'num_updates': np.array(data_train['num_updates'][:num_data_points_train]),
-                   'num_samples': np.array(data_train['num_episodes'][:num_data_points_train])}
+        # train_x = {'num_time_steps': np.array(data_train['num_steps'][:num_data_points_train]),
+        #            'num_updates': np.array(data_train['num_updates'][:num_data_points_train]),
+        #            'num_samples': np.array(data_train['num_episodes'][:num_data_points_train])}
 
-        eval_x = {'num_time_steps': np.array(data_eval['num_steps'][:num_data_points_eval]),
-                  'num_updates': np.array(data_eval['num_updates'][:num_data_points_eval]),
-                  'num_samples': np.array(data_eval['num_episodes'][:num_data_points_eval])}
+        eval_x = {
+            'num_episodes': np.array(data_eval['num_episodes'][:num_data_points_eval]),
+            'num_time_steps': np.array(data_eval['num_steps'][:num_data_points_eval]),
+            'num_updates': np.array(data_eval['num_updates'][:num_data_points_eval]),
+            'num_samples': np.array(data_eval['num_episodes'][:num_data_points_eval])}
 
-        exp_type_train_results[type] = (train_x, train_average, train_standard_error)
+        # exp_type_train_results[type] = (train_x, train_average, train_standard_error)
         exp_type_eval_results[type] = (eval_x, eval_average, eval_standard_error)
 
     for x in X_AXIS:
-        single_plot(exp_type_train_results, x, 'Average Return',
-                    f'Average return of the model on {args.env_name} in different mode')
+        # single_plot(exp_type_train_results, x, 'Average Return',
+        #             f'Average return of the model on {args.env_name} in different mode')
         single_plot(exp_type_eval_results, x, 'Average Return',
                     f'Average return of the model on {args.env_name} in different modes')
 
