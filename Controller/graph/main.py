@@ -46,7 +46,9 @@ parser.add_argument('--aggregation', default="avg",
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
 parser.add_argument('--resume', action="store_true",
-                    help='run on CUDA (default: False)')
+                    help='Resume the experiments stored on the disk')
+parser.add_argument('--server', default='local',
+                    help='Experiments stored locally or those in one of the CC folders under ./Data ')
 
 args = parser.parse_args()
 
@@ -65,14 +67,19 @@ import pandas as pd
 import os
 from pathlib import Path
 
-exp_path = Path(os.path.abspath(__file__)).parent.parent.parent
-exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type, f'seed{args.seed}')
-
 if not args.resume:
+    exp_path = Path(os.path.abspath(__file__)).parent.parent.parent
+    exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type, f'seed{args.seed}')
     if not os.path.exists(exp_path):
         os.makedirs(exp_path)
     save_object(args, os.path.join(exp_path, 'parameters.pkl'))
 else:
+    exp_path = Path(os.path.abspath(__file__)).parent.parent.parent
+    if args.server == 'local':
+        exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type, f'seed{args.seed}')
+    else:
+        exp_path = os.path.join(exp_path, 'Data', args.server, args.env_name, args.exp_type, f'seed{args.seed}')
+
     if not os.path.exists(exp_path):
         raise Exception("No experiment found to resume!")
     num_episodes = args.num_episodes
@@ -140,7 +147,12 @@ if args.resume:
     eval_reward[:eval_reward_tmp.shape[0]] = eval_reward_tmp
 
     exp_path = Path(os.path.abspath(__file__)).parent.parent.parent
-    exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type + '_resumed', f'seed{args.seed}')
+    if args.server == 'local':
+        exp_path = os.path.join(exp_path, 'Data', args.env_name, args.exp_type + '_resumed', f'seed{args.seed}')
+    else:
+        exp_path = os.path.join(exp_path, 'Data', args.server, args.env_name, args.exp_type + '_resumed',
+                                f'seed{args.seed}')
+
     if not os.path.exists(exp_path):
         os.makedirs(exp_path)
     save_object(args, os.path.join(exp_path, 'parameters.pkl'))
