@@ -1,9 +1,8 @@
 import os
-import pickle
+import pickle, gzip, pickletools
 import random
 import numpy as np
 import torchgraphs as tg
-
 
 class ReplayMemory:
     def __init__(self, capacity, seed):
@@ -35,10 +34,18 @@ class ReplayMemory:
 
     def save_buffer(self, path):
         path = os.path.join(path, 'buffer.pkl')
-        with open(path, 'wb') as f:
-            pickle.dump(self.buffer, f)
+        with gzip.open(path, "wb") as f:
+            pickled = pickle.dumps(self.buffer)
+            optimized_pickle = pickletools.optimize(pickled)
+            f.write(optimized_pickle)
 
     def load_buffer(self, path):
-        with open(path, "rb") as f:
-            self.buffer = pickle.load(f)
+        with open(path, 'rb') as f:
+            p = pickle.Unpickler(f)
+            self.buffer = p.load()
             self.position = len(self.buffer) % self.capacity
+
+        # TODO: uncomment the following lines after the buffer is saved as gzip
+        # with gzip.open(path, 'rb') as f:
+        #     self.buffer = pickle.Unpickler(f)
+        #     self.position = len(self.buffer) % self.capacity
