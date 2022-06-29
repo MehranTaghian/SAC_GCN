@@ -44,3 +44,5 @@ its left leg. That can explain the reason of higher relevance scores in the left
 28) analyze time and memory
 
 29) Plot results of experiments from beluga and cedar
+
+when trying to load RB in the experiment process, it fails but out of it, it is ok
