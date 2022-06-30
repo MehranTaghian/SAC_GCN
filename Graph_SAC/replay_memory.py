@@ -4,6 +4,7 @@ import random
 import numpy as np
 import torchgraphs as tg
 
+
 class ReplayMemory:
     def __init__(self, capacity, seed):
         random.seed(seed)
@@ -47,5 +48,6 @@ class ReplayMemory:
 
         # TODO: uncomment the following lines after the buffer is saved as gzip
         # with gzip.open(path, 'rb') as f:
-        #     self.buffer = pickle.Unpickler(f)
+        #     p = pickle.Unpickler(f)
+        #     self.buffer = p.load()
         #     self.position = len(self.buffer) % self.capacity
