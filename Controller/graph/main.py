@@ -159,8 +159,8 @@ if args.resume:
 
 
 def save_data():
-    agent.save_checkpoint(exp_path)
     memory.save_buffer(exp_path)
+    agent.save_checkpoint(exp_path)
     save_object(losses[~np.all(losses == 0, axis=1)], os.path.join(exp_path, 'loss.pkl'))
     save_object(train_reward[~np.all(train_reward == 0, axis=1)], os.path.join(exp_path, 'train.pkl'))
     save_object(eval_reward[~np.all(eval_reward == 0, axis=1)], os.path.join(exp_path, 'eval.pkl'))

@@ -1,6 +1,7 @@
 import torchgraphs as tg
 import torch
-import pickle
+import pickle, gzip, pickletools
+import threading
 
 
 def state_2_graph(obs):
@@ -38,13 +39,16 @@ def state_2_graphbatch(obs):
 
 
 def save_object(obj, path):
-    file_to_store = open(path, "wb")
-    pickle.dump(obj, file_to_store)
-    file_to_store.close()
+    with gzip.open(path, "wb") as f:
+        pickled = pickle.dumps(obj)
+        optimized_pickle = pickletools.optimize(pickled)
+        f.write(optimized_pickle)
 
 
 def load_object(path):
-    file_to_read = open(path, "rb")
-    loaded_object = pickle.load(file_to_read)
-    file_to_read.close()
-    return loaded_object
+    with gzip.open(path, 'rb') as f:
+        p = pickle.Unpickler(f)
+        obj = p.load()
+    return obj
+
+

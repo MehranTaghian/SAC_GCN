@@ -1,8 +1,9 @@
 import os
-import pickle, gzip, pickletools
 import random
 import numpy as np
 import torchgraphs as tg
+from utils import save_object, load_object
+from threading import Thread
 
 
 class ReplayMemory:
@@ -11,6 +12,7 @@ class ReplayMemory:
         self.capacity = capacity
         self.buffer = []
         self.position = 0
+        self.thread = None
 
     def push(self, state, action, reward, next_state, done):
         if len(self.buffer) < self.capacity:
@@ -35,19 +37,15 @@ class ReplayMemory:
 
     def save_buffer(self, path):
         path = os.path.join(path, 'buffer.pkl')
-        with gzip.open(path, "wb") as f:
-            pickled = pickle.dumps(self.buffer)
-            optimized_pickle = pickletools.optimize(pickled)
-            f.write(optimized_pickle)
+        # Waiting for the previous save to complete
+        if self.thread is not None:
+            self.thread.join()
+        self.thread = Thread(target=save_object, args=(self.buffer.copy(), path))
+        self.thread.start()
 
     def load_buffer(self, path):
-        with open(path, 'rb') as f:
-            p = pickle.Unpickler(f)
-            self.buffer = p.load()
-            self.position = len(self.buffer) % self.capacity
-
-        # TODO: uncomment the following lines after the buffer is saved as gzip
-        # with gzip.open(path, 'rb') as f:
-        #     p = pickle.Unpickler(f)
-        #     self.buffer = p.load()
-        #     self.position = len(self.buffer) % self.capacity
+        # Waiting for the thread to save the object completely
+        if self.thread is not None:
+            self.thread.join()
+        self.buffer = load_object(path)
+        self.position = len(self.buffer) % self.capacity

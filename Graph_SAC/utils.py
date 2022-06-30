@@ -1,5 +1,6 @@
 import math
 import torch
+import pickle, pickletools, gzip
 
 
 def create_log_gaussian(mean, log_std, t):
@@ -30,3 +31,17 @@ def soft_update(target, source, tau):
 def hard_update(target, source):
     for target_param, param in zip(target.parameters(), source.parameters()):
         target_param.data.copy_(param.data)
+
+
+def save_object(obj, path):
+    with gzip.open(path, "wb") as f:
+        pickled = pickle.dumps(obj)
+        optimized_pickle = pickletools.optimize(pickled)
+        f.write(optimized_pickle)
+
+
+def load_object(path):
+    with gzip.open(path, 'rb') as f:
+        p = pickle.Unpickler(f)
+        obj = p.load()
+    return obj
