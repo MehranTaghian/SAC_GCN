@@ -31,9 +31,9 @@ def draw():
         exp_type_path = os.path.join(exp_path, exp_type)
         experiment_seed = os.listdir(exp_type_path)
         experiment_seed = [d for d in experiment_seed if os.path.isdir(os.path.join(exp_type_path, d))]
+
         plt.figure(figsize=[15, 12])
         for seed in range(len(experiment_seed)):
-            data_train = pd.read_csv(os.path.join(exp_type_path, experiment_seed[seed], 'train.csv'))
             data_eval = pd.read_csv(os.path.join(exp_type_path, experiment_seed[seed], 'eval.csv'))
             plt.plot(data_eval['eval_reward'], label=experiment_seed[seed])
 
@@ -43,6 +43,16 @@ def draw():
         plt.legend()
         plt.savefig(os.path.join(exp_type_path, 'learning_curve.jpg'))
         plt.close()
+
+        for seed in range(len(experiment_seed)):
+            plt.figure(figsize=[15, 12])
+            data_eval = pd.read_csv(os.path.join(exp_type_path, experiment_seed[seed], 'eval.csv'))
+            plt.plot(data_eval['eval_reward'])
+            plt.xlabel('Number of episodes')
+            plt.ylabel('Average evaluation reward')
+            plt.title('Learning curve')
+            plt.savefig(os.path.join(exp_type_path, experiment_seed[seed], 'learning_curve.jpg'))
+            plt.close()
 
 
 if __name__ == "__main__":
