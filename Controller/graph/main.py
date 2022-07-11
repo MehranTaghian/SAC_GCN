@@ -158,9 +158,9 @@ if args.resume:
     save_object(args, os.path.join(exp_path, 'parameters.pkl'))
 
 
-def save_data():
+def save_data(episode_num):
     memory.save_buffer(exp_path)
-    agent.save_checkpoint(exp_path)
+    agent.save_checkpoint(exp_path, episode_num)
     save_object(losses[~np.all(losses == 0, axis=1)], os.path.join(exp_path, 'loss.pkl'))
     save_object(train_reward[~np.all(train_reward == 0, axis=1)], os.path.join(exp_path, 'train.pkl'))
     save_object(eval_reward[~np.all(eval_reward == 0, axis=1)], os.path.join(exp_path, 'eval.pkl'))
@@ -242,6 +242,6 @@ for i_episode in range(start_episode, args.num_episodes):
     # save checkpoint
     if (i_episode + 1) % args.data_save_freq == 0:
         print('Saving data...')
-        save_data()
+        save_data(i_episode)
 
 env.close()

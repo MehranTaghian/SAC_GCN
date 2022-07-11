@@ -116,13 +116,16 @@ class SAC(object):
         return qf1_loss.item(), qf2_loss.item(), policy_loss.item(), alpha_loss.item(), alpha_tlogs.item()
 
     # Save model parameters
-    def save_checkpoint(self, exp_path):
+    def save_checkpoint(self, exp_path, episode_num):
         ckpt_path = os.path.join(exp_path, 'model')
+        if not os.path.exists(ckpt_path):
+            os.makedirs(ckpt_path)
         torch.save({'policy_state_dict': self.policy.state_dict(),
                     'critic_state_dict': self.critic.state_dict(),
                     'critic_target_state_dict': self.critic_target.state_dict(),
                     'critic_optimizer_state_dict': self.critic_optim.state_dict(),
-                    'policy_optimizer_state_dict': self.policy_optim.state_dict()}, ckpt_path)
+                    'policy_optimizer_state_dict': self.policy_optim.state_dict()},
+                   os.path.join(ckpt_path, f'{episode_num}.pt'))
 
     # Load model parameters
     def load_checkpoint(self, ckpt_path, evaluate=False):

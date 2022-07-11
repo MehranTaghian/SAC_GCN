@@ -6,6 +6,16 @@ from RobotGraphModel import ModelParser
 import os
 from pathlib import Path
 
+# env = gym.make("ShoulderPanBroken-v0")
+# env = gym.make("ShoulderLiftBroken-v0")
+env = gym.make("WristFlexBroken-v0")
+# env = gym.make("WristRollBroken-v0")
+# env = gym.make("UpperarmRoll-v0")
+env.reset()
+
+while True:
+    env.step(env.action_space.sample())
+    env.render()
 
 # env = FetchReachWrapper(gym.make("FetchReachDense-v1"), 'standard')
 # env = FetchReachGraphWrapper(gym.make("FetchReachDense-v1"))

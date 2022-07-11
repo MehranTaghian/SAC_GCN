@@ -53,3 +53,40 @@ register(
     entry_point="CustomGymEnvs.graph_envs.fetchreach.FetchReach_ImportantJointOnly.fetch.reach:FetchReachEnv",
     max_episode_steps=50,
 )
+
+# FetchReach broken joints
+register(
+    id="ShoulderPanBroken-v0",
+    entry_point="CustomGymEnvs.envs.FetchReachBrokenJoints.shoulder_pan.reach:FetchReachEnv",
+    max_episode_steps=50,
+)
+register(
+    id="ShoulderLiftBroken-v0",
+    entry_point="CustomGymEnvs.envs.FetchReachBrokenJoints.shoulder_lift.reach:FetchReachEnv",
+    max_episode_steps=50,
+)
+register(
+    id="UpperarmRollBroken-v0",
+    entry_point="CustomGymEnvs.envs.FetchReachBrokenJoints.upperarm_roll.reach:FetchReachEnv",
+    max_episode_steps=50,
+)
+register(
+    id="ForearmRollBroken-v0",
+    entry_point="CustomGymEnvs.envs.FetchReachBrokenJoints.forearm_roll.reach:FetchReachEnv",
+    max_episode_steps=50,
+)
+register(
+    id="ElbowFlexBroken-v0",
+    entry_point="CustomGymEnvs.envs.FetchReachBrokenJoints.elbow_flex.reach:FetchReachEnv",
+    max_episode_steps=50,
+)
+register(
+    id="WristFlexBroken-v0",
+    entry_point="CustomGymEnvs.envs.FetchReachBrokenJoints.wrist_flex.reach:FetchReachEnv",
+    max_episode_steps=50,
+)
+register(
+    id="WristRollBroken-v0",
+    entry_point="CustomGymEnvs.envs.FetchReachBrokenJoints.wrist_roll.reach:FetchReachEnv",
+    max_episode_steps=50,
+)

@@ -19,7 +19,7 @@ class MujocoGraphWrapper(gym.ObservationWrapper):
         elif env_name == 'Hopper-v2':
             self.robot_graph = HopperGraph(self.env.sim, env_name=env_name)
         else:
-            raise "Environment not found! Consider using version 2 of the Mujoco environments."
+            raise Exception("Environment not found! Consider using version 2 of the Mujoco environments.")
 
         obs = self.robot_graph.get_graph_obs()
         obs['global_features'] = np.empty([0])
@@ -36,9 +36,9 @@ class MujocoGraphWrapper(gym.ObservationWrapper):
                                 dtype='float32'),
         ))
 
-        env.spec.max_episode_steps = 200
-        env._max_episode_steps = 200
-        self._max_episode_steps = 200
+        # env.spec.max_episode_steps = 200
+        # env._max_episode_steps = 200
+        # self._max_episode_steps = 200
 
     def observation(self, obs):
         obs = self.robot_graph.get_graph_obs()
