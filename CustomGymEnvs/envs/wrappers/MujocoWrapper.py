@@ -9,7 +9,7 @@ class MujocoWrapper(gym.ObservationWrapper):
         super().__init__(env)
         self.env = env
 
-        parser = ModelParser(env.sim.model.get_xml(), env.unwrapped.spec.id)
+        parser = ModelParser(env.sim.model.get_xml())
         self.joint_list = [j.attrib['name'] for j in parser.joints]
         if occluded_joint is not None:
             if occluded_joint in self.joint_list:

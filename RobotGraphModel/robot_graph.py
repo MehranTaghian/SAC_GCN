@@ -50,7 +50,7 @@ class RobotGraph:
         self.weld_joints = weld_joints
         self.bidirectional = bidirectional
         self.sim = sim
-        self.parser = ModelParser(self.sim.model.get_xml(), env_name)
+        self.parser = ModelParser(self.sim.model.get_xml())
         self.node_list = set()
         self.edge_list = {}
         # edges_from and edges_to are based on the index of the node in the node_list, not the joint_id or body_id

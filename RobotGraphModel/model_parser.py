@@ -3,7 +3,7 @@ from xml.etree import ElementTree
 
 # TODO: receive a list of keywords to extract those bodies containing that keyword in their name
 class ModelParser:
-    def __init__(self, model, env_name):
+    def __init__(self, model):
         self.root = ElementTree.fromstring(model)
         self.element_list = [e for e in self.root.iter()]
         self.parent_map = {c: p for p in self.root.iter() for c in p}
