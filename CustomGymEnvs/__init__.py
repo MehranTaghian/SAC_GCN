@@ -1,4 +1,3 @@
-from gym.envs.registration import register
 from CustomGymEnvs.envs.wrappers.FetchReach import FetchReachWrapper
 from CustomGymEnvs.envs.wrappers.FetchReachBroken import FetchReachBrokenWrapper
 from CustomGymEnvs.envs.wrappers.MujocoWrapper import MujocoWrapper

@@ -72,9 +72,11 @@ args.exp_path = exp_path
 
 # Environment
 # env = NormalizedActions(gym.make(args.env_name))
-if 'FetchReach' in args.env_name:
+if args.env_name == 'FetchReach-v1':
     occluded_joint = None if args.exp_type == 'standard' else 'robot0:' + args.exp_type
     env = FetchReachWrapper(gym.make(args.env_name), occluded_joint)
+elif args.env_name == 'FetchReachBroken-v1':
+    env = FetchReachBrokenWrapper(args.exp_type)
 else:
     occluded_joint = None if args.exp_type == 'standard' else args.exp_type
     env = MujocoWrapper(gym.make(args.env_name), occluded_joint)
