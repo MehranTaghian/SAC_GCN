@@ -4,9 +4,8 @@ import pandas as pd
 import numpy as np
 import argparse
 import pathlib
-import os, shutil, pickle
-from matplotlib.patches import ConnectionPatch
-from tqdm import tqdm
+import os
+from scipy.stats import ttest_ind
 
 parser = argparse.ArgumentParser(description="Draw results of the experiments inside a directory")
 
@@ -28,10 +27,9 @@ exp_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data', args.env_n
 
 def draw():
     env_exp_types = os.listdir(exp_path)
-    # if 'graph' in env_exp_types:
-    #     env_exp_types.remove('graph')
+    if 'graph' in env_exp_types:
+        env_exp_types.remove('graph')
     env_exp_types = [d for d in env_exp_types if os.path.isdir(os.path.join(exp_path, d))]
-    # exp_type_train_results = {}
     exp_type_eval_results = {}
     for type in env_exp_types:
         exp_type_path = os.path.join(exp_path, type)
@@ -39,32 +37,19 @@ def draw():
         experiment_seed = [d for d in experiment_seed if os.path.isdir(os.path.join(exp_type_path, d))]
         num_seeds = len(experiment_seed)
         first = True
-        train_average_returns = None
         eval_average_returns = None
-        data_train = None
         data_eval = None
         for seed in range(len(experiment_seed)):
-            data_train = pd.read_csv(os.path.join(exp_type_path, experiment_seed[seed], 'train.csv'))
             data_eval = pd.read_csv(os.path.join(exp_type_path, experiment_seed[seed], 'eval.csv'))
-            data_train = data_train.loc[~(data_train == 0).all(axis=1)]
             data_eval = data_eval.loc[~(data_eval == 0).all(axis=1)]
-            num_data_points_train = int(len(data_train) / args.percentage)
             num_data_points_eval = int(len(data_eval) / args.percentage)
 
             if first:
-                # train_average_returns = np.zeros([num_seeds, num_data_points_train])
                 eval_average_returns = np.zeros([num_seeds, num_data_points_eval])
                 first = False
-            # train_average_returns[seed] = data_train['train_reward'][:num_data_points_train]
             eval_average_returns[seed] = data_eval['eval_reward'][:num_data_points_eval]
-        # train_average = np.mean(train_average_returns, axis=0)
-        # train_standard_error = np.std(train_average_returns, axis=0) / np.sqrt(train_average_returns.shape[0])
         eval_average = np.mean(eval_average_returns, axis=0)
         eval_standard_error = np.std(eval_average_returns, axis=0) / np.sqrt(eval_average_returns.shape[0])
-
-        # train_x = {'num_time_steps': np.array(data_train['num_steps'][:num_data_points_train]),
-        #            'num_updates': np.array(data_train['num_updates'][:num_data_points_train]),
-        #            'num_samples': np.array(data_train['num_episodes'][:num_data_points_train])}
 
         eval_x = {
             'num_episodes': np.array(data_eval['num_episodes'][:num_data_points_eval]),
@@ -72,17 +57,16 @@ def draw():
             'num_updates': np.array(data_eval['num_updates'][:num_data_points_eval]),
             'num_samples': np.array(data_eval['num_episodes'][:num_data_points_eval])}
 
-        # exp_type_train_results[type] = (train_x, train_average, train_standard_error)
         exp_type_eval_results[type] = (eval_x, eval_average, eval_standard_error)
 
     for x in X_AXIS:
-        # single_plot(exp_type_train_results, x, 'Average Return',
-        #             f'Average return of the model on {args.env_name} in different mode')
-        single_plot(exp_type_eval_results, x, 'Average Return',
-                    f'Average return of the model on {args.env_name} in different modes')
+        plot_learning_curve(exp_type_eval_results, x, 'Average Return',
+                            f'Average return of the model on {args.env_name} in different modes')
+
+    plot_significancy_test(exp_type_eval_results)
 
 
-def single_plot(experiment_results, x_label, y_label, title):
+def plot_learning_curve(experiment_results, x_label, y_label, title):
     plt.figure(figsize=[12, 9])
     for type in experiment_results.keys():
         x, average, standard_error = experiment_results[type]
@@ -93,6 +77,40 @@ def single_plot(experiment_results, x_label, y_label, title):
     plt.legend()
     plt.title(title)
     plt.savefig(os.path.join(exp_path, x_label + '.jpg'))
+    plt.close()
+
+
+def plot_significancy_test(exp_results):
+    p_values = np.zeros([len(exp_results), len(exp_results)])
+
+    for i, type1 in enumerate(exp_results.keys()):
+        for j, type2 in enumerate(exp_results.keys()):
+            p_values[i, j] = ttest_ind(exp_results[type1][1], exp_results[type2][1]).pvalue
+
+    plot_t_test_heatmap(p_values, exp_results.keys())
+
+
+def plot_t_test_heatmap(data, labels):
+    width = 15
+    height = 12
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(width, height), gridspec_kw={'width_ratios': (30, 1)})
+    mask = np.triu(np.ones_like(data))
+    sns.heatmap(data, ax=ax1, cbar=False, cmap="YlGnBu", linewidth=1, vmin=np.min(data), vmax=np.max(data),
+                annot=True,
+                mask=mask)
+    ax1.set_xticks(np.arange(len(labels) - 1) + 0.5, labels=list(labels)[:-1], rotation=45)
+    ax1.set_yticks(np.arange(len(labels) - 1) + 1.5, labels=list(labels)[1:], rotation=45)
+    ax1.set_title(
+        "Statistical T-Test of the learning curves",
+        fontsize=20, pad=40)
+    ax1.set_ylabel("Occluded joint name")
+    ax1.set_xlabel(f"Occluded joint name")
+
+    plt.colorbar(plt.cm.ScalarMappable(cmap="YlGnBu", norm=plt.Normalize(vmin=np.min(data), vmax=np.max(data))), cax=ax2)
+    ax2.yaxis.set_ticks_position('left')
+    ax2.set_ylabel('P values (P < 0.05 means they are statistically significantly different)')
+
+    fig.savefig(os.path.join(exp_path, 't-test.jpg'), dpi=300)
 
 
 if __name__ == "__main__":
