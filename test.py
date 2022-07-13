@@ -2,7 +2,7 @@ import gym
 import numpy as np
 import CustomGymEnvs
 from CustomGymEnvs import FetchReachWrapper, MujocoWrapper, FetchReachGraphWrapper, MujocoGraphWrapper, \
-    FetchReachBrokenWrapper
+    FetchReachBrokenWrapper, Walker2dBrokenWrapper
 from RobotGraphModel import ModelParser
 import os
 from pathlib import Path
@@ -14,7 +14,14 @@ from pathlib import Path
 # env = gym.make("UpperarmRoll-v0")
 # env = FetchReachBrokenWrapper('shoulder_pan_joint')
 # env = FetchReachBrokenWrapper('shoulder_lift_joint')
-env = FetchReachBrokenWrapper('wrist_flex_joint')
+# env = FetchReachBrokenWrapper('wrist_flex_joint')
+
+# env = Walker2dBrokenWrapper('foot')
+# env = Walker2dBrokenWrapper('foot_left')
+# env = Walker2dBrokenWrapper('leg')
+# env = Walker2dBrokenWrapper('leg_left')
+# env = Walker2dBrokenWrapper('thigh')
+env = Walker2dBrokenWrapper('thigh_left')
 
 env.reset()
 
