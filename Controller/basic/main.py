@@ -51,7 +51,6 @@ os.environ["OMP_NUM_THREADS"] = parallel_procs
 os.environ["MKL_NUM_THREADS"] = parallel_procs
 
 import gym
-import CustomGymEnvs
 from CustomGymEnvs import *
 import numpy as np
 import torch
@@ -77,6 +76,8 @@ if args.env_name == 'FetchReach-v1':
     env = FetchReachWrapper(gym.make(args.env_name), occluded_joint)
 elif args.env_name == 'FetchReachBroken-v1':
     env = FetchReachBrokenWrapper(args.exp_type)
+elif args.env_name == 'Walker2dBroken-v2':
+    env = Walker2dBrokenWrapper(args.exp_type)
 else:
     occluded_joint = None if args.exp_type == 'standard' else args.exp_type
     env = MujocoWrapper(gym.make(args.env_name), occluded_joint)
