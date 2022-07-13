@@ -73,9 +73,9 @@ class Walker2dBrokenWrapper(gym.ObservationWrapper):
         self.joint_list = [j.attrib['name'] for j in parser.joints]
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2 * len(self.joint_list),), dtype='float32')
 
-        # env.spec.max_episode_steps = 200
-        # env._max_episode_steps = 200
-        # self._max_episode_steps = 200
+        self.env.spec.max_episode_steps = 200
+        self.env._max_episode_steps = 200
+        self._max_episode_steps = 200
 
     def observation(self, obs):
         joint_features = []
