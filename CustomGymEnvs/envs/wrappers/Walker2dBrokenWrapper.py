@@ -67,6 +67,8 @@ class Walker2dBrokenWrapper(gym.ObservationWrapper):
             self.env = gym.make('Walker2dThighBroken-v0')
         elif env_type == 'thigh_left_joint':
             self.env = gym.make('Walker2dThighLeftBroken-v0')
+        else:
+            raise Exception("Joint not found!")
 
         super().__init__(self.env)
         parser = ModelParser(self.env.sim.model.get_xml())
