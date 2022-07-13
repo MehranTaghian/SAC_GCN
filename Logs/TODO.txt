@@ -41,14 +41,4 @@ its left leg. That can explain the reason of higher relevance scores in the left
 
 27) Increase number of episodes for evaluation in evaluation process
 
-28) analyze time and memory
 
-29) Plot results of experiments from beluga and cedar
-
-30) Do statistical tests on learning curves
-
-31) malfunction joints and analyze the recovery curve
-
-32) add malfunctioning joints to mujoco environments
-
-33) run experiments occluding root xyz for all mujoco envs

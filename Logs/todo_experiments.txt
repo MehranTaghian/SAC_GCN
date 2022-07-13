@@ -7,3 +7,8 @@ for fetchreach missing seeds:
     upper arm 6
     wrist flex 5, 13, 18
     wrist roll 5
+
+
+run experiments for broken walker2d
+
+run experiments occluding root xyz for all mujoco envs
