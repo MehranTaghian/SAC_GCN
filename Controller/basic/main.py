@@ -73,7 +73,7 @@ args.exp_path = exp_path
 # env = NormalizedActions(gym.make(args.env_name))
 if args.env_name == 'FetchReach-v1':
     occluded_joint = None if args.exp_type == 'standard' else 'robot0:' + args.exp_type
-    env = FetchReachWrapper(gym.make(args.env_name), occluded_joint)
+    env = FetchReachBaseWrapper(gym.make(args.env_name), occluded_joint)
 elif args.env_name == 'FetchReachBroken-v1':
     env = FetchReachBrokenWrapper(args.exp_type)
 elif args.env_name == 'Walker2dBroken-v2':
@@ -82,7 +82,7 @@ elif args.env_name == 'HopperBroken-v2':
     env = HopperBrokenWrapper(args.exp_type)
 else:
     occluded_joint = None if args.exp_type == 'standard' else args.exp_type
-    env = MujocoWrapper(gym.make(args.env_name), occluded_joint)
+    env = MujocoBaseWrapper(gym.make(args.env_name), occluded_joint)
 
 env.seed(args.seed)
 env.action_space.seed(args.seed)

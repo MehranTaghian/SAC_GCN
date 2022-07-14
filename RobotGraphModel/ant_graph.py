@@ -3,8 +3,8 @@ import numpy as np
 
 
 class AntGraph(RobotGraph):
-    def __init__(self, sim, env_name, weld_joints=None):
-        super(AntGraph, self).__init__(sim, env_name, weld_joints)
+    def __init__(self, sim, weld_joints=None):
+        super(AntGraph, self).__init__(sim, weld_joints)
 
     def extract_node_features(self):
         return np.zeros([len(self.node_list), 0])

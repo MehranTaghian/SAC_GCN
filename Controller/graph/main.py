@@ -57,7 +57,7 @@ os.environ["OMP_NUM_THREADS"] = parallel_procs
 os.environ["MKL_NUM_THREADS"] = parallel_procs
 
 import gym
-from CustomGymEnvs import MujocoGraphWrapper, FetchReachGraphWrapper
+from CustomGymEnvs import MujocoGraphNormalWrapper, FetchReachGraphWrapper
 import numpy as np
 import torch
 from Graph_SAC.sac import SAC
@@ -91,7 +91,7 @@ else:
 if 'FetchReach' in args.env_name:
     env = FetchReachGraphWrapper(gym.make(args.env_name))
 else:
-    env = MujocoGraphWrapper(gym.make(args.env_name))
+    env = MujocoGraphNormalWrapper(gym.make(args.env_name))
 
 env.seed(args.seed)
 env.action_space.seed(args.seed)

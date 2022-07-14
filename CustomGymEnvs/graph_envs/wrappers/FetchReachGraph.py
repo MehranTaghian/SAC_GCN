@@ -16,7 +16,7 @@ class FetchReachGraphWrapper(gym.ObservationWrapper):
                            'robot0:slide2']
         assert 'FetchReach' in env.unwrapped.spec.id, 'Environment must be FetchReach'
         self.env = env
-        self.robot_graph = FetchReachGraph(self.env.sim, env_name='FetchReach-v1', weld_joints=weld_joints)
+        self.robot_graph = FetchReachGraph(self.env.sim, weld_joints=weld_joints)
 
         obs = self.robot_graph.get_graph_obs()
         self.observation_space = spaces.Dict(dict(

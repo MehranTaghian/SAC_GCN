@@ -1,29 +1,43 @@
 import gym
 import numpy as np
 import CustomGymEnvs
-from CustomGymEnvs import FetchReachWrapper, MujocoWrapper, FetchReachGraphWrapper, MujocoGraphWrapper, \
-    FetchReachBrokenWrapper, Walker2dBrokenWrapper, HopperBrokenWrapper
+from CustomGymEnvs import FetchReachBaseWrapper, MujocoBaseWrapper, FetchReachGraphWrapper, MujocoGraphNormalWrapper, \
+    FetchReachBrokenWrapper, Walker2dBrokenWrapper, HopperBrokenWrapper, Walker2dBrokenGraphWrapper, \
+    HopperBrokenGraphWrapper
 from RobotGraphModel import ModelParser
 import os
 from pathlib import Path
 
-# env = gym.make("ShoulderPanBroken-v0")
-# env = gym.make("ShoulderLiftBroken-v0")
-# env = gym.make("WristFlexBroken-v0")
-# env = gym.make("WristRollBroken-v0")
-# env = gym.make("UpperarmRoll-v0")
 # env = FetchReachBrokenWrapper('shoulder_pan_joint')
 # env = FetchReachBrokenWrapper('shoulder_lift_joint')
 # env = FetchReachBrokenWrapper('wrist_flex_joint')
+# env = FetchReachBrokenWrapper('wrist_roll_joint')
+# env = FetchReachBrokenWrapper('elbow_flex_joint')
+# env = FetchReachBrokenWrapper('forearm_roll_joint')
+# env = FetchReachBrokenWrapper('upperarm_roll_joint')
 
-# env = Walker2dBrokenWrapper('foot')
-# env = Walker2dBrokenWrapper('foot_left')
-# env = Walker2dBrokenWrapper('leg')
-# env = Walker2dBrokenWrapper('leg_left')
-# env = Walker2dBrokenWrapper('thigh')
-# env = Walker2dBrokenWrapper('thigh_left')
+# env = Walker2dBrokenWrapper('foot_joint')
+# env = Walker2dBrokenWrapper('foot_left_joint')
+# env = Walker2dBrokenWrapper('leg_joint')
+# env = Walker2dBrokenWrapper('leg_left_joint')
+# env = Walker2dBrokenWrapper('thigh_joint')
+# env = Walker2dBrokenWrapper('thigh_left_joint')
 
-env = HopperBrokenWrapper('thigh_joint')
+# env = HopperBrokenWrapper('thigh_joint')
+# env = HopperBrokenWrapper('foot_joint')
+# env = HopperBrokenWrapper('leg_joint')
+
+env = Walker2dBrokenGraphWrapper('foot_joint')
+# env = Walker2dBrokenGraphWrapper('foot_left_joint')
+# env = Walker2dBrokenGraphWrapper('leg_joint')
+# env = Walker2dBrokenGraphWrapper('leg_left_joint')
+# env = Walker2dBrokenGraphWrapper('thigh_joint')
+# env = Walker2dBrokenGraphWrapper('thigh_left_joint')
+
+# env = HopperBrokenGraphWrapper('thigh_joint')
+# env = HopperBrokenGraphWrapper('foot_joint')
+# env = HopperBrokenGraphWrapper('leg_joint')
+
 
 env.reset()
 while True:

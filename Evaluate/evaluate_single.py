@@ -1,6 +1,6 @@
 import argparse
 import gym
-from CustomGymEnvs import MujocoGraphWrapper, FetchReachGraphWrapper
+from CustomGymEnvs import MujocoGraphNormalWrapper, FetchReachGraphWrapper
 import numpy as np
 import torch
 from Graph_SAC.sac import SAC
@@ -32,7 +32,7 @@ args.env_name = env_name
 if 'FetchReach' in args.env_name:
     env = FetchReachGraphWrapper(gym.make(args.env_name))
 else:
-    env = MujocoGraphWrapper(gym.make(args.env_name))
+    env = MujocoGraphNormalWrapper(gym.make(args.env_name))
 
 env.seed(args.seed)
 env.action_space.seed(args.seed)

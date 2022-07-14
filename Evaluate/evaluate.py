@@ -4,7 +4,7 @@ import gym
 import numpy as np
 import torch
 from tqdm import tqdm
-from CustomGymEnvs import MujocoGraphWrapper, FetchReachGraphWrapper
+from CustomGymEnvs import MujocoGraphNormalWrapper, FetchReachGraphWrapper
 from pathlib import Path
 from Graph_SAC.sac import SAC
 from utils import state_2_graphbatch, load_object, save_object
@@ -45,7 +45,7 @@ if args.seed < len(experiment_seed):
 if 'FetchReach' in args.env_name:
     env = FetchReachGraphWrapper(gym.make(args.env_name))
 else:
-    env = MujocoGraphWrapper(gym.make(args.env_name))
+    env = MujocoGraphNormalWrapper(gym.make(args.env_name))
 
 num_node_features = env.observation_space['node_features'].shape[1]
 num_edge_features = env.observation_space['edge_features'].shape[1]
