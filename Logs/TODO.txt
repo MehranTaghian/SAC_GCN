@@ -43,3 +43,5 @@ its left leg. That can explain the reason of higher relevance scores in the left
 
 28) Calculate the total relevance score of joints by giving weights according to the importance of actions.
  Compare this method with the previous one
+
+29) Analyze action importance in  performance after malfunctioning that action in Mujoco envs
