@@ -27,7 +27,7 @@ from pathlib import Path
 # env = HopperBrokenWrapper('foot_joint')
 # env = HopperBrokenWrapper('leg_joint')
 
-env = Walker2dBrokenGraphWrapper('foot_joint')
+# env = Walker2dBrokenGraphWrapper('foot_joint')
 # env = Walker2dBrokenGraphWrapper('foot_left_joint')
 # env = Walker2dBrokenGraphWrapper('leg_joint')
 # env = Walker2dBrokenGraphWrapper('leg_left_joint')
