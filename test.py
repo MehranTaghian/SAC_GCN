@@ -2,7 +2,7 @@ import gym
 import numpy as np
 import CustomGymEnvs
 from CustomGymEnvs import FetchReachWrapper, MujocoWrapper, FetchReachGraphWrapper, MujocoGraphWrapper, \
-    FetchReachBrokenWrapper, Walker2dBrokenWrapper
+    FetchReachBrokenWrapper, Walker2dBrokenWrapper, HopperBrokenWrapper
 from RobotGraphModel import ModelParser
 import os
 from pathlib import Path
@@ -21,10 +21,11 @@ from pathlib import Path
 # env = Walker2dBrokenWrapper('leg')
 # env = Walker2dBrokenWrapper('leg_left')
 # env = Walker2dBrokenWrapper('thigh')
-env = Walker2dBrokenWrapper('thigh_left')
+# env = Walker2dBrokenWrapper('thigh_left')
+
+env = HopperBrokenWrapper('thigh_joint')
 
 env.reset()
-
 while True:
     env.step(env.action_space.sample())
     env.render()
@@ -32,7 +33,7 @@ while True:
 # env = FetchReachWrapper(gym.make("FetchReachDense-v1"), 'standard')
 # env = FetchReachGraphWrapper(gym.make("FetchReachDense-v1"))
 # print(env.observation_space)
-# env = MujocoWrapper(gym.make("HalfCheetahEnv-v0"))
+# env = MujocoWrapper(gym.make("HalfCheetah-v2"), 'root')
 # env2 = MujocoWrapper(gym.make("HalfCheetahEnv-v0"), 'bfoot')
 # env2 = MujocoWrapper(gym.make("HalfCheetahEnv-v0"), 'fthigh')
 

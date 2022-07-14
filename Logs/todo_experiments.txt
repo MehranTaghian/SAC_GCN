@@ -12,3 +12,5 @@ for fetchreach missing seeds:
 run experiments for broken walker2d
 
 run experiments occluding root xyz for all mujoco envs
+
+run broken environments on graph compute canada

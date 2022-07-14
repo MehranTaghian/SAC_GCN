@@ -41,4 +41,5 @@ its left leg. That can explain the reason of higher relevance scores in the left
 
 27) Increase number of episodes for evaluation in evaluation process
 
-
+28) Calculate the total relevance score of joints by giving weights according to the importance of actions.
+ Compare this method with the previous one

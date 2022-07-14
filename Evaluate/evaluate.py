@@ -23,6 +23,8 @@ parser.add_argument('--exp-type', default="standard",
                     help='Type of the experiment like normal or abnormal')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
+parser.add_argument('--num-episodes', type=int, default=10, metavar='N',
+                    help='Number of episodes for evaluation')
 
 args = parser.parse_args()
 env_name = args.env_name
@@ -53,7 +55,7 @@ num_global_features = env.observation_space['global_features'].shape[0]
 device = torch.device('cpu')
 args.cuda = False
 
-num_episodes = 10
+num_episodes = 20
 
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list

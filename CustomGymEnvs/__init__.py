@@ -2,5 +2,6 @@ from CustomGymEnvs.envs.wrappers.FetchReach import FetchReachWrapper
 from CustomGymEnvs.envs.wrappers.FetchReachBroken import FetchReachBrokenWrapper
 from CustomGymEnvs.envs.wrappers.MujocoWrapper import MujocoWrapper
 from CustomGymEnvs.envs.wrappers.Walker2dBrokenWrapper import Walker2dBrokenWrapper
+from CustomGymEnvs.envs.wrappers.HopperBrokenWrapper import HopperBrokenWrapper
 from CustomGymEnvs.graph_envs.wrappers.MujocoGraph import MujocoGraphWrapper
 from CustomGymEnvs.graph_envs.wrappers.FetchReachGraph import FetchReachGraphWrapper

@@ -78,6 +78,8 @@ elif args.env_name == 'FetchReachBroken-v1':
     env = FetchReachBrokenWrapper(args.exp_type)
 elif args.env_name == 'Walker2dBroken-v2':
     env = Walker2dBrokenWrapper(args.exp_type)
+elif args.env_name == 'HopperBroken-v2':
+    env = HopperBrokenWrapper(args.exp_type)
 else:
     occluded_joint = None if args.exp_type == 'standard' else args.exp_type
     env = MujocoWrapper(gym.make(args.env_name), occluded_joint)
