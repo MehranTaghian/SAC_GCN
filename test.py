@@ -3,7 +3,7 @@ import numpy as np
 import CustomGymEnvs
 from CustomGymEnvs import FetchReachBaseWrapper, MujocoBaseWrapper, FetchReachGraphWrapper, MujocoGraphNormalWrapper, \
     FetchReachBrokenWrapper, Walker2dBrokenWrapper, HopperBrokenWrapper, Walker2dBrokenGraphWrapper, \
-    HopperBrokenGraphWrapper
+    HopperBrokenGraphWrapper, HalfCheetahBrokenWrapper
 from RobotGraphModel import ModelParser
 import os
 from pathlib import Path
@@ -23,10 +23,6 @@ from pathlib import Path
 # env = Walker2dBrokenWrapper('thigh_joint')
 # env = Walker2dBrokenWrapper('thigh_left_joint')
 
-# env = HopperBrokenWrapper('thigh_joint')
-# env = HopperBrokenWrapper('foot_joint')
-# env = HopperBrokenWrapper('leg_joint')
-
 # env = Walker2dBrokenGraphWrapper('foot_joint')
 # env = Walker2dBrokenGraphWrapper('foot_left_joint')
 # env = Walker2dBrokenGraphWrapper('leg_joint')
@@ -38,6 +34,12 @@ from pathlib import Path
 # env = HopperBrokenGraphWrapper('foot_joint')
 # env = HopperBrokenGraphWrapper('leg_joint')
 
+env = HalfCheetahBrokenWrapper('ffoot')
+# env = HalfCheetahBrokenWrapper('fshin')
+# env = HalfCheetahBrokenWrapper('fthigh')
+# env = HalfCheetahBrokenWrapper('bfoot')
+# env = HalfCheetahBrokenWrapper('bshin')
+# env = HalfCheetahBrokenWrapper('bthigh')
 
 env.reset()
 while True:
