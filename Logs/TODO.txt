@@ -47,3 +47,5 @@ its left leg. That can explain the reason of higher relevance scores in the left
 29) Analyze action importance in  performance after malfunctioning that action in Mujoco envs
 
 30) change fetchreach broken joints colors
+
+31) change the output rel score from value of action to 1 which is consistent across joints
