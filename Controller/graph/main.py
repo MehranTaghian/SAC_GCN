@@ -91,7 +91,7 @@ else:
 if 'FetchReach' in args.env_name:
     env = FetchReachGraphWrapper(gym.make(args.env_name))
 else:
-    env = MujocoGraphNormalWrapper(gym.make(args.env_name))
+    env = MujocoGraphNormalWrapper(args.env_name)
 
 env.seed(args.seed)
 env.action_space.seed(args.seed)

@@ -46,13 +46,13 @@ def save_object(obj, path):
 
 
 def load_object(path):
-    # with open(path, 'rb') as f:
-    #     obj = pickle.load(f)
-    # return obj
-
-    with gzip.open(path, 'rb') as f:
-        p = pickle.Unpickler(f)
-        obj = p.load()
+    with open(path, 'rb') as f:
+        obj = pickle.load(f)
     return obj
+
+    # with gzip.open(path, 'rb') as f:
+    #     p = pickle.Unpickler(f)
+    #     obj = p.load()
+    # return obj
 
 

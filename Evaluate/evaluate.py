@@ -45,7 +45,7 @@ if args.seed < len(experiment_seed):
 if 'FetchReach' in args.env_name:
     env = FetchReachGraphWrapper(gym.make(args.env_name))
 else:
-    env = MujocoGraphNormalWrapper(gym.make(args.env_name))
+    env = MujocoGraphNormalWrapper(args.env_name)
 
 num_node_features = env.observation_space['node_features'].shape[1]
 num_edge_features = env.observation_space['edge_features'].shape[1]
