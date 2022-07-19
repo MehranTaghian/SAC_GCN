@@ -19,4 +19,5 @@ class MujocoGraphNormalWrapper(MujocoGraphBaseWrapper):
             robot_graph = HopperGraph(env.sim)
         else:
             raise Exception("Environment not found! Consider using version 2 of the Mujoco environments.")
+        print(robot_graph.edge_list.values())
         super().__init__(env, robot_graph)

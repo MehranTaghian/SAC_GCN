@@ -34,13 +34,16 @@ from pathlib import Path
 # env = HopperBrokenGraphWrapper('foot_joint')
 # env = HopperBrokenGraphWrapper('leg_joint')
 
-env = HalfCheetahBrokenWrapper('ffoot')
+# env = HalfCheetahBrokenWrapper('ffoot')
 # env = HalfCheetahBrokenWrapper('fshin')
 # env = HalfCheetahBrokenWrapper('fthigh')
 # env = HalfCheetahBrokenWrapper('bfoot')
 # env = HalfCheetahBrokenWrapper('bshin')
 # env = HalfCheetahBrokenWrapper('bthigh')
 
+
+env = gym.make('FetchReach-v2')
+print(env.model.actuator_ctrlrange)
 env.reset()
 while True:
     env.step(env.action_space.sample())

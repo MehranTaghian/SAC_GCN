@@ -90,9 +90,15 @@ action_indices = [a for a in range(env.action_space.shape[0])]
 # edge_relevance[joint_index, action_index, seed, num_episodes, episode_steps] =
 #                 [relevance score for each time-step of episode]
 # global_relevance[action_index, seed] = [sum of relevance scores for global feature within an episode]
-edge_relevance = np.zeros(
+action_edge_relevance = np.zeros(
     [len(joint_names),
      env.action_space.shape[0],
+     len(experiment_seed),
+     num_episodes,
+     env.spec.max_episode_steps])
+
+edge_relevance = np.zeros(
+    [len(joint_names),
      len(experiment_seed),
      num_episodes,
      env.spec.max_episode_steps])
@@ -125,19 +131,7 @@ def calculate_relevance():
             done = False
             step = 0
             while not done:
-                for action_index in range(env.action_space.shape[0]):
-                    batch_state = state_2_graphbatch(state).requires_grad_().to(device)
-                    out = agent_relevance.policy.graph_net(batch_state)
-                    out = agent_relevance.policy.mean_linear(out)[0]
-                    output_relevance = torch.zeros_like(out.global_features)
-                    output_relevance[action_index] = out.global_features[action_index]
-                    batch_state.zero_grad_()
-                    out.global_features.backward(output_relevance)
-
-                    edge_rel = batch_state.edge_features.grad.sum(dim=1)
-                    global_rel = batch_state.global_features.grad.sum(dim=1)
-                    global_relevance[action_index, s] += global_rel
-                    edge_relevance[:, action_index, s, episode, step] = edge_rel[joint_indices]
+                action_edge_rel_calc(agent_relevance, episode, s, state, step)
                 step += 1
                 action = agent.select_action(state_2_graphbatch(state), evaluate=True)
                 next_state, reward, done, _ = env.step(action)
@@ -153,6 +147,22 @@ def calculate_relevance():
         print("----------------------------------------")
 
     env.close()
+
+
+def action_edge_rel_calc(agent_relevance, episode, s, state, step):
+    for action_index in range(env.action_space.shape[0]):
+        batch_state = state_2_graphbatch(state).requires_grad_().to(device)
+        out = agent_relevance.policy.graph_net(batch_state)
+        out = agent_relevance.policy.mean_linear(out)[0]
+        output_relevance = torch.zeros_like(out.global_features)
+        output_relevance[action_index] = out.global_features[action_index]
+        batch_state.zero_grad_()
+        out.global_features.backward(output_relevance)
+
+        edge_rel = batch_state.edge_features.grad.sum(dim=1)
+        global_rel = batch_state.global_features.grad.sum(dim=1)
+        global_relevance[action_index, s] += global_rel
+        action_edge_relevance[:, action_index, s, episode, step] = edge_rel[joint_indices]
 
 
 def plot_joint_action_heatmap(data, width, height, title, file_name):
@@ -202,11 +212,11 @@ if __name__ == '__main__':
     figure_height = 16
 
     calculate_relevance()
-    save_object(edge_relevance, os.path.join(exp_path, 'edge_relevance.pkl'))
+    save_object(action_edge_relevance, os.path.join(exp_path, 'edge_relevance.pkl'))
 
-    fig_name = os.path.join(exp_path, 'edge_relevance_heatmap.jpg')
+    fig_name = os.path.join(exp_path, 'LRP_result.jpg')
     # average across steps in an episode, across episodes, then across seeds
-    avg_edge_rel = edge_relevance.mean(axis=4).mean(axis=3).mean(axis=2)
+    avg_edge_rel = action_edge_relevance.mean(axis=4).mean(axis=3).mean(axis=2)
     avg_edge_rel /= np.max(np.abs(avg_edge_rel), axis=0)
     plot_joint_action_heatmap(np.abs(avg_edge_rel.T),
                               figure_width,
