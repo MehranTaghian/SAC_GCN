@@ -41,12 +41,16 @@ from pathlib import Path
 # env = HalfCheetahBrokenWrapper('bshin')
 # env = HalfCheetahBrokenWrapper('bthigh')
 
-
-env = gym.make('FetchReach-v2')
-print(env.model.actuator_ctrlrange)
+env = FetchReachBaseWrapper(gym.make('FetchReach-v2'))
 env.reset()
+print(env.joint_list)
 while True:
-    env.step(env.action_space.sample())
+    action = env.action_space.sample()
+    # action = np.array([0, 0, 0, 0, 0, 0, 1])
+    obs, reward, _, _ = env.step(action)
+    # print(obs)
+    # print(env.sim.data.qpos)
+    # print(env.sim.data.qvel)
     env.render()
 
 # env = FetchReachWrapper(gym.make("FetchReachDense-v1"), 'standard')

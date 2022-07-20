@@ -7,10 +7,17 @@ from RobotGraphModel import ModelParser
 class FetchReachBaseWrapper(gym.ObservationWrapper):
     def __init__(self, env, occluded_joint=None):
         super().__init__(env)
+        weld_joints = ['robot0:torso_lift_joint',
+                       'robot0:head_pan_joint',
+                       'robot0:head_tilt_joint',
+                       'robot0:slide0',
+                       'robot0:slide1',
+                       'robot0:slide2',
+                       'robot0:l_gripper_finger_joint',
+                       'robot0:r_gripper_finger_joint']
         self.env = env
-
         parser = ModelParser(env.sim.model.get_xml())
-        self.joint_list = [j.attrib['name'] for j in parser.joints]
+        self.joint_list = [j.attrib['name'] for j in parser.joints if j.attrib['name'] not in weld_joints]
         if occluded_joint is not None:
             if occluded_joint in self.joint_list:
                 self.joint_list.remove(occluded_joint)

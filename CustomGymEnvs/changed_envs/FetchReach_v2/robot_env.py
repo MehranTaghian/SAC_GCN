@@ -9,12 +9,15 @@ from gym.utils import seeding
 try:
     import mujoco_py
 except ImportError as e:
-    raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
+    raise error.DependencyNotInstalled(
+        "{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(
+            e))
 
 DEFAULT_SIZE = 500
 
+
 class RobotEnv(gym.GoalEnv):
-    def __init__(self, model_path, initial_qpos, n_actions, n_substeps):
+    def __init__(self, model_path, initial_qpos, n_substeps):
         if model_path.startswith('/'):
             fullpath = model_path
         else:
@@ -35,10 +38,9 @@ class RobotEnv(gym.GoalEnv):
         self.seed()
         self._env_setup(initial_qpos=initial_qpos)
         self.initial_state = copy.deepcopy(self.sim.get_state())
-
         self.goal = self._sample_goal()
         obs = self._get_obs()
-        self.action_space = spaces.Box(-1., 1., shape=(n_actions,), dtype='float32')
+        self._set_action_space()
         self.observation_space = spaces.Dict(dict(
             desired_goal=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),
             achieved_goal=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),
@@ -59,7 +61,6 @@ class RobotEnv(gym.GoalEnv):
     def step(self, action):
         action = np.clip(action, self.action_space.low, self.action_space.high)
         self._set_action(action)
-        self.sim.step()
         self._step_callback()
         obs = self._get_obs()
 
@@ -100,6 +101,12 @@ class RobotEnv(gym.GoalEnv):
             return data[::-1, :, :]
         elif mode == 'human':
             self._get_viewer(mode).render()
+
+    def _set_action_space(self):
+        bounds = self.model.actuator_ctrlrange.copy().astype(np.float32)
+        low, high = bounds.T
+        self.action_space = spaces.Box(low=low, high=high, dtype=np.float32)
+        return self.action_space
 
     def _get_viewer(self, mode):
         self.viewer = self._viewers.get(mode)

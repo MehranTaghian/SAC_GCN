@@ -35,9 +35,9 @@
         <mesh file="torso_fixed_link.stl" name="robot0:torso_fixed_link"></mesh>
     </asset>
 
-    <equality>
-        <weld body1="robot0:mocap" body2="robot0:gripper_link" solimp="0.9 0.95 0.001" solref="0.02 1"></weld>
-    </equality>
+<!--    <equality>-->
+<!--        <weld body1="robot0:mocap" body2="robot0:gripper_link" solimp="0.9 0.95 0.001" solref="0.02 1"></weld>-->
+<!--    </equality>-->
     
     <contact>
         <exclude body1="robot0:r_gripper_finger_link" body2="robot0:l_gripper_finger_link"></exclude>
