@@ -71,7 +71,7 @@ args.exp_path = exp_path
 
 # Environment
 # env = NormalizedActions(gym.make(args.env_name))
-if args.env_name == 'FetchReach-v1':
+if args.env_name == 'FetchReach-v2':
     occluded_joint = None if args.exp_type == 'standard' else 'robot0:' + args.exp_type
     env = FetchReachBaseWrapper(gym.make(args.env_name), occluded_joint)
 elif args.env_name == 'FetchReachBroken-v1':
