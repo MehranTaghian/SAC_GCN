@@ -25,14 +25,18 @@ parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
 parser.add_argument('--num-episodes', type=int, default=10, metavar='N',
                     help='Number of episodes for evaluation')
+parser.add_argument('--time-step', type=int, default=10999, metavar='N',
+                    help='Time step of the model')
 
 args = parser.parse_args()
 env_name = args.env_name
 seed = args.seed
+time_step = args.time_step
 exp_path = os.path.join(Path(__file__).parent.parent, 'Data', args.env_name, args.exp_type)
 args = load_object(os.path.join(exp_path, 'seed0', 'parameters.pkl'))
 args.env_name = env_name
 args.seed = seed
+args.time_step = time_step
 
 experiment_seed = os.listdir(exp_path)
 experiment_seed = [d for d in experiment_seed if os.path.isdir(os.path.join(exp_path, d))]
@@ -60,7 +64,7 @@ num_episodes = 20
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
 
-render = False
+render = True
 
 
 def process_joint_name(joint_name):
@@ -114,9 +118,12 @@ def calculate_relevance():
         torch.manual_seed(seed)
         np.random.seed(seed)
         # Agent
-        checkpoint_path = os.path.join(exp_path, f'seed{seed}', 'model') \
+        # checkpoint_path = os.path.join(exp_path, f'seed{seed}', 'model') \
+        #     if len(experiment_seed) > 1 \
+        #     else os.path.join(exp_path, 'model')
+        checkpoint_path = os.path.join(exp_path, f'seed{seed}', 'model', f'{args.time_step}.pt') \
             if len(experiment_seed) > 1 \
-            else os.path.join(exp_path, 'model')
+            else os.path.join(exp_path, 'model', f'{args.time_step}.pt')
         agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, False, args)
         agent_relevance = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, True, args)
 
