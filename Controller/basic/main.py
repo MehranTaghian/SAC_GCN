@@ -74,7 +74,7 @@ args.exp_path = exp_path
 if args.env_name == 'FetchReach-v2':
     occluded_joint = None if args.exp_type == 'standard' else 'robot0:' + args.exp_type
     env = FetchReachBaseWrapper(gym.make(args.env_name), occluded_joint)
-elif args.env_name == 'FetchReachBroken-v1':
+elif args.env_name == 'FetchReachBroken-v2':
     env = FetchReachBrokenWrapper(args.exp_type)
 elif args.env_name == 'Walker2dBroken-v2':
     env = Walker2dBrokenWrapper(args.exp_type)
