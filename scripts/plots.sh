@@ -16,5 +16,5 @@ python $PLOT_MULTIPLE_FILE --env-name Walker2dBroken-v2
 python $PLOT_MULTIPLE_FILE --env-name Hopper-v2
 python $PLOT_MULTIPLE_FILE --env-name HopperBroken-v2
 
-python $PLOT_FILE --env-name FetchReachDense-v1
+python $PLOT_FILE --env-name FetchReach-v2
 

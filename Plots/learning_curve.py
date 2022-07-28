@@ -24,8 +24,8 @@ exp_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data', args.env_n
 
 def draw():
     env_exp_types = os.listdir(exp_path)
-    if 'graph' in env_exp_types:
-        env_exp_types.remove('graph')
+    # if 'graph' in env_exp_types:
+    #     env_exp_types.remove('graph')
     env_exp_types = [d for d in env_exp_types if os.path.isdir(os.path.join(exp_path, d))]
     for exp_type in env_exp_types:
         exp_type_path = os.path.join(exp_path, exp_type)
