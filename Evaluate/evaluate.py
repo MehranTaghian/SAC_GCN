@@ -64,7 +64,7 @@ num_episodes = 20
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
 
-render = True
+render = False
 
 
 def process_joint_name(joint_name):

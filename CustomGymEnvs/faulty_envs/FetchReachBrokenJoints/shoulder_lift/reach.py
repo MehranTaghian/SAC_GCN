@@ -12,6 +12,16 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
             'robot0:slide0': 0.4049,
             'robot0:slide1': 0.48,
             'robot0:slide2': 0.0,
+            'robot0:torso_lift_joint': - 2.1080440849725328e-05,
+            'robot0:head_pan_joint': 1.8044805716579981e-10,
+            'robot0:head_tilt_joint': 0.06002881058785685,
+            'robot0:shoulder_pan_joint': 0.009675803961848417,
+            'robot0:shoulder_lift_joint': -0.8282310869438312,
+            'robot0:upperarm_roll_joint': -0.0030562595712368703,
+            'robot0:elbow_flex_joint': 1.4439797539850172,
+            'robot0:forearm_roll_joint': 0.0025342393749823184,
+            'robot0:wrist_flex_joint': 0.9550999960912975,
+            'robot0:wrist_roll_joint': 0.005960935925724559
         }
         fetch_env.FetchEnv.__init__(
             self, MODEL_XML_PATH, has_object=False, block_gripper=True, n_substeps=20,
