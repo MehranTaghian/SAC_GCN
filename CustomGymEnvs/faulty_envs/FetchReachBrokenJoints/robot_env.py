@@ -21,7 +21,7 @@ class RobotEnv(gym.GoalEnv):
         if model_path.startswith('/'):
             fullpath = model_path
         else:
-            fullpath = os.path.join(os.path.dirname(__file__), 'assets', model_path)
+            fullpath = os.path.join(os.path.dirname(__file__), model_path)
         if not os.path.exists(fullpath):
             raise IOError('File {} does not exist'.format(fullpath))
 

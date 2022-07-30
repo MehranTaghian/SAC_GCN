@@ -41,7 +41,7 @@ from pathlib import Path
 # env = HalfCheetahBrokenWrapper('bshin')
 # env = HalfCheetahBrokenWrapper('bthigh')
 
-env = FetchReachBaseWrapper(gym.make('FetchReach-v2'))
+# env = FetchReachBaseWrapper(gym.make('FetchReach-v2'))
 env.reset()
 print(env.joint_list)
 while True:
