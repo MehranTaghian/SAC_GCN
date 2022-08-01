@@ -6,9 +6,8 @@ PLOT_MULTIPLE_FILE=/home/taghianj/Documents/SAC_GCN/Plots/multiple_type_learning
 PLOT_FILE=/home/taghianj/Documents/SAC_GCN/Plots/learning_curve.py
 
 
-python $PLOT_MULTIPLE_FILE --env-name FetchReachDense-v1
 python $PLOT_MULTIPLE_FILE --env-name FetchReach-v2
-python $PLOT_MULTIPLE_FILE --env-name FetchReachBroken-v1
+python $PLOT_MULTIPLE_FILE --env-name FetchReachBroken-v2
 python $PLOT_MULTIPLE_FILE --env-name HalfCheetah-v2
 python $PLOT_MULTIPLE_FILE --env-name HalfCheetahBroken-v2
 python $PLOT_MULTIPLE_FILE --env-name Walker2d-v2
