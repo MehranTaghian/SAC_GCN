@@ -59,12 +59,12 @@ num_global_features = env.observation_space['global_features'].shape[0]
 device = torch.device('cpu')
 args.cuda = False
 
-num_episodes = 20
+num_episodes = 10
 
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
 
-render = False
+render = True
 
 
 def process_joint_name(joint_name):
@@ -118,12 +118,12 @@ def calculate_relevance():
         torch.manual_seed(seed)
         np.random.seed(seed)
         # Agent
-        # checkpoint_path = os.path.join(exp_path, f'seed{seed}', 'model') \
-        #     if len(experiment_seed) > 1 \
-        #     else os.path.join(exp_path, 'model')
-        checkpoint_path = os.path.join(exp_path, f'seed{seed}', 'model', f'{args.time_step}.pt') \
+        checkpoint_path = os.path.join(exp_path, f'seed{seed}', 'model') \
             if len(experiment_seed) > 1 \
-            else os.path.join(exp_path, 'model', f'{args.time_step}.pt')
+            else os.path.join(exp_path, 'model')
+        # checkpoint_path = os.path.join(exp_path, f'seed{seed}', 'model', f'{args.time_step}.pt') \
+        #     if len(experiment_seed) > 1 \
+        #     else os.path.join(exp_path, 'model', f'{args.time_step}.pt')
         agent = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, False, args)
         agent_relevance = SAC(num_node_features, num_edge_features, num_global_features, env.action_space, True, args)
 

@@ -91,8 +91,8 @@ def plot_significancy_test(exp_results):
 
 
 def plot_t_test_heatmap(data, labels):
-    width = 15
-    height = 12
+    width = 12
+    height = 9
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(width, height), gridspec_kw={'width_ratios': (30, 1)})
     mask = np.triu(np.ones_like(data))
     sns.heatmap(data, ax=ax1, cbar=False, cmap="YlGnBu", linewidth=1, vmin=np.min(data), vmax=np.max(data),
@@ -101,7 +101,7 @@ def plot_t_test_heatmap(data, labels):
     ax1.set_xticks(np.arange(len(labels) - 1) + 0.5, labels=list(labels)[:-1], rotation=45)
     ax1.set_yticks(np.arange(len(labels) - 1) + 1.5, labels=list(labels)[1:], rotation=45)
     ax1.set_title(
-        "Statistical T-Test of the learning curves",
+        "Statistical T-Test of learning curves",
         fontsize=20, pad=40)
     ax1.set_ylabel("Occluded joint name")
     ax1.set_xlabel(f"Occluded joint name")
