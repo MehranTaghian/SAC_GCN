@@ -23,9 +23,10 @@ class MujocoGraphBaseWrapper(gym.ObservationWrapper):
                                 dtype='float32'),
         ))
 
-        self.env.spec.max_episode_steps = 200
-        self.env._max_episode_steps = 200
-        self._max_episode_steps = 200
+        # self.env.spec.max_episode_steps = 200
+        # self.env._max_episode_steps = 200
+        # self._max_episode_steps = 200
+        self._max_episode_steps = 1000
 
     def observation(self, obs):
         obs = self.robot_graph.get_graph_obs()

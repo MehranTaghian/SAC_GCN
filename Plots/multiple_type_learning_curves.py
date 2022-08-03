@@ -9,7 +9,7 @@ from scipy.stats import ttest_ind
 import matplotlib.style as style
 
 # style.use('seaborn-colorblind')
-style.use('tableau-colorblind10')
+# style.use('tableau-colorblind10')
 
 parser = argparse.ArgumentParser(description="Draw results of the experiments inside a directory")
 
@@ -75,16 +75,18 @@ def plot_learning_curve(experiment_results, x_label, y_label, title):
     height = 12
     sns.set_theme()
     sns.set(font_scale=2)
+    # style.use('tableau-colorblind10')
+    # style.use('seaborn-colorblind')
     fig, ax = plt.subplots(figsize=[width, height])
-    colors = plt.cm.cividis(np.linspace(0, 1, len(experiment_results.keys())))
+    # colors = plt.cm.cividis(np.linspace(0, 1, len(experiment_results.keys())))
     # colors = plt.cm.tab20b(np.linspace(0, 1, len(experiment_results.keys())))
-    # colors = sns.color_palette('colorblind', n_colors=len(experiment_results.keys()))
+    colors = sns.color_palette('colorblind', n_colors=len(experiment_results.keys()))
     for type, color in zip(experiment_results.keys(), colors):
         x, average, standard_error = experiment_results[type]
-        ax.plot(x[x_label], average, label=type, color=color, linewidth=3)
+        ax.plot(x[x_label], average, label=type, linewidth=3, color=color)
         ax.fill_between(x[x_label], average - 2.26 * standard_error, average + 2.26 * standard_error,
-                         color=color,
-                         alpha=0.2)
+                        color=color,
+                        alpha=0.2)
     ax.set_xlabel(X_AXIS_TO_LABEL[x_label])
     ax.set_ylabel(y_label)
     legs = fig.legend(ncol=3, fancybox=True, loc='lower center', bbox_to_anchor=(0.6, 0.1))
@@ -96,6 +98,7 @@ def plot_learning_curve(experiment_results, x_label, y_label, title):
     fig.tight_layout()
     fig.savefig(os.path.join(exp_path, x_label + '.jpg'))
     sns.reset_orig()
+
 
 def plot_significancy_test(exp_results):
     p_values = np.zeros([len(exp_results), len(exp_results)])
@@ -111,6 +114,8 @@ def plot_significancy_test(exp_results):
 def plot_t_test_heatmap(data, labels):
     width = 10
     height = 10
+    style.use('tableau-colorblind10')
+    # style.use('seaborn-colorblind')
     plt.rcParams.update({'font.size': 14})
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(width, height), gridspec_kw={'width_ratios': (30, 1)})
     mask = np.triu(np.ones_like(data))
