@@ -13,7 +13,7 @@ import matplotlib.style as style
 
 parser = argparse.ArgumentParser(description="Draw results of the experiments inside a directory")
 
-parser.add_argument('--env-name', default="FetchReachEnvGraph-v0",
+parser.add_argument('--env-name', default="FetchReach-v2",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--percentage', default=1, type=int,
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
@@ -26,14 +26,8 @@ X_AXIS_TO_LABEL = {'num_time_steps': 'Time step',
                    'num_samples': 'Number of samples',
                    'num_episodes': 'Number of episodes'}
 
-exp_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data', args.env_name)
 
-
-def draw():
-    env_exp_types = os.listdir(exp_path)
-    if 'graph' in env_exp_types:
-        env_exp_types.remove('graph')
-    env_exp_types = [d for d in env_exp_types if os.path.isdir(os.path.join(exp_path, d))]
+def draw(env_exp_types, colors, title_curves, title_ttest):
     exp_type_eval_results = {}
     for type in env_exp_types:
         exp_type_path = os.path.join(exp_path, type)
@@ -64,28 +58,22 @@ def draw():
         exp_type_eval_results[type] = (eval_x, eval_average, eval_standard_error)
 
     for x in X_AXIS:
-        plot_learning_curve(exp_type_eval_results, x, 'Average Return',
-                            f'Average return of the model on {args.env_name} in different modes')
+        plot_learning_curve(exp_type_eval_results, x, 'Average Return', title_curves, colors)
 
-    plot_significancy_test(exp_type_eval_results)
+    plot_significancy_test(exp_type_eval_results, title_ttest)
 
 
-def plot_learning_curve(experiment_results, x_label, y_label, title):
+def plot_learning_curve(experiment_results, x_label, y_label, title, colors):
     width = 15
     height = 12
     sns.set_theme()
     sns.set(font_scale=2)
-    # style.use('tableau-colorblind10')
-    # style.use('seaborn-colorblind')
     fig, ax = plt.subplots(figsize=[width, height])
-    # colors = plt.cm.cividis(np.linspace(0, 1, len(experiment_results.keys())))
-    # colors = plt.cm.tab20b(np.linspace(0, 1, len(experiment_results.keys())))
-    colors = sns.color_palette('colorblind', n_colors=len(experiment_results.keys()))
-    for type, color in zip(experiment_results.keys(), colors):
+    for type in experiment_results.keys():
         x, average, standard_error = experiment_results[type]
-        ax.plot(x[x_label], average, label=type, linewidth=3, color=color)
+        ax.plot(x[x_label], average, label=type, linewidth=3, color=colors[type])
         ax.fill_between(x[x_label], average - 2.26 * standard_error, average + 2.26 * standard_error,
-                        color=color,
+                        color=colors[type],
                         alpha=0.2)
     ax.set_xlabel(X_AXIS_TO_LABEL[x_label])
     ax.set_ylabel(y_label)
@@ -100,7 +88,7 @@ def plot_learning_curve(experiment_results, x_label, y_label, title):
     sns.reset_orig()
 
 
-def plot_significancy_test(exp_results):
+def plot_significancy_test(exp_results, title):
     p_values = np.zeros([len(exp_results), len(exp_results)])
 
     for i, type1 in enumerate(exp_results.keys()):
@@ -108,10 +96,10 @@ def plot_significancy_test(exp_results):
             p_values[i, j] = ttest_ind(exp_results[type1][1], exp_results[type2][1]).pvalue
 
     labels = [' '.join(j.split('_')[:-1]).strip() if len(j.split('_')) > 1 else j for j in exp_results.keys()]
-    plot_t_test_heatmap(p_values, labels)
+    plot_t_test_heatmap(p_values, labels, title)
 
 
-def plot_t_test_heatmap(data, labels):
+def plot_t_test_heatmap(data, labels, title):
     width = 10
     height = 10
     style.use('tableau-colorblind10')
@@ -125,19 +113,59 @@ def plot_t_test_heatmap(data, labels):
                 mask=mask)
     ax1.set_xticks(np.arange(len(labels) - 1) + 0.5, labels=list(labels)[:-1], rotation=45)
     ax1.set_yticks(np.arange(len(labels) - 1) + 1.5, labels=list(labels)[1:], rotation=45)
-    ax1.set_title(
-        "Statistical T-Test of learning curves",
-        fontsize=20, pad=40)
-    ax1.set_ylabel("Occluded joint name")
-    ax1.set_xlabel(f"Occluded joint name")
+    ax1.set_title(title, pad=40)
+    ax1.set_ylabel("Joint name")
+    ax1.set_xlabel("Joint name")
 
     plt.colorbar(plt.cm.ScalarMappable(cmap="YlGnBu", norm=plt.Normalize(vmin=np.min(data), vmax=np.max(data))),
                  cax=ax2)
     ax2.yaxis.set_ticks_position('left')
     ax2.set_ylabel('P values (P < 0.05 means they are statistically significantly different)')
-
+    fig.tight_layout()
     fig.savefig(os.path.join(exp_path, 't-test.jpg'), dpi=300)
 
 
 if __name__ == "__main__":
-    draw()
+    exp_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data', args.env_name)
+    env_exp_types = os.listdir(exp_path)
+    if 'graph' in env_exp_types:
+        env_exp_types.remove('graph')
+    env_exp_types = [d for d in env_exp_types if os.path.isdir(os.path.join(exp_path, d))]
+
+    # pallet = plt.cm.cividis(np.linspace(0, 1, len(experiment_results.keys())))
+    # pallet = plt.cm.tab20b(np.linspace(0, 1, len(experiment_results.keys())))
+    pallet = sns.color_palette('colorblind', n_colors=len(env_exp_types))
+
+    colors = {}
+    for i, type in enumerate(env_exp_types):
+        colors[type] = pallet[i]
+
+    title_curves = f'Average return of the model on {args.env_name} after occluding joints'
+    title_ttest = f'Statistical T-test of learning curves - {args.env_name} occluded joints'
+    draw(env_exp_types, colors, title_curves, title_ttest)
+
+    # ---------------------- BROKEN JOINTS------------------------------
+    env_name = args.env_name.split('-')
+    env_name[0] += 'Broken'
+    env_name = '-'.join(env_name)
+    exp_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data', env_name)
+    env_exp_types = os.listdir(exp_path)
+    if 'graph' in env_exp_types:
+        env_exp_types.remove('graph')
+    env_exp_types = [d for d in env_exp_types if os.path.isdir(os.path.join(exp_path, d))]
+
+    # pallet = plt.cm.cividis(np.linspace(0, 1, len(experiment_results.keys())))
+    # pallet = plt.cm.tab20b(np.linspace(0, 1, len(experiment_results.keys())))
+    pallet = sns.color_palette('colorblind', n_colors=len(env_exp_types))
+
+    for i, type in enumerate(env_exp_types):
+        if type in colors.keys():
+            continue
+        else:
+            for c in pallet:
+                if c not in colors.values():
+                    colors[type] = c
+
+    title_curves = f'Average return of the model on {args.env_name} after blocking joints'
+    title_ttest = f'Statistical T-test of learning curves - {args.env_name} blocked joints'
+    draw(env_exp_types, colors, title_curves, title_ttest)
