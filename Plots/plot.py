@@ -8,7 +8,6 @@ import argparse
 import pathlib
 import os
 from scipy.stats import ttest_ind
-import matplotlib.style as style
 from pathlib import Path
 from utils import load_object
 
@@ -82,8 +81,6 @@ def plot_learning_curve(experiment_results, x_label, y_label, title, colors):
     for leg in legs.legendHandles:
         leg.set_linewidth(10.0)
     ax.set_title(title)
-    # ax.spines.right.set_visible(False)
-    # ax.spines.top.set_visible(False)
     fig.tight_layout()
     fig.savefig(os.path.join(exp_path, x_label + '.jpg'))
     sns.reset_orig()
@@ -103,8 +100,6 @@ def plot_significancy_test(exp_results, title):
 def plot_t_test_heatmap(data, labels, title):
     width = 10
     height = 10
-    style.use('tableau-colorblind10')
-    # style.use('seaborn-colorblind')
     plt.rcParams.update({'font.size': 14})
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(width, height), gridspec_kw={'width_ratios': (30, 1)})
     mask = np.triu(np.ones_like(data))
@@ -135,9 +130,9 @@ def plot_action_importance(action_rel, action_labels, pallet):
     plt.xlabel('Actions (Torque applied to each joint)')
     plt.ylabel('Action importance score')
     plt.xticks(rotation=45)
-    plt.title(f'Action importance - {env_name}')
+    plt.title(f'Action importance - {args.env_name}')
     plt.tight_layout()
-    plt.savefig(os.path.join(exp_path, 'action_importance.jpg'), dpi=300)
+    plt.savefig(os.path.join(Path(exp_path).parent, 'action_importance.jpg'), dpi=300)
     sns.reset_orig()
 
 
@@ -151,9 +146,9 @@ def plot_joint_importance(joint_rel, joint_labels, pallet):
     plt.xlabel('Joint name')
     plt.ylabel('Relevance score')
     plt.xticks(rotation=45)
-    plt.title(f'Joint importance in the observation - {env_name}')
+    plt.title(f'Joint importance in the observation - {args.env_name}')
     plt.tight_layout()
-    plt.savefig(os.path.join(exp_path, 'joint_importance.jpg'), dpi=300)
+    plt.savefig(os.path.join(Path(exp_path).parent, 'joint_importance.jpg'), dpi=300)
     sns.reset_orig()
 
 
@@ -172,17 +167,19 @@ def get_joint_labels(edge_list):
     joint_labels = []
     for joint_list in edge_list.values():
         if len(joint_list) > 0:
-            joint_labels.append(
-                process_joint_name(joint_list[0].attrib['name'])
-                if len(joint_list) == 1
-                else '\n'.join([process_joint_name(j.attrib['name']) for j in joint_list])
-            )
+            if len(joint_list) == 1:
+                joint_label = process_joint_name(joint_list[0].attrib['name'])
+            elif len(joint_list) > 1 and 'root' in joint_list[0].attrib['name']:
+                joint_label = 'root'
+            else:
+                joint_label = '\n'.join([process_joint_name(j.attrib['name']) for j in joint_list])
+            joint_labels.append(joint_label)
 
-    if env_name == 'FetchReach-v2':
+    if args.env_name == 'FetchReach-v2':
         joint_labels.remove('l-gripper finger joint')
         joint_labels.remove('r-gripper finger joint')
 
-    return joint_labels, action_labels
+    return joint_labels
 
 
 if __name__ == "__main__":
@@ -226,15 +223,15 @@ if __name__ == "__main__":
     global_relevance = load_object(global_rel_path)
 
     # Remove l-gripper-finger-joint and r-gripper-finger-joint
-    if env_name == 'FetchReach-v2':
+    if args.env_name == 'FetchReach-v2':
         edge_relevance = np.delete(edge_relevance, 7, axis=0)
         edge_relevance = np.delete(edge_relevance, 7, axis=0)
 
     # Environment
-    if 'FetchReach' in env_name:
-        env = FetchReachGraphWrapper(gym.make(env_name))
+    if 'FetchReach' in args.env_name:
+        env = FetchReachGraphWrapper(gym.make(args.env_name))
     else:
-        env = MujocoGraphNormalWrapper(env_name)
+        env = MujocoGraphNormalWrapper(args.env_name)
 
     edge_list = env.robot_graph.edge_list
 
