@@ -54,3 +54,7 @@ the whole action vector
 32) Create a good plot for action relevance
 
 33) name action elements (torque on joints)
+
+34) plot different bars according to colors of curves
+
+35) increase the size of title and axis in learning curves
