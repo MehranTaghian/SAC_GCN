@@ -8,9 +8,6 @@ import os
 from scipy.stats import ttest_ind
 import matplotlib.style as style
 
-# style.use('seaborn-colorblind')
-# style.use('tableau-colorblind10')
-
 parser = argparse.ArgumentParser(description="Draw results of the experiments inside a directory")
 
 parser.add_argument('--env-name', default="FetchReach-v2",
@@ -125,6 +122,37 @@ def plot_t_test_heatmap(data, labels, title):
     fig.savefig(os.path.join(exp_path, 't-test.jpg'), dpi=300)
 
 
+def plot_action_importance(action_rel, action_labels, pallet):
+    colors = [pallet[l] for l in action_labels]
+    sns.set_theme()
+    sns.set(font_scale=2)
+    plt.figure(figsize=(10, 8))
+    plt.bar(action_labels, action_rel, color=colors)
+    plt.xlabel('Actions (Torque applied to each joint)')
+    plt.ylabel('Action importance score')
+    plt.xticks(rotation=45)
+    plt.title(f'Action importance - {env_name}')
+    plt.tight_layout()
+    plt.savefig(os.path.join(exp_path, 'action_importance.jpg'), dpi=300)
+    sns.reset_orig()
+
+
+def plot_joint_importance(joint_rel, joint_labels, pallet):
+    colors = [pallet[l] for l in joint_labels]
+    sns.set_theme()
+    sns.set(font_scale=2)
+    plt.figure(figsize=(10, 8))
+    plt.bar(joint_labels, joint_rel, color=colors)
+    plt.xlabel('Joint name')
+    plt.ylabel('Relevance score')
+    plt.xticks(rotation=45)
+    plt.title(f'Joint importance in the observation - {env_name}')
+    plt.tight_layout()
+    plt.savefig(os.path.join(exp_path, 'joint_importance.jpg'), dpi=300)
+    sns.reset_orig()
+    plt.show()
+
+
 if __name__ == "__main__":
     exp_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data', args.env_name)
     env_exp_types = os.listdir(exp_path)
@@ -154,18 +182,9 @@ if __name__ == "__main__":
         env_exp_types.remove('graph')
     env_exp_types = [d for d in env_exp_types if os.path.isdir(os.path.join(exp_path, d))]
 
-    # pallet = plt.cm.cividis(np.linspace(0, 1, len(experiment_results.keys())))
-    # pallet = plt.cm.tab20b(np.linspace(0, 1, len(experiment_results.keys())))
-    pallet = sns.color_palette('colorblind', n_colors=len(env_exp_types))
-
-    for i, type in enumerate(env_exp_types):
-        if type in colors.keys():
-            continue
-        else:
-            for c in pallet:
-                if c not in colors.values():
-                    colors[type] = c
-
     title_curves = f'Average return of the model on {args.env_name} after blocking joints'
     title_ttest = f'Statistical T-test of learning curves - {args.env_name} blocked joints'
     draw(env_exp_types, colors, title_curves, title_ttest)
+
+    # ---------------------- Importance plots --------------------------
+

@@ -58,3 +58,7 @@ the whole action vector
 34) plot different bars according to colors of curves
 
 35) increase the size of title and axis in learning curves
+
+36) evaluate based on the last time step
+
+37) add global features to the evaluation
