@@ -1,5 +1,7 @@
 import seaborn as sns
 from matplotlib import pyplot as plt
+import gym
+from CustomGymEnvs import FetchReachGraphWrapper, MujocoGraphNormalWrapper
 import pandas as pd
 import numpy as np
 import argparse
@@ -7,6 +9,8 @@ import pathlib
 import os
 from scipy.stats import ttest_ind
 import matplotlib.style as style
+from pathlib import Path
+from utils import load_object
 
 parser = argparse.ArgumentParser(description="Draw results of the experiments inside a directory")
 
@@ -139,6 +143,7 @@ def plot_action_importance(action_rel, action_labels, pallet):
 
 def plot_joint_importance(joint_rel, joint_labels, pallet):
     colors = [pallet[l] for l in joint_labels]
+    joint_labels = [j if 'joint' not in j else j.split('joint')[0].strip() for j in joint_labels]
     sns.set_theme()
     sns.set(font_scale=2)
     plt.figure(figsize=(10, 8))
@@ -150,7 +155,34 @@ def plot_joint_importance(joint_rel, joint_labels, pallet):
     plt.tight_layout()
     plt.savefig(os.path.join(exp_path, 'joint_importance.jpg'), dpi=300)
     sns.reset_orig()
-    plt.show()
+
+
+def process_joint_name(joint_name):
+    separated = joint_name.split(':')[1].split('_') if 'robot0' in joint_name else joint_name.split('_')
+    final_key = ''
+    for sk in separated:
+        if len(sk) == 1:
+            final_key += sk + '-'
+        else:
+            final_key += sk + ' '
+    return final_key.strip()
+
+
+def get_joint_labels(edge_list):
+    joint_labels = []
+    for joint_list in edge_list.values():
+        if len(joint_list) > 0:
+            joint_labels.append(
+                process_joint_name(joint_list[0].attrib['name'])
+                if len(joint_list) == 1
+                else '\n'.join([process_joint_name(j.attrib['name']) for j in joint_list])
+            )
+
+    if env_name == 'FetchReach-v2':
+        joint_labels.remove('l-gripper finger joint')
+        joint_labels.remove('r-gripper finger joint')
+
+    return joint_labels, action_labels
 
 
 if __name__ == "__main__":
@@ -187,4 +219,36 @@ if __name__ == "__main__":
     draw(env_exp_types, colors, title_curves, title_ttest)
 
     # ---------------------- Importance plots --------------------------
+    exp_path = os.path.join(Path(os.getcwd()), 'Data', args.env_name, 'graph')
+    edge_rel_path = os.path.join(exp_path, 'edge_relevance.pkl')
+    global_rel_path = os.path.join(exp_path, 'global_relevance.pkl')
+    edge_relevance = load_object(edge_rel_path)
+    global_relevance = load_object(global_rel_path)
 
+    # Remove l-gripper-finger-joint and r-gripper-finger-joint
+    if env_name == 'FetchReach-v2':
+        edge_relevance = np.delete(edge_relevance, 7, axis=0)
+        edge_relevance = np.delete(edge_relevance, 7, axis=0)
+
+    # Environment
+    if 'FetchReach' in env_name:
+        env = FetchReachGraphWrapper(gym.make(env_name))
+    else:
+        env = MujocoGraphNormalWrapper(env_name)
+
+    edge_list = env.robot_graph.edge_list
+
+    avg_edge_rel = edge_relevance.mean(axis=4).mean(axis=3).mean(axis=2)
+    avg_edge_rel /= np.max(np.abs(avg_edge_rel), axis=0)
+
+    action_rel = np.abs(avg_edge_rel.mean(axis=0))
+    action_rel /= np.max(action_rel)
+
+    joint_rel = np.abs(action_rel.dot(avg_edge_rel.T))
+    joint_rel /= np.max(joint_rel)
+
+    joint_labels = get_joint_labels(edge_list)
+    plot_joint_importance(joint_rel, joint_labels, colors)
+
+    action_labels = [j for j in joint_labels if 'root' not in j]
+    plot_action_importance(action_rel, action_labels, colors)
