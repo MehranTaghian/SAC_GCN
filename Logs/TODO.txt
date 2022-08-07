@@ -14,51 +14,12 @@ scatter_max(src, index, dim=..., out=out)
 3) Why are you using your left hand to write? Because my right hand is damaged -> my dynamics changed. In life-long learning,
 we can analyze the change in the policy and change in the pattern of relevance scores.
 
-9) Try to train the joint velocity-based actions for better relevance calculations. Already the experiment is running
-on melco to train using the velocity-based actions.
 
-10) Running experiments for FetchReachEnv-v3
-
-15) Handle all the graph environements with wrappers
-
-17) For ant, check the loss function of the critic. it is close to zero (maybe not!). why?
-
-18) HalfCheetah running on mehran with 200 time-steps max
-
-19) change the main.py file and instead of using np.append for collecting data, use a constant numpy.zero before running
-the experiments. This way, you would have a constant amount of memory throughout the experiments. for both main files
-
-22) The relation between actions (torques applied to specific joints) and joints can be nicely seen in Walker2d heatmap.
 
 23) If you render the simulation in Walker2d, you can see that from a specific time-step onward, it is mostly using
 its left leg. That can explain the reason of higher relevance scores in the left leg on the heatmap.
 
-24) remove redundant data from custom gym envs and add wrappers instead
-
-25) plot the time of storing and updating through time
-
-26) Change experiment type for grpah environements to "graph"
-
-27) Increase number of episodes for evaluation in evaluation process
-
-28) Calculate the total relevance score of joints by giving weights according to the importance of actions.
- Compare this method with the previous one
-
-29) Analyze action importance in  performance after malfunctioning that action in Mujoco envs
-
-30) change fetchreach broken joints colors
-
-31) change the output rel score from value of action to 1 which is consistent across joints, also try backpropagating
-the whole action vector
-
-32) Create a good plot for action relevance
-
-33) name action elements (torque on joints)
-
-34) plot different bars according to colors of curves
 
 35) increase the size of title and axis in learning curves
-
 36) evaluate based on the last time step
-
 37) add global features to the evaluation

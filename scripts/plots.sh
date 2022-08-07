@@ -13,5 +13,3 @@ python $PLOT --env-name HalfCheetah-v2
 python $PLOT --env-name Walker2d-v2
 python $PLOT --env-name Hopper-v2
 
-python $PLOT_FILE --env-name FetchReach-v2
-

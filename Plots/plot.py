@@ -64,10 +64,10 @@ def draw(env_exp_types, colors, title_curves, title_ttest):
 
 
 def plot_learning_curve(experiment_results, x_label, y_label, title, colors):
-    width = 15
+    width = 18
     height = 12
     sns.set_theme()
-    sns.set(font_scale=2)
+    sns.set(font_scale=2.5)
     fig, ax = plt.subplots(figsize=[width, height])
     for type in experiment_results.keys():
         x, average, standard_error = experiment_results[type]
@@ -98,22 +98,22 @@ def plot_significancy_test(exp_results, title):
 
 
 def plot_t_test_heatmap(data, labels, title):
-    width = 10
+    width = 12
     height = 10
-    plt.rcParams.update({'font.size': 14})
+    plt.rcParams.update({'font.size': 16})
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(width, height), gridspec_kw={'width_ratios': (30, 1)})
     mask = np.triu(np.ones_like(data))
     sns.heatmap(data, ax=ax1, cbar=False, cmap="cividis", linewidth=1, vmin=np.min(data), vmax=np.max(data),
                 annot=True,
                 fmt='.2f',
                 mask=mask)
-    ax1.set_xticks(np.arange(len(labels) - 1) + 0.5, labels=list(labels)[:-1], rotation=45)
-    ax1.set_yticks(np.arange(len(labels) - 1) + 1.5, labels=list(labels)[1:], rotation=45)
+    ax1.set_xticks(np.arange(len(labels) - 1) + 0.5, labels=list(labels)[:-1], rotation=45, fontsize=20)
+    ax1.set_yticks(np.arange(len(labels) - 1) + 1.5, labels=list(labels)[1:], rotation=45, fontsize=20)
     ax1.set_title(title, pad=40)
     ax1.set_ylabel("Joint name")
     ax1.set_xlabel("Joint name")
 
-    plt.colorbar(plt.cm.ScalarMappable(cmap="YlGnBu", norm=plt.Normalize(vmin=np.min(data), vmax=np.max(data))),
+    plt.colorbar(plt.cm.ScalarMappable(cmap="cividis", norm=plt.Normalize(vmin=np.min(data), vmax=np.max(data))),
                  cax=ax2)
     ax2.yaxis.set_ticks_position('left')
     ax2.set_ylabel('P values (P < 0.05 means they are statistically significantly different)')
