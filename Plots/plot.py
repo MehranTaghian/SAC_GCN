@@ -122,7 +122,7 @@ def plot_t_test_heatmap(data, labels, title):
 
 
 def plot_action_importance(action_rel, action_labels, pallet):
-    colors = [pallet[l] for l in action_labels]
+    colors = [pallet['_'.join(l.split(' '))] for l in action_labels]
     sns.set_theme()
     sns.set(font_scale=2)
     plt.figure(figsize=(10, 8))
@@ -137,7 +137,7 @@ def plot_action_importance(action_rel, action_labels, pallet):
 
 
 def plot_joint_importance(joint_rel, joint_labels, pallet):
-    colors = [pallet[l] for l in joint_labels]
+    colors = [pallet['_'.join(l.split(' '))] for l in joint_labels]
     joint_labels = [j if 'joint' not in j else j.split('joint')[0].strip() for j in joint_labels]
     sns.set_theme()
     sns.set(font_scale=2)
@@ -183,7 +183,10 @@ def get_joint_labels(edge_list):
 
 
 if __name__ == "__main__":
-    exp_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data', args.env_name)
+    # root_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data')
+    root_path = '/media/mehran/ADATA HD725/Data_sac_gcn/Data'
+
+    exp_path = os.path.join(root_path, args.env_name)
     env_exp_types = os.listdir(exp_path)
     if 'graph' in env_exp_types:
         env_exp_types.remove('graph')
@@ -205,7 +208,7 @@ if __name__ == "__main__":
     env_name = args.env_name.split('-')
     env_name[0] += 'Broken'
     env_name = '-'.join(env_name)
-    exp_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data', env_name)
+    exp_path = os.path.join(root_path, env_name)
     env_exp_types = os.listdir(exp_path)
     if 'graph' in env_exp_types:
         env_exp_types.remove('graph')
@@ -216,14 +219,15 @@ if __name__ == "__main__":
     draw(env_exp_types, colors, title_curves, title_ttest)
 
     # ---------------------- Importance plots --------------------------
-    exp_path = os.path.join(Path(os.getcwd()), 'Data', args.env_name, 'graph')
+    exp_path = os.path.join(root_path, args.env_name, 'graph')
     edge_rel_path = os.path.join(exp_path, 'edge_relevance.pkl')
-    global_rel_path = os.path.join(exp_path, 'global_relevance.pkl')
     edge_relevance = load_object(edge_rel_path)
-    global_relevance = load_object(global_rel_path)
 
     # Remove l-gripper-finger-joint and r-gripper-finger-joint
     if args.env_name == 'FetchReach-v2':
+        global_rel_path = os.path.join(exp_path, 'global_relevance.pkl')
+        global_relevance = load_object(global_rel_path)
+
         edge_relevance = np.delete(edge_relevance, 7, axis=0)
         edge_relevance = np.delete(edge_relevance, 7, axis=0)
 

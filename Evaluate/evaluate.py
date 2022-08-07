@@ -48,16 +48,16 @@ num_node_features = env.observation_space['node_features'].shape[1]
 num_edge_features = env.observation_space['edge_features'].shape[1]
 num_global_features = env.observation_space['global_features'].shape[0]
 
-# device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
+device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
 device = torch.device('cpu')
 args.cuda = False
 
-num_episodes = 10
+num_episodes = 20
 
 edge_list = env.robot_graph.edge_list
 node_list = env.robot_graph.node_list
 
-render = True
+render = False
 
 
 def process_joint_name(joint_name):
