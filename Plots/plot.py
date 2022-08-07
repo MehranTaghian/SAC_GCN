@@ -183,8 +183,8 @@ def get_joint_labels(edge_list):
 
 
 if __name__ == "__main__":
-    # root_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data')
-    root_path = '/media/mehran/ADATA HD725/Data_sac_gcn/Data'
+    root_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data')
+    # root_path = '/media/mehran/ADATA HD725/Data_sac_gcn/Data'
 
     exp_path = os.path.join(root_path, args.env_name)
     env_exp_types = os.listdir(exp_path)
