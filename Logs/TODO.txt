@@ -23,3 +23,6 @@ its left leg. That can explain the reason of higher relevance scores in the left
 35) increase the size of title and axis in learning curves
 36) evaluate based on the last time step
 37) add global features to the evaluation
+
+38) Analyze LRP scores during the training process and the change in the scores.
+39) Analyze the transferability of the policy to the new dynamics
