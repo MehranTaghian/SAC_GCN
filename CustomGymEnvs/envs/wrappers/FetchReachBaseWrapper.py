@@ -19,13 +19,15 @@ class FetchReachBaseWrapper(gym.ObservationWrapper):
         parser = ModelParser(env.sim.model.get_xml())
         self.joint_list = [j.attrib['name'] for j in parser.joints if j.attrib['name'] not in weld_joints]
         self.occlude_goal = False
-        if occluded_joint is not None:
-            if occluded_joint in self.joint_list:
-                self.joint_list.remove(occluded_joint)
-            elif occluded_joint == 'goal':
-                self.occlude_goal = True
-            else:
-                raise Exception('Occluded joint is not in the list of joints')
+
+        if occluded_joint == 'standard':
+            pass
+        elif occluded_joint == 'goal':
+            self.occlude_goal = True
+        elif 'robot0:' + occluded_joint in self.joint_list:
+            self.joint_list.remove('robot0:' + occluded_joint)
+        else:
+            raise Exception('Occluded joint is not in the list of joints')
 
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(len(self.joint_list) * 2 + 3,), dtype='float32')
         self._max_episode_steps = env._max_episode_steps
