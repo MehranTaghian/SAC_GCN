@@ -29,7 +29,10 @@ class FetchReachBaseWrapper(gym.ObservationWrapper):
         else:
             raise Exception('Occluded joint is not in the list of joints')
 
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(len(self.joint_list) * 2 + 3,), dtype='float32')
+        if self.occlude_goal:
+            self.observation_space = spaces.Box(-np.inf, np.inf, shape=(len(self.joint_list) * 2,), dtype='float32')
+        else:
+            self.observation_space = spaces.Box(-np.inf, np.inf, shape=(len(self.joint_list) * 2 + 3,), dtype='float32')
         self._max_episode_steps = env._max_episode_steps
 
     def observation(self, obs):
