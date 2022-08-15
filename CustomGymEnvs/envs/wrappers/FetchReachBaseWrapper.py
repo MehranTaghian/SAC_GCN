@@ -18,9 +18,12 @@ class FetchReachBaseWrapper(gym.ObservationWrapper):
         self.env = env
         parser = ModelParser(env.sim.model.get_xml())
         self.joint_list = [j.attrib['name'] for j in parser.joints if j.attrib['name'] not in weld_joints]
+        self.occlude_goal = False
         if occluded_joint is not None:
             if occluded_joint in self.joint_list:
                 self.joint_list.remove(occluded_joint)
+            elif occluded_joint == 'goal':
+                self.occlude_goal = True
             else:
                 raise Exception('Occluded joint is not in the list of joints')
 
@@ -34,4 +37,7 @@ class FetchReachBaseWrapper(gym.ObservationWrapper):
             joint_features.append(self.sim.data.get_joint_qvel(j).copy())
 
         joint_features = np.array(joint_features)
-        return np.concatenate([joint_features, obs['desired_goal']])
+        if self.occlude_goal:
+            return joint_features
+        else:
+            return np.concatenate([joint_features, obs['desired_goal']])

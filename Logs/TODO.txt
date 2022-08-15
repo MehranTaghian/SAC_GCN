@@ -14,8 +14,6 @@ scatter_max(src, index, dim=..., out=out)
 3) Why are you using your left hand to write? Because my right hand is damaged -> my dynamics changed. In life-long learning,
 we can analyze the change in the policy and change in the pattern of relevance scores.
 
-
-
 23) If you render the simulation in Walker2d, you can see that from a specific time-step onward, it is mostly using
 its left leg. That can explain the reason of higher relevance scores in the left leg on the heatmap.
 
