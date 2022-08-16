@@ -12,17 +12,17 @@ MAIN_FILE="/local/melco3/taghianj/SAC_GCN/Controller/basic/main.py"
 #tmux new-session -d -s hopper-8 "CUDA_VISIBLE_DEVICES=1 python $MAIN_FILE --env-name Hopper-v2 --exp-type standard --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 8"
 #tmux new-session -d -s hopper-9 "CUDA_VISIBLE_DEVICES=1 python $MAIN_FILE --env-name Hopper-v2 --exp-type standard --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 9"
 
-# root
-tmux new-session -d -s hopper-root-0 "CUDA_VISIBLE_DEVICES=6 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 0"
-tmux new-session -d -s hopper-root-1 "CUDA_VISIBLE_DEVICES=6 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 1"
-tmux new-session -d -s hopper-root-2 "CUDA_VISIBLE_DEVICES=6 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 2"
-tmux new-session -d -s hopper-root-3 "CUDA_VISIBLE_DEVICES=6 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 3"
-tmux new-session -d -s hopper-root-4 "CUDA_VISIBLE_DEVICES=6 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 4"
-tmux new-session -d -s hopper-root-5 "CUDA_VISIBLE_DEVICES=7 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 5"
-tmux new-session -d -s hopper-root-6 "CUDA_VISIBLE_DEVICES=7 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 6"
-tmux new-session -d -s hopper-root-7 "CUDA_VISIBLE_DEVICES=7 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 7"
-tmux new-session -d -s hopper-root-8 "CUDA_VISIBLE_DEVICES=7 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 8"
-tmux new-session -d -s hopper-root-9 "CUDA_VISIBLE_DEVICES=7 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 9"
+# torso
+tmux new-session -d -s hopper-torso-0 "CUDA_VISIBLE_DEVICES=6 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 0"
+tmux new-session -d -s hopper-torso-1 "CUDA_VISIBLE_DEVICES=6 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 1"
+tmux new-session -d -s hopper-torso-2 "CUDA_VISIBLE_DEVICES=6 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 2"
+tmux new-session -d -s hopper-torso-3 "CUDA_VISIBLE_DEVICES=6 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 3"
+tmux new-session -d -s hopper-torso-4 "CUDA_VISIBLE_DEVICES=6 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 4"
+tmux new-session -d -s hopper-torso-5 "CUDA_VISIBLE_DEVICES=7 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 5"
+tmux new-session -d -s hopper-torso-6 "CUDA_VISIBLE_DEVICES=7 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 6"
+tmux new-session -d -s hopper-torso-7 "CUDA_VISIBLE_DEVICES=7 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 7"
+tmux new-session -d -s hopper-torso-8 "CUDA_VISIBLE_DEVICES=7 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 8"
+tmux new-session -d -s hopper-torso-9 "CUDA_VISIBLE_DEVICES=7 python $MAIN_FILE --env-name Hopper-v2 --exp-type root --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 9"
 
 # thigh
 #tmux new-session -d -s thigh-0 "CUDA_VISIBLE_DEVICES=4 python $MAIN_FILE --env-name Hopper-v2 --exp-type thigh_joint --automatic_entropy_tuning True --num_episodes 10000 --start_steps 10000 -dsf 100 --cuda --seed 0"

@@ -49,7 +49,7 @@ class ModelParser:
         # if 'AntEnv' in env_name:
         #     for i in range(len(self.connections_joint)):
         #         _, _, j = self.connections_joint[i]
-        #         if 'name' in j.attrib and j.attrib['name'] == 'root':
+        #         if 'name' in j.attrib and j.attrib['name'] == 'torso':
         #             del self.connections_joint[i]
         #             break
 

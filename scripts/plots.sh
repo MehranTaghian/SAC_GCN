@@ -6,6 +6,7 @@ PLOT_FILE=/home/taghianj/Documents/SAC_GCN/Plots/learning_curve.py
 PLOT=/home/mehran/Documents/SAC_GCN/Plots/plot.py
 
 PLOT=/home/taghianj/Documents/SAC_GCN/Plots/plot.py
+PLOT=/home/taghianj/Documents/SAC_GCN/Plots/plot2.py
 
 
 python $PLOT --env-name FetchReach-v2

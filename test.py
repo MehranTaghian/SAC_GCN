@@ -56,7 +56,7 @@ while True:
 # env = FetchReachWrapper(gym.make("FetchReachDense-v1"), 'standard')
 # env = FetchReachGraphWrapper(gym.make("FetchReachDense-v1"))
 # print(env.observation_space)
-# env = MujocoWrapper(gym.make("HalfCheetah-v2"), 'root')
+# env = MujocoWrapper(gym.make("HalfCheetah-v2"), 'torso')
 # env2 = MujocoWrapper(gym.make("HalfCheetahEnv-v0"), 'bfoot')
 # env2 = MujocoWrapper(gym.make("HalfCheetahEnv-v0"), 'fthigh')
 

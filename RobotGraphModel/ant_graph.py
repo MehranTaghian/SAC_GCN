@@ -13,7 +13,7 @@ class AntGraph(RobotGraph):
         feature_list = []
         for edge in self.edge_list.values():
             if len(edge) > 0:
-                if edge[0].attrib['name'] != 'root':
+                if edge[0].attrib['name'] != 'torso':
                     edge_feature = np.array(
                         [self.sim.data.get_joint_qpos(edge[0].attrib['name']).copy(),
                          self.sim.data.get_joint_qvel(edge[0].attrib['name']).copy()])

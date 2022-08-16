@@ -13,7 +13,7 @@ class MujocoBaseWrapper(gym.ObservationWrapper):
         if occluded_joint is not None:
             if occluded_joint in self.joint_list:
                 self.joint_list.remove(occluded_joint)
-            elif occluded_joint == 'root':
+            elif occluded_joint == 'torso':
                 self.joint_list.remove('rootx')
                 self.joint_list.remove('rooty')
                 self.joint_list.remove('rootz')

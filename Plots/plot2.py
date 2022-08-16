@@ -8,7 +8,6 @@ import argparse
 import pathlib
 import os
 from scipy.stats import ttest_ind
-from pathlib import Path
 from utils import load_object
 
 parser = argparse.ArgumentParser(description="Draw results of the experiments inside a directory")
@@ -19,16 +18,6 @@ parser.add_argument('--percentage', default=1, type=int,
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 
 args = parser.parse_args()
-
-params = {
-    'font.size': 16,
-    'legend.fontsize': 'x-large',
-    'axes.labelsize': 'x-large',
-    'axes.titlesize': 'x-large',
-    'xtick.labelsize': 'x-large',
-    'ytick.labelsize': 'x-large'
-}
-plt.rcParams.update(params)
 
 
 def eval(env_exp_types):
@@ -59,13 +48,13 @@ def eval(env_exp_types):
     return exp_type_eval_results
 
 
-def plot_learning_curve(ax, experiment_results, y_label, title, colors):
-    # width = 18
-    # height = 12
-    # sns.set_theme()
-    # sns.set(font_scale=2.5)
-    plt.rcParams.update({'font.size': 16})
-    # fig, ax = plt.subplots(figsize=[width, height])
+def plot_learning_curve(experiment_results, y_label, title, colors, file_name):
+    width = 16
+    height = 12
+    sns.set_theme()
+    sns.set(font_scale=2.5)
+    # plt.rcParams.update({'font.size': 16})
+    fig, ax = plt.subplots(figsize=[width, height])
     for type in experiment_results.keys():
         x, average, standard_error = experiment_results[type]
         if type == 'standard':
@@ -86,9 +75,9 @@ def plot_learning_curve(ax, experiment_results, y_label, title, colors):
     # legs = fig.legend(ncol=3, fancybox=True, loc='lower center', bbox_to_anchor=(0.6, 0.1))
     # for leg in legs.legendHandles:
     #     leg.set_linewidth(10.0)
-    # fig.tight_layout()
-    # fig.savefig(os.path.join(exp_path, 'learning_curves' + '.jpg'))
-    # sns.reset_orig()
+    fig.tight_layout()
+    fig.savefig(os.path.join(root_path, args.env_name, file_name))
+    sns.reset_orig()
 
 
 def significancy_test(exp_results):
@@ -101,47 +90,65 @@ def significancy_test(exp_results):
     return p_values
 
 
-def plot_t_test_heatmap(ax1, ax2, data, labels, title):
-    # width = 12
-    # height = 10
-    plt.rcParams.update({'font.size': 16})
-    # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(width, height), gridspec_kw={'width_ratios': (30, 1)})
+def plot_t_test_heatmap(data, labels, title, file_name):
+    width = 12
+    height = 10
+    plt.rcParams.update({'font.size': 24})
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(width, height), gridspec_kw={'width_ratios': (30, 1)})
     mask = np.triu(np.ones_like(data))
     sns.heatmap(data, ax=ax1, cbar=False, cmap="cividis", linewidth=1, vmin=np.min(data), vmax=np.max(data),
                 annot=True,
                 fmt='.2f',
                 mask=mask)
-    ax1.set_xticks(np.arange(len(labels) - 1) + 0.5, labels=list(labels)[:-1], rotation=45, fontsize=20)
-    ax1.set_yticks(np.arange(len(labels) - 1) + 1.5, labels=list(labels)[1:], rotation=45, fontsize=20)
-    ax1.set_title(title)
-    ax1.set_ylabel("Joint name")
-    ax1.set_xlabel("Joint name")
+    ax1.set_xticks(np.arange(len(labels) - 1) + 0.5, labels=list(labels)[:-1], rotation=45)
+    ax1.set_yticks(np.arange(len(labels) - 1) + 1.5, labels=list(labels)[1:], rotation=45)
+    ax1.set_title(title, pad=30, fontsize=20)
+    ax1.set_ylabel("Learning Curve Labels")
+    ax1.set_xlabel("Learning Curve labels")
 
     plt.colorbar(plt.cm.ScalarMappable(cmap="cividis", norm=plt.Normalize(vmin=np.min(data), vmax=np.max(data))),
                  cax=ax2)
     ax2.yaxis.set_ticks_position('left')
-    ax2.set_ylabel('P-values (Learning curves are significantly different For P < 0.05)')
-    # fig.tight_layout()
-    # fig.savefig(os.path.join(exp_path, 't-test.jpg'), dpi=300)
+    ax2.set_ylabel('P-values')
+    fig.tight_layout()
+    fig.savefig(os.path.join(root_path, args.env_name, file_name), dpi=300)
 
 
-def plot_action_importance(ax, action_rel, action_labels, pallet):
+def plot_action_importance(action_rel, action_labels, pallet):
+    width = 18
+    height = 15
+    sns.set_theme()
+    sns.set(font_scale=3)
+    fig, ax = plt.subplots(figsize=(width, height))
     colors = [pallet['_'.join(l.split(' '))] for l in action_labels]
     action_labels = [a if 'joint' not in a else a.split('joint')[0].strip() for a in action_labels]
     ax.bar(action_labels, action_rel, color=colors)
     ax.set_xlabel('Actions (Torque applied to each joint)')
+    # ax.set_xticks(np.arange(len(action_labels)) + 0.5, labels=action_labels, rotation=45)
     ax.set_ylabel('Action importance score')
-    ax.set_title(f'Action importance - {args.env_name}')
+    ax.set_title(f'Action importance - {args.env_name}', pad=30)
+    fig.tight_layout()
+    fig.savefig(os.path.join(root_path, args.env_name, 'action_importance.jpg'), dpi=300)
+    sns.reset_orig()
 
 
-
-def plot_joint_importance(ax, joint_rel, joint_labels, pallet):
+def plot_joint_importance(joint_rel, joint_labels, pallet):
+    width = 18
+    height = 15
+    sns.set_theme()
+    sns.set(font_scale=3)
+    fig, ax = plt.subplots(figsize=(width, height))
     colors = [pallet['_'.join(l.split(' '))] for l in joint_labels]
     joint_labels = [j if 'joint' not in j else j.split('joint')[0].strip() for j in joint_labels]
     ax.bar(joint_labels, joint_rel, color=colors)
     ax.set_xlabel('Joint name')
+    # ax.set_xticks(np.arange(len(joint_labels)) + 0.5, labels=joint_labels, rotation=45)
     ax.set_ylabel('Relevance score')
-    ax.set_title(f'Joint importance in the observation - {args.env_name}')
+    ax.set_title(f'Entity importance in the observation - {args.env_name}', pad=30)
+    fig.tight_layout()
+    fig.savefig(os.path.join(root_path, args.env_name, 'joint_importance.jpg'), dpi=300)
+    sns.reset_orig()
+
 
 def process_joint_name(joint_name):
     separated = joint_name.split(':')[1].split('_') if 'robot0' in joint_name else joint_name.split('_')
@@ -175,20 +182,6 @@ def get_joint_labels(edge_list):
 
 if __name__ == "__main__":
     root_path = os.path.join(pathlib.Path(__file__).parent.parent, 'Data')
-    # root_path = '/media/mehran/ADATA HD725/Data_sac_gcn/Data'
-
-    width, height = 40, 12
-    fig_obs, (ax_obs_imp, ax_obs_curve, ax_obs_ttest, ax_obs_ttest_colorbar) = plt.subplots(1, 4,
-                                                                                            figsize=(width, height),
-                                                                                            gridspec_kw={
-                                                                                                'width_ratios': (
-                                                                                                    12, 15, 10, 0.5)})
-
-    fig_act, (ax_act_imp, ax_act_curve, ax_act_ttest, ax_act_ttest_colorbar) = plt.subplots(1, 4,
-                                                                                            figsize=(width, height),
-                                                                                            gridspec_kw={
-                                                                                                'width_ratios': (
-                                                                                                    12, 15, 10, 0.5)})
 
     exp_path = os.path.join(root_path, args.env_name)
     env_exp_types = os.listdir(exp_path)
@@ -204,15 +197,15 @@ if __name__ == "__main__":
     for i, type in enumerate(env_exp_types):
         colors[type] = pallet[i]
 
-    title_curves = f'Average return of the model on {args.env_name} after occluding joints'
-    title_ttest = f'Statistical T-test of learning curves - {args.env_name} occluded joints'
+    title_curves = f'Policy\'s Average return on {args.env_name} - joint occlusion'
+    title_ttest = f' Learning curves statistical T-test - {args.env_name} occluded joints'
     eval_results = eval(env_exp_types)
 
-    plot_learning_curve(ax_obs_curve, eval_results, 'Average Return', title_curves, colors)
-    p_values = significancy_test(eval_results)
+    plot_learning_curve(eval_results, 'Average Return', title_curves, colors, 'learning_curves_occluded.jpg')
 
     labels = [' '.join(j.split('_')[:-1]).strip() if len(j.split('_')) > 1 else j for j in eval_results.keys()]
-    plot_t_test_heatmap(ax_obs_ttest, ax_obs_ttest_colorbar, p_values, labels, title_ttest)
+    p_values = significancy_test(eval_results)
+    plot_t_test_heatmap(p_values, labels, title_ttest, 't-test-occluded.jpg')
     # ---------------------- BROKEN JOINTS------------------------------
     env_name = args.env_name.split('-')
     env_name[0] += 'Broken'
@@ -223,16 +216,15 @@ if __name__ == "__main__":
         env_exp_types.remove('graph')
     env_exp_types = [d for d in env_exp_types if os.path.isdir(os.path.join(exp_path, d))]
 
-    title_curves = f'Average return of the model on {args.env_name} after blocking joints'
-    title_ttest = f'Statistical T-test of learning curves - {args.env_name} blocked joints'
+    title_curves = f'Policy\'s Average return on {args.env_name}- joint block'
+    title_ttest = f' Learning curves statistical T-test - {args.env_name} blocked joints'
     eval_results = eval(env_exp_types)
 
-    plot_learning_curve(ax_act_curve, eval_results, 'Average Return', title_curves, colors)
+    plot_learning_curve(eval_results, 'Average Return', title_curves, colors, 'learning_curves_blocked.jpg')
 
     labels = [' '.join(j.split('_')[:-1]).strip() if len(j.split('_')) > 1 else j for j in eval_results.keys()]
     p_values = significancy_test(eval_results)
-    plot_t_test_heatmap(ax_act_ttest, ax_act_ttest_colorbar, p_values, labels, title_ttest)
-
+    plot_t_test_heatmap(p_values, labels, title_ttest, 't-test-blocked.jpg')
     # ---------------------- Importance plots --------------------------
     exp_path = os.path.join(root_path, args.env_name, 'graph')
     edge_rel_path = os.path.join(exp_path, 'edge_relevance.pkl')
@@ -264,12 +256,7 @@ if __name__ == "__main__":
     joint_rel /= np.max(joint_rel)
 
     joint_labels = get_joint_labels(edge_list)
-    plot_joint_importance(ax_obs_imp, joint_rel, joint_labels, colors)
+    plot_joint_importance(joint_rel, joint_labels, colors)
 
     action_labels = [j for j in joint_labels if 'torso' not in j]
-    plot_action_importance(ax_act_imp, action_rel, action_labels, colors)
-
-    fig_obs.tight_layout()
-    fig_obs.savefig(os.path.join(root_path, args.env_name, 'observation_imp_analysis.jpg'), dpi=300)
-    fig_act.tight_layout()
-    fig_act.savefig(os.path.join(root_path, env_name, 'action_imp_analysis.jpg'), dpi=300)
+    plot_action_importance(action_rel, action_labels, colors)

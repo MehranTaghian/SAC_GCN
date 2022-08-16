@@ -83,7 +83,7 @@ for edge_id, joint_list in enumerate(edge_list.values()):
         joint_indices.append(edge_id)
 
 action_indices = [a for a in range(env.action_space.shape[0])]
-action_labels = [j for j in joint_names if 'root' not in j]
+action_labels = [j for j in joint_names if 'torso' not in j]
 
 # edge_relevance[joint_index, action_index, seed, num_episodes, episode_steps] =
 #                 [relevance score for each time-step of episode]
