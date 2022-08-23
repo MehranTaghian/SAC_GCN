@@ -57,24 +57,27 @@ def plot_learning_curve(experiment_results, y_label, title, colors, file_name):
     fig, ax = plt.subplots(figsize=[width, height])
     for type in experiment_results.keys():
         x, average, standard_error = experiment_results[type]
-        if type == 'standard':
-            ax.plot(x, average, label=type, linewidth=3, color=colors[type])
-        else:
-            ax.plot(x, average, linewidth=3, color=colors[type])
+        # if type == 'standard':
+        #     ax.plot(x, average, label=type, linewidth=3, color=colors[type])
+        # else:
+        #     ax.plot(x, average, linewidth=3, color=colors[type])
+        ax.plot(x, average, label=type, linewidth=3, color=colors[type])
         ax.fill_between(x, average - 2.26 * standard_error, average + 2.26 * standard_error,
                         color=colors[type],
                         alpha=0.2)
     ax.set_xlabel('Number of Episodes')
     ax.set_ylabel(y_label)
     ax.set_title(title)
-    if 'standard' in experiment_results.keys():
-        legs = ax.legend(loc='lower right', fancybox=True)
-        for leg in legs.legendHandles:
-            leg.set_linewidth(10.0)
 
-    # legs = fig.legend(ncol=3, fancybox=True, loc='lower center', bbox_to_anchor=(0.6, 0.1))
-    # for leg in legs.legendHandles:
-    #     leg.set_linewidth(10.0)
+    # if 'standard' in experiment_results.keys():
+    #     legs = ax.legend(loc='lower right', fancybox=True)
+    #     for leg in legs.legendHandles:
+    #         leg.set_linewidth(10.0)
+
+    legs = fig.legend(ncol=3, fancybox=True, loc='lower center', bbox_to_anchor=(0.6, 0.1))
+    for leg in legs.legendHandles:
+        leg.set_linewidth(10.0)
+
     fig.tight_layout()
     fig.savefig(os.path.join(root_path, args.env_name, file_name))
     sns.reset_orig()
@@ -185,8 +188,10 @@ if __name__ == "__main__":
 
     exp_path = os.path.join(root_path, args.env_name)
     env_exp_types = os.listdir(exp_path)
-    if 'graph' in env_exp_types:
-        env_exp_types.remove('graph')
+    for e in env_exp_types:
+        if 'graph' in e:
+            env_exp_types.remove(e)
+
     env_exp_types = [d for d in env_exp_types if os.path.isdir(os.path.join(exp_path, d))]
 
     # pallet = plt.cm.cividis(np.linspace(0, 1, len(experiment_results.keys())))

@@ -16,6 +16,7 @@ from pathlib import Path
 # env = FetchReachBrokenWrapper('forearm_roll_joint')
 # env = FetchReachBrokenWrapper('upperarm_roll_joint')
 
+# env = gym.make("Walker2d-v2")
 # env = Walker2dBrokenWrapper('foot_joint')
 # env = Walker2dBrokenWrapper('foot_left_joint')
 # env = Walker2dBrokenWrapper('leg_joint')
@@ -30,6 +31,7 @@ from pathlib import Path
 # env = Walker2dBrokenGraphWrapper('thigh_joint')
 # env = Walker2dBrokenGraphWrapper('thigh_left_joint')
 
+# env = MujocoGraphNormalWrapper('Hopper-v2')
 # env = HopperBrokenGraphWrapper('thigh_joint')
 # env = HopperBrokenGraphWrapper('foot_joint')
 # env = HopperBrokenGraphWrapper('leg_joint')
@@ -43,7 +45,7 @@ from pathlib import Path
 
 # env = FetchReachBaseWrapper(gym.make('FetchReach-v2'))
 env.reset()
-print(env.joint_list)
+# print(env.joint_list)
 while True:
     action = env.action_space.sample()
     # action = np.array([0, 0, 0, 0, 0, 0, 1])
@@ -66,7 +68,6 @@ while True:
 # env4 = MujocoWrapper(gym.make("Walker2d-v2"), occluded_joint='standard')
 
 # env = MujocoGraphWrapper(gym.make('Ant-v2'))
-# env = MujocoGraphWrapper(gym.make('Hopper-v2'))
 
 # env2 = MujocoWrapper(gym.make("Walker2d-v2"))
 # env2 = MujocoWrapper(gym.make("Walker2d-v2"))
