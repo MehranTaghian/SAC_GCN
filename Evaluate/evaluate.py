@@ -95,7 +95,10 @@ action_edge_relevance = np.zeros(
      num_episodes,
      env.spec.max_episode_steps])
 
-global_relevance = np.zeros([env.action_space.shape[0], len(experiment_seed)])
+global_relevance = np.zeros([env.action_space.shape[0],
+                             len(experiment_seed),
+                             num_episodes,
+                             env.spec.max_episode_steps])
 
 
 def calculate_relevance():
@@ -159,7 +162,7 @@ def action_edge_rel_calc(agent_relevance, episode, s, state, step):
 
         edge_rel = batch_state.edge_features.grad.sum(dim=1)
         global_rel = batch_state.global_features.grad.sum(dim=1)
-        global_relevance[action_index, s] += global_rel
+        global_relevance[action_index, s, episode, step] = global_rel
         action_edge_relevance[:, action_index, s, episode, step] = edge_rel[joint_indices]
 
 
