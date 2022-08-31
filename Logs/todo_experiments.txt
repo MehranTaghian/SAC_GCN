@@ -1,16 +1,3 @@
-for fetchreach missing seeds:
-    elbow flex 0, 4, 17, 19
-    forearm roll 5, 19
-    shoulder lift 5
-    shoulder pan 5, 15, 18
-    standard 1, 5, 11, 13, 18
-    upper arm 6
-    wrist flex 5, 13, 18
-    wrist roll 5
+run walker2dbroken for foot joint seeds 10-20
 
 
-run experiments occluding root xyz for all mujoco envs
-
-run broken environments on graph compute canada
-
-run broken hopper experiments

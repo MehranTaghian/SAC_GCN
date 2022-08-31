@@ -24,3 +24,4 @@ its left leg. That can explain the reason of higher relevance scores in the left
 
 38) Analyze LRP scores during the training process and the change in the scores.
 39) Analyze the transferability of the policy to the new dynamics
+
