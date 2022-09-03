@@ -15,7 +15,9 @@ parser = argparse.ArgumentParser(description="Draw results of the experiments in
 parser.add_argument('--env-name', default="FetchReach-v2",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--percentage', default=1, type=int,
-                    help='Mujoco Gym environment (default: HalfCheetah-v2)')
+                    help='The percentage of time-steps for learning curve')
+parser.add_argument('--window-size', default=40, type=int,
+                    help='How many final episodes should be considered as performance')
 
 args = parser.parse_args()
 
@@ -35,10 +37,12 @@ result_path = os.path.join(root_path, 'Result')
 if not os.path.exists(result_path):
     os.makedirs(result_path)
 
+patterns = ["/", "\\", "|", "-", "+", "x", "o", "O", ".", "*"]
 
-def eval(env_exp_types, exp_path):
+
+def eval(exp_types, exp_path):
     exp_type_eval_results = {}
-    for type in env_exp_types:
+    for type in exp_types:
         exp_type_path = os.path.join(exp_path, type)
         experiment_seed = os.listdir(exp_type_path)
         experiment_seed = [d for d in experiment_seed if os.path.isdir(os.path.join(exp_type_path, d))]
@@ -64,14 +68,31 @@ def eval(env_exp_types, exp_path):
     return exp_type_eval_results
 
 
-def plot_learning_curve(ax, experiment_results, y_label, title, colors):
-    for type in experiment_results.keys():
-        x, average, standard_error = experiment_results[type]
-        entity_name = ' '.join(type.split('_'))
-        ax.plot(x, average, label=entity_name, linewidth=3, color=colors[entity_name])
-        ax.fill_between(x, average - 2.26 * standard_error, average + 2.26 * standard_error,
-                        color=colors[entity_name],
-                        alpha=0.2)
+# def plot_learning_curve(ax, experiment_results, y_label, title, colors):
+#     for type in experiment_results.keys():
+#         x, average, standard_error = experiment_results[type]
+#         entity_name = ' '.join(type.split('_'))
+#         ax.plot(x, average, label=entity_name, linewidth=3, color=colors[entity_name])
+#         ax.fill_between(x, average - 2.26 * standard_error, average + 2.26 * standard_error,
+#                         color=colors[entity_name],
+#                         alpha=0.2)
+#     ax.set_ylabel(y_label)
+#     ax.set_title(title)
+
+def plot_performance_bar(ax, experiment_results, y_label, title, colors, labels):
+    for i, type in enumerate(labels):
+        key = '_'.join(type.split(' '))
+        _, average, _ = experiment_results[key]
+        if type != 'standard':
+            ax.bar(i, np.mean(average[:-args.window_size]), color=colors[type], label=type)
+
+    _, average, _ = experiment_results['standard']
+    ax.axhline(y=np.mean(average[:-args.window_size]),
+               # xmin=0, xmax=len(experiment_results.keys()),
+               label='standard',
+               linestyle='--',
+               linewidth=3)
+
     ax.set_ylabel(y_label)
     ax.set_title(title)
 
@@ -112,7 +133,7 @@ def plot_t_test_heatmap(ax1, data, labels, cbar=True):
                 annot_kws={"size": 15},
                 mask=mask,
                 cbar=cbar,
-                cbar_kws={'shrink':0.75})
+                cbar_kws={'shrink': 0.75})
     ax1.set_xticks(np.arange(len(labels) - 1) + 0.5, labels=list(labels)[:-1], rotation=90)
     ax1.set_yticks(np.arange(len(labels) - 1) + 1.5, labels=list(labels)[1:], rotation=0)
     ax1.set_ylabel("Learning Curve Label")
@@ -146,8 +167,6 @@ def get_labels(env_name, edge_list):
         entity_names.remove('l-gripper finger joint')
         entity_names.remove('r-gripper finger joint')
 
-    # entity_names = [j if 'joint' not in j else j.split('joint')[0].strip() for j in entity_names]
-    # entity_names = ['_'.join(j.split(' ')) for j in entity_names]
     action_labels = [j for j in entity_names if j not in ['torso', 'goal']]
 
     return entity_names, action_labels
@@ -180,63 +199,26 @@ def get_lrp(env_name):
 
 if __name__ == "__main__":
     sns.set_theme()
-    sns.set(font_scale=1.5)
-    width, height = 28, 16
-    fig, ax = plt.subplots(2, 4, figsize=(width, height), gridspec_kw={'width_ratios': (5, 12, 10, 1)})
+    sns.set(font_scale=1.75)
+    width, height = 27, 16
+    fig, ax = plt.subplots(2, 4, figsize=(width, height), gridspec_kw={'width_ratios': (7, 7, 12, 1)})
 
-    exp_path = os.path.join(root_path, 'Data', args.env_name)
-    env_exp_types = os.listdir(exp_path)
-    if 'graph' in env_exp_types:
-        env_exp_types.remove('graph')
-    env_exp_types = [d for d in env_exp_types if os.path.isdir(os.path.join(exp_path, d))]
-
-    # pallet = plt.cm.cividis(np.linspace(0, 1, len(experiment_results.keys())))
-    # pallet = plt.cm.tab20b(np.linspace(0, 1, len(experiment_results.keys())))
-    pallet = sns.color_palette('colorblind', n_colors=len(env_exp_types))
-    colors = {}
-    for i, type in enumerate(env_exp_types):
-        colors[' '.join(type.split('_'))] = pallet[i]
-
-    title_curves = f'Average return after occluding joints'
-    eval_results = eval(env_exp_types, exp_path)
-
-    plot_learning_curve(ax[0, 1], eval_results, 'Average Return', title_curves, colors)
-    _, labels = ax[0, 1].get_legend_handles_labels()
-    p_values = significancy_test(eval_results)
-    plot_t_test_heatmap(ax[0, 2], p_values, labels, cbar=True)
-    # ---------------------- BROKEN JOINTS------------------------------
-    env_name = args.env_name.split('-')
-    env_name[0] += 'Broken'
-    env_name = '-'.join(env_name)
-    exp_path = os.path.join(root_path, 'Data', env_name)
-    env_exp_types = os.listdir(exp_path)
-    if 'graph' in env_exp_types:
-        env_exp_types.remove('graph')
-    env_exp_types = [d for d in env_exp_types if os.path.isdir(os.path.join(exp_path, d))]
-
-    title_curves = f'Average return after blocking joints'
-    eval_results = eval(env_exp_types, exp_path)
-
-    plot_learning_curve(ax[1, 1], eval_results, 'Average Return', title_curves, colors)
-
-    ax[1, 1].set_xlabel("Number of Episodes")
-    ax[0, 1].get_shared_x_axes().join(ax[0, 1], ax[1, 1])
-    ax[0, 1].set_xticklabels([])
-    _, labels = ax[1, 1].get_legend_handles_labels()
-    p_values = significancy_test(eval_results)
-    plot_t_test_heatmap(ax[1, 2], p_values, labels, cbar=True)
-
-    ax[0, 2].set_title('Learning curve statistical T-test')
-    ax[1, 2].set_xlabel("Learning Curve Label")
     # ---------------------- Importance plots --------------------------
     edge_relevance, global_relevance, avg_relevance = get_lrp(args.env_name)
 
-    if 'FetchReach' in env_name:
+    if 'FetchReach' in args.env_name:
         env = FetchReachGraphWrapper(gym.make(args.env_name))
     else:
         env = MujocoGraphNormalWrapper(args.env_name)
     edge_list = env.robot_graph.edge_list
     entity_names, action_labels = get_labels(args.env_name, edge_list)
+
+    # pallet = plt.cm.cividis(np.linspace(0, 1, len(experiment_results.keys())))
+    # pallet = plt.cm.tab20b(np.linspace(0, 1, len(experiment_results.keys())))
+    pallet = sns.color_palette('colorblind', n_colors=len(entity_names))
+    colors = {}
+    for i, type in enumerate(entity_names):
+        colors[type] = pallet[i]
 
     joint_importance = np.abs(avg_relevance.mean(axis=1))
     joint_importance /= np.max(joint_importance)
@@ -249,10 +231,47 @@ if __name__ == "__main__":
 
     plot_joint_importance(ax[0, 0], joint_importance, entity_names, colors)
     plot_action_importance(ax[1, 0], action_importance, action_labels, colors)
+    # ------------------------- Performance Occluded ---------------------------------
+    exp_path = os.path.join(root_path, 'Data', args.env_name)
+    exp_types = os.listdir(exp_path)
+    if 'graph' in exp_types:
+        exp_types.remove('graph')
+    exp_types = [d for d in exp_types if os.path.isdir(os.path.join(exp_path, d))]
+    title_curves = f'Average return after occluding joints'
+    eval_results = eval(exp_types, exp_path)
 
-    ax[0, 0].set_xticklabels([])
-    ax[1, 0].set_xticklabels([])
-    ax[1, 0].set_xlabel('Entities')
+    # plot_learning_curve(ax[0, 1], eval_results, 'Average Return', title_curves, colors)
+    plot_performance_bar(ax[0, 1], eval_results, 'Average Return', title_curves, colors, entity_names)
+    _, labels = ax[0, 1].get_legend_handles_labels()
+    p_values = significancy_test(eval_results)
+    plot_t_test_heatmap(ax[0, 2], p_values, labels, cbar=True)
+
+    # ---------------------- Performance Blocked ------------------------------
+    env_name = args.env_name.split('-')
+    env_name[0] += 'Broken'
+    env_name = '-'.join(env_name)
+    exp_path = os.path.join(root_path, 'Data', env_name)
+    exp_types = os.listdir(exp_path)
+    if 'graph' in exp_types:
+        exp_types.remove('graph')
+    exp_types = [d for d in exp_types if os.path.isdir(os.path.join(exp_path, d))]
+
+    title_curves = f'Average return after blocking joints'
+    eval_results = eval(exp_types, exp_path)
+
+    # plot_learning_curve(ax[1, 1], eval_results, 'Average Return', title_curves, colors)
+    plot_performance_bar(ax[1, 1], eval_results, 'Average Return', title_curves, colors, action_labels)
+    ax[1, 1].set_xlabel("Number of Episodes")
+    ax[0, 1].get_shared_x_axes().join(ax[0, 1], ax[1, 1])
+    ax[0, 1].set_xticklabels([])
+    _, labels = ax[1, 1].get_legend_handles_labels()
+    p_values = significancy_test(eval_results)
+    plot_t_test_heatmap(ax[1, 2], p_values, labels, cbar=True)
+
+    ax[0, 2].set_title('Learning curve statistical T-test')
+    ax[1, 2].set_xlabel("Learning Curve Label")
+
+    # -----------------------------------------------------------------------------------
 
     for i in range(ax.shape[0]):
         ax[i, -1].axis('off')
@@ -262,11 +281,18 @@ if __name__ == "__main__":
                      loc='center right',
                      borderaxespad=1,
                      title="Entity names")
+
+    ax[0, 0].set_xticklabels([])
+    ax[1, 0].set_xticklabels([])
+    ax[1, 1].set_xticklabels([])
+    ax[1, 0].set_xlabel('Entities')
+
     # Adjust the scaling factor to fit your legend text completely outside the plot
     # (smaller value results in more space being made for the legend)
 
-    for l in leg.get_lines():
-        l.set_linewidth(6)
+    for i, l in enumerate(leg.get_lines()):
+        if leg.texts[i].get_text() != 'standard':
+            l.set_linewidth(6)
 
     fig.suptitle(f"Evaluating importance scores for {args.env_name} environment")
     fig.tight_layout()
