@@ -37,8 +37,6 @@ result_path = os.path.join(root_path, 'Result')
 if not os.path.exists(result_path):
     os.makedirs(result_path)
 
-patterns = ["/", "\\", "|", "-", "+", "x", "o", "O", ".", "*"]
-
 
 def eval(exp_types, exp_path):
     exp_type_eval_results = {}
@@ -80,35 +78,64 @@ def eval(exp_types, exp_path):
 #     ax.set_title(title)
 
 def plot_performance_bar(ax, experiment_results, y_label, title, colors, labels):
+    # for i, type in enumerate(labels):
+    #     key = '_'.join(type.split(' '))
+    #     color, pattern = colors[type]
+    #     _, average, _ = experiment_results[key]
+    #     if type != 'standard':
+    #         ax.bar(i, np.mean(average[:-args.window_size]), color=color, label=type, hatch=pattern)
+    #
+    # _, average, _ = experiment_results['standard']
+    # ax.axhline(y=np.mean(average[:-args.window_size]),
+    #            # xmin=0, xmax=len(experiment_results.keys()),
+    #            label='standard',
+    #            linestyle='--',
+    #            linewidth=3)
+    #
+    # ax.set_ylabel(y_label)
+    # ax.set_title(title)
+
+
+    # labels += ['standard']
+    performance = np.zeros(len(labels))
     for i, type in enumerate(labels):
         key = '_'.join(type.split(' '))
         _, average, _ = experiment_results[key]
-        if type != 'standard':
-            ax.bar(i, np.mean(average[:-args.window_size]), color=colors[type], label=type)
+        performance[i] = np.mean(average[:-args.window_size])
 
-    _, average, _ = experiment_results['standard']
-    ax.axhline(y=np.mean(average[:-args.window_size]),
-               # xmin=0, xmax=len(experiment_results.keys()),
-               label='standard',
-               linestyle='--',
-               linewidth=3)
+    performance = (performance - np.min(performance)) / (np.max(performance) - np.min(performance))
+    print(len(labels))
+    print(performance.shape)
+    # labels.remove('standard')
+    hline_index = None
+    for i, type in enumerate(labels):
+        color, pattern = colors[type]
+
+        ax.bar(i, performance[i], color=color, label=type, hatch=pattern)
+
+    # ax.axhline(y=performance[-1],
+    #            # xmin=0, xmax=len(experiment_results.keys()),
+    #            label='standard',
+    #            linestyle='--',
+    #            linewidth=3)
 
     ax.set_ylabel(y_label)
     ax.set_title(title)
 
 
 def plot_action_importance(ax, action_rel, action_labels, pallet):
-    colors = [pallet[l] for l in action_labels]
-    action_labels = [a if 'joint' not in a else a.split('joint')[0].strip() for a in action_labels]
-    ax.bar(action_labels, action_rel, color=colors)
+    new_action_labels = [a if 'joint' not in a else a.split('joint')[0].strip() for a in action_labels]
+    for i, l in enumerate(action_labels):
+        color, pattern = pallet[l]
+        ax.bar(l if 'joint' not in l else l.split('joint')[0].strip(), action_rel[i], color=color, hatch=pattern)
     ax.set_ylabel('Importance score')
     ax.set_title(f'Joint importance in the action space')
 
 
 def plot_joint_importance(ax, joint_rel, joint_labels, pallet):
-    colors = [pallet[l] for l in joint_labels]
-    joint_labels = [j if 'joint' not in j else j.split('joint')[0].strip() for j in joint_labels]
-    ax.bar(joint_labels, joint_rel, color=colors)
+    for i, l in enumerate(joint_labels):
+        color, pattern = pallet[l]
+        ax.bar(l if 'joint' not in l else l.split('joint')[0].strip(), joint_rel[i], color=color, hatch=pattern)
     ax.set_ylabel('Importance score')
     ax.set_title(f'Entity importance in the observation space')
 
@@ -213,12 +240,15 @@ if __name__ == "__main__":
     edge_list = env.robot_graph.edge_list
     entity_names, action_labels = get_labels(args.env_name, edge_list)
 
-    # pallet = plt.cm.cividis(np.linspace(0, 1, len(experiment_results.keys())))
-    # pallet = plt.cm.tab20b(np.linspace(0, 1, len(experiment_results.keys())))
-    pallet = sns.color_palette('colorblind', n_colors=len(entity_names))
+    pallet = plt.cm.cividis(np.linspace(0, 1, len(entity_names)))
+    # pallet = plt.cm.tab20b(np.linspace(0, 1, len(entity_names)))
+    # pallet = sns.color_palette('colorblind', n_colors=len(entity_names))
+    # pallet = plt.cm.get_cmap('tab10')
+    patterns = ["/", ".", "*", "-", "+", "x", "o", "O", "\\"]
+
     colors = {}
     for i, type in enumerate(entity_names):
-        colors[type] = pallet[i]
+        colors[type] = (pallet[i], patterns[i])
 
     joint_importance = np.abs(avg_relevance.mean(axis=1))
     joint_importance /= np.max(joint_importance)
@@ -292,7 +322,7 @@ if __name__ == "__main__":
 
     for i, l in enumerate(leg.get_lines()):
         if leg.texts[i].get_text() != 'standard':
-            l.set_linewidth(6)
+            l.set_linewidth(10)
 
     fig.suptitle(f"Evaluating importance scores for {args.env_name} environment")
     fig.tight_layout()
