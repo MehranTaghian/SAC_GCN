@@ -18,6 +18,8 @@ parser.add_argument('--percentage', default=1, type=int,
                     help='The percentage of time-steps for learning curve')
 parser.add_argument('--window-size', default=40, type=int,
                     help='How many final episodes should be considered as performance')
+parser.add_argument('--epsilon', default=1, type=int,
+                    help='Added for normalizing bar plots performance')
 
 args = parser.parse_args()
 
@@ -77,47 +79,44 @@ def eval(exp_types, exp_path):
 #     ax.set_ylabel(y_label)
 #     ax.set_title(title)
 
-def plot_performance_bar(ax, experiment_results, y_label, title, colors, labels):
-    # for i, type in enumerate(labels):
-    #     key = '_'.join(type.split(' '))
-    #     color, pattern = colors[type]
-    #     _, average, _ = experiment_results[key]
-    #     if type != 'standard':
-    #         ax.bar(i, np.mean(average[:-args.window_size]), color=color, label=type, hatch=pattern)
-    #
-    # _, average, _ = experiment_results['standard']
-    # ax.axhline(y=np.mean(average[:-args.window_size]),
-    #            # xmin=0, xmax=len(experiment_results.keys()),
-    #            label='standard',
-    #            linestyle='--',
-    #            linewidth=3)
-    #
-    # ax.set_ylabel(y_label)
-    # ax.set_title(title)
+def plot_performance_bar(ax, experiment_results, y_label, title, colors, labels, epsilon):
+    """
 
-
-    # labels += ['standard']
+    :param ax:
+    :param experiment_results:
+    :param y_label:
+    :param title:
+    :param colors:
+    :param labels:
+    :param epsilon: This is added to the normalized performance to avoid the minimum performance become zero
+    :return:
+    """
+    labels += ['standard']
     performance = np.zeros(len(labels))
     for i, type in enumerate(labels):
         key = '_'.join(type.split(' '))
         _, average, _ = experiment_results[key]
         performance[i] = np.mean(average[:-args.window_size])
 
-    performance = (performance - np.min(performance)) / (np.max(performance) - np.min(performance))
-    print(len(labels))
-    print(performance.shape)
-    # labels.remove('standard')
-    hline_index = None
+    # Normalizing the performance curves so that the standard performance would be equal to 1 to be as the baseline.
+    # the +1 in (performance - np.min(performance) + 1) is to avoid having zero bars.
+    performance = (performance - np.min(performance) + epsilon) / (
+                np.max(performance) - np.min(performance) + epsilon)
+    performance /= performance[-1]
+
+    labels.remove('standard')
+
     for i, type in enumerate(labels):
         color, pattern = colors[type]
-
+        key = '_'.join(type.split(' '))
+        _, average, _ = experiment_results[key]
         ax.bar(i, performance[i], color=color, label=type, hatch=pattern)
 
-    # ax.axhline(y=performance[-1],
-    #            # xmin=0, xmax=len(experiment_results.keys()),
-    #            label='standard',
-    #            linestyle='--',
-    #            linewidth=3)
+    ax.axhline(y=performance[-1],
+               # xmin=0, xmax=len(experiment_results.keys()),
+               label='standard',
+               linestyle='--',
+               linewidth=3)
 
     ax.set_ylabel(y_label)
     ax.set_title(title)
@@ -271,7 +270,7 @@ if __name__ == "__main__":
     eval_results = eval(exp_types, exp_path)
 
     # plot_learning_curve(ax[0, 1], eval_results, 'Average Return', title_curves, colors)
-    plot_performance_bar(ax[0, 1], eval_results, 'Average Return', title_curves, colors, entity_names)
+    plot_performance_bar(ax[0, 1], eval_results, 'Average Return', title_curves, colors, entity_names, args.epsilon)
     _, labels = ax[0, 1].get_legend_handles_labels()
     p_values = significancy_test(eval_results)
     plot_t_test_heatmap(ax[0, 2], p_values, labels, cbar=True)
@@ -290,10 +289,9 @@ if __name__ == "__main__":
     eval_results = eval(exp_types, exp_path)
 
     # plot_learning_curve(ax[1, 1], eval_results, 'Average Return', title_curves, colors)
-    plot_performance_bar(ax[1, 1], eval_results, 'Average Return', title_curves, colors, action_labels)
+    plot_performance_bar(ax[1, 1], eval_results, 'Average Return', title_curves, colors, action_labels, args.epsilon)
     ax[1, 1].set_xlabel("Number of Episodes")
-    ax[0, 1].get_shared_x_axes().join(ax[0, 1], ax[1, 1])
-    ax[0, 1].set_xticklabels([])
+
     _, labels = ax[1, 1].get_legend_handles_labels()
     p_values = significancy_test(eval_results)
     plot_t_test_heatmap(ax[1, 2], p_values, labels, cbar=True)
@@ -311,7 +309,11 @@ if __name__ == "__main__":
                      loc='center right',
                      borderaxespad=1,
                      title="Entity names")
+    for i, l in enumerate(leg.get_lines()):
+        if leg.texts[i].get_text() != 'standard':
+            l.set_linewidth(10)
 
+    ax[0, 1].set_xticklabels([])
     ax[0, 0].set_xticklabels([])
     ax[1, 0].set_xticklabels([])
     ax[1, 1].set_xticklabels([])
@@ -319,10 +321,6 @@ if __name__ == "__main__":
 
     # Adjust the scaling factor to fit your legend text completely outside the plot
     # (smaller value results in more space being made for the legend)
-
-    for i, l in enumerate(leg.get_lines()):
-        if leg.texts[i].get_text() != 'standard':
-            l.set_linewidth(10)
 
     fig.suptitle(f"Evaluating importance scores for {args.env_name} environment")
     fig.tight_layout()

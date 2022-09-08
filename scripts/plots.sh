@@ -10,8 +10,8 @@ PLOT=/home/taghianj/Documents/SAC_GCN/Plots/plot_withtest.py
 PLOT=/home/taghianj/Documents/SAC_GCN/Plots/plot_separately.py
 
 
-python $PLOT --env-name FetchReach-v2
+python $PLOT --env-name FetchReach-v2 --epsilon 1
 python $PLOT --env-name HalfCheetah-v2
-python $PLOT --env-name Walker2d-v2
+python $PLOT --env-name Walker2d-v2 --epsilon 50
 python $PLOT --env-name Hopper-v2
 
