@@ -27,3 +27,5 @@ its left leg. That can explain the reason of higher relevance scores in the left
 
 40) Change the heatmap of significancy test to compare the two learning curves based on the selected window for their
 performance
+
+50) manage all the bar plots having zero length
