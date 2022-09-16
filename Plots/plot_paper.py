@@ -16,10 +16,15 @@ parser.add_argument('--env-name', default="FetchReach-v2",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--percentage', default=1, type=int,
                     help='The percentage of time-steps for learning curve')
-parser.add_argument('--window-size', default=40, type=int,
+parser.add_argument('--window-size', default=50, type=int,
                     help='How many final episodes should be considered as performance')
 parser.add_argument('--epsilon', default=1, type=int,
                     help='Added for normalizing bar plots performance')
+parser.add_argument('--epsilon-entity', default=1, type=float,
+                    help='Added for normalizing bar plots performance')
+parser.add_argument('--epsilon-action', default=1, type=float,
+                    help='Added for normalizing bar plots performance')
+
 
 args = parser.parse_args()
 
@@ -58,6 +63,7 @@ def eval(exp_types, exp_path):
             if first:
                 eval_average_returns = np.zeros([num_seeds, num_data_points_eval])
                 first = False
+
             eval_average_returns[seed] = data_eval['eval_reward'][:num_data_points_eval]
         eval_average = np.mean(eval_average_returns, axis=0)
         eval_standard_error = np.std(eval_average_returns, axis=0) / np.sqrt(eval_average_returns.shape[0])
@@ -67,17 +73,6 @@ def eval(exp_types, exp_path):
 
     return exp_type_eval_results
 
-
-# def plot_learning_curve(ax, experiment_results, y_label, title, colors):
-#     for type in experiment_results.keys():
-#         x, average, standard_error = experiment_results[type]
-#         entity_name = ' '.join(type.split('_'))
-#         ax.plot(x, average, label=entity_name, linewidth=3, color=colors[entity_name])
-#         ax.fill_between(x, average - 2.26 * standard_error, average + 2.26 * standard_error,
-#                         color=colors[entity_name],
-#                         alpha=0.2)
-#     ax.set_ylabel(y_label)
-#     ax.set_title(title)
 
 def plot_performance_bar(ax, experiment_results, y_label, title, colors, labels, epsilon):
     """
@@ -101,7 +96,7 @@ def plot_performance_bar(ax, experiment_results, y_label, title, colors, labels,
     # Normalizing the performance curves so that the standard performance would be equal to 1 to be as the baseline.
     # the +1 in (performance - np.min(performance) + 1) is to avoid having zero bars.
     performance = (performance - np.min(performance) + epsilon) / (
-                np.max(performance) - np.min(performance) + epsilon)
+            np.max(performance) - np.min(performance) + epsilon)
     performance /= performance[-1]
 
     labels.remove('standard')
@@ -144,7 +139,8 @@ def significancy_test(exp_results):
 
     for i, type1 in enumerate(exp_results.keys()):
         for j, type2 in enumerate(exp_results.keys()):
-            p_values[i, j] = ttest_ind(exp_results[type1][1], exp_results[type2][1]).pvalue
+            p_values[i, j] = ttest_ind(exp_results[type1][1][:-args.window_size],
+                                       exp_results[type2][1][:-args.window_size]).pvalue
 
     return p_values
 
@@ -162,7 +158,6 @@ def plot_t_test_heatmap(ax1, data, labels, cbar=True):
                 cbar_kws={'shrink': 0.75})
     ax1.set_xticks(np.arange(len(labels) - 1) + 0.5, labels=list(labels)[:-1], rotation=90)
     ax1.set_yticks(np.arange(len(labels) - 1) + 1.5, labels=list(labels)[1:], rotation=0)
-    ax1.set_ylabel("Learning Curve Label")
 
 
 def process_joint_name(joint_name):
@@ -250,12 +245,14 @@ if __name__ == "__main__":
         colors[type] = (pallet[i], patterns[i])
 
     joint_importance = np.abs(avg_relevance.mean(axis=1))
+    joint_importance += args.epsilon_entity
     joint_importance /= np.max(joint_importance)
 
     action_importance = edge_relevance.sum(axis=4).sum(axis=3).sum(axis=2).sum(axis=0)
     if global_relevance is not None:
         action_importance += global_relevance.sum(axis=3).sum(axis=2).sum(axis=1)
     action_importance = np.abs(action_importance)
+    action_importance += args.epsilon_action
     action_importance /= np.max(action_importance)
 
     plot_joint_importance(ax[0, 0], joint_importance, entity_names, colors)
@@ -271,10 +268,10 @@ if __name__ == "__main__":
 
     # plot_learning_curve(ax[0, 1], eval_results, 'Average Return', title_curves, colors)
     plot_performance_bar(ax[0, 1], eval_results, 'Average Return', title_curves, colors, entity_names, args.epsilon)
-    _, labels = ax[0, 1].get_legend_handles_labels()
+    # _, labels = ax[0, 1].get_legend_handles_labels()
+    labels = [' '.join(j.split('_')[:-1]).strip() if len(j.split('_')) > 1 else j for j in eval_results.keys()]
     p_values = significancy_test(eval_results)
     plot_t_test_heatmap(ax[0, 2], p_values, labels, cbar=True)
-
     # ---------------------- Performance Blocked ------------------------------
     env_name = args.env_name.split('-')
     env_name[0] += 'Broken'
@@ -292,12 +289,14 @@ if __name__ == "__main__":
     plot_performance_bar(ax[1, 1], eval_results, 'Average Return', title_curves, colors, action_labels, args.epsilon)
     ax[1, 1].set_xlabel("Number of Episodes")
 
-    _, labels = ax[1, 1].get_legend_handles_labels()
+    # _, labels = ax[1, 1].get_legend_handles_labels()
+    labels = [' '.join(j.split('_')[:-1]).strip() if len(j.split('_')) > 1 else j for j in eval_results.keys()]
     p_values = significancy_test(eval_results)
     plot_t_test_heatmap(ax[1, 2], p_values, labels, cbar=True)
 
-    ax[0, 2].set_title('Learning curve statistical T-test')
-    ax[1, 2].set_xlabel("Learning Curve Label")
+    ax[0, 2].set_title('Performance statistical T-test')
+    ax[1, 2].set_xlabel("Entity name")
+    ax[1, 2].set_ylabel("Entity name")
 
     # -----------------------------------------------------------------------------------
 
