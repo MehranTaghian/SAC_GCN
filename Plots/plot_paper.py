@@ -272,6 +272,7 @@ if __name__ == "__main__":
     labels = [' '.join(j.split('_')[:-1]).strip() if len(j.split('_')) > 1 else j for j in eval_results.keys()]
     p_values = significancy_test(eval_results)
     plot_t_test_heatmap(ax[0, 2], p_values, labels, cbar=True)
+    ax[0, 2].set_ylabel("Entity name")
     # ---------------------- Performance Blocked ------------------------------
     env_name = args.env_name.split('-')
     env_name[0] += 'Broken'
