@@ -4,7 +4,7 @@ import os
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="FetchReachDense-v1",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
-parser.add_argument('--exp-type', default="standard",
+parser.add_argument('--exp-type', default="graph",
                     help='Type of the experiment like normal or abnormal')
 parser.add_argument('--num-threads', default="2",
                     help='Number of parallel threads')

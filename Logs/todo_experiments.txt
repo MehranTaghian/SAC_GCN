@@ -1,3 +1,3 @@
-walker2d broken seeds 10-20 footleft and legleft running on  melco2
-seeds 20-30 footleft and legleft running on melco
-seeds 10-20 thighleft running on melco
+run 20-30 seeds for thighleft Walker2dBroken-v2 on melco
+run 20 seeds for torso Walker2d-v2 on melco
+

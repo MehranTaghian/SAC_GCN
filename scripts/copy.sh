@@ -14,9 +14,12 @@ rsync -a taghianj@cedar.computecanada.ca:/home/taghianj/scratch/SAC_GCN/Data /ho
 ##################################### TAGHIANJ
 # MELCO 1
 rsync -a taghianj@melco.cs.ualberta.ca:/local/melco3/taghianj/SAC_GCN/Data /home/taghianj/Documents/SAC_GCN
+rsync -a taghianj@melco.cs.ualberta.ca:/local/melco3/taghianj/SAC_GCN/Data/Walker2dBroken-v2/ /home/taghianj/Documents/SAC_GCN/Data/Walker2dBroken-v2/
+
 
 #MELCO 2
 rsync -a taghianj@melco2.cs.ualberta.ca:/home/taghianj/Documents/SAC_GCN/Data /home/taghianj/Documents/SAC_GCN
+rsync -a taghianj@melco2.cs.ualberta.ca:/home/taghianj/Documents/SAC_GCN/Data/Walker2dBroken-v2/ /home/taghianj/Documents/SAC_GCN/Data/Walker2dBroken-v2/
 
 # GOOGLE DRIVE
 rsync -a /home/taghianj/Documents/SAC_GCN/Data/ /home/taghianj/google-drive/SAC-GCN/
