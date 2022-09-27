@@ -1,7 +1,5 @@
 from xml.etree import ElementTree
 
-
-# TODO: receive a list of keywords to extract those bodies containing that keyword in their name
 class ModelParser:
     def __init__(self, model):
         self.root = ElementTree.fromstring(model)
@@ -22,7 +20,6 @@ class ModelParser:
         # This dictionary represents a joint along with two separate bodies whom it attached together.
         # Those nodes whose super parent is 'mujoco' element, they are not connected to another body. So just ignore
         # them
-        # TODO this way, robot0:slide0, robot0:slide1, and robot0:slide2 are being ignored
         # Here we have two types of connections, one is a connection between two bodies with a joint between them
         # and another is the second body (child body) is welded to the parent body. Each connection is shown using
         # a triple (n1, n2, e) where n1 is the child body, n2 is the parent body and e is the edge which can be either
@@ -45,13 +42,6 @@ class ModelParser:
                                     ('camera' not in self.parent_map[b].attrib['name']
                                      and 'laser' not in self.parent_map[b].attrib['name'])
                                     )]
-
-        # if 'AntEnv' in env_name:
-        #     for i in range(len(self.connections_joint)):
-        #         _, _, j = self.connections_joint[i]
-        #         if 'name' in j.attrib and j.attrib['name'] == 'torso':
-        #             del self.connections_joint[i]
-        #             break
 
         # Removing those connections that have a joint from welded connections list
         for p1, p2, _ in self.connections_joint:

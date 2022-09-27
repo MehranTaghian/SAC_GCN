@@ -4,8 +4,6 @@ EVALUATE=/home/mehran/Documents/SAC_GCN/Evaluate/evaluate.py
 
 EVALUATE=/home/taghianj/Documents/SAC_GCN/Evaluate/evaluate.py
 
-python $EVALUATE --env-name FetchReachDense-v1 --exp-type graph --seed 0
-
 python $EVALUATE --env-name FetchReach-v2 --exp-type graph --time-step 29999
 python $EVALUATE --env-name HalfCheetah-v2 --exp-type graph
 python $EVALUATE --env-name Walker2d-v2 --exp-type graph

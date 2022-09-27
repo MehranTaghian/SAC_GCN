@@ -9,17 +9,17 @@ from pathlib import Path
 from Graph_SAC.sac import SAC
 from utils import state_2_graphbatch, load_object, save_object
 
-parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
-parser.add_argument('--env-name', default="FetchReachDense-v1",
+parser = argparse.ArgumentParser(description='Evaluation using LRP Args')
+parser.add_argument('--env-name', default="FetchReach-v2",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--exp-type', default="standard",
-                    help='Type of the experiment like normal or abnormal')
+                    help='Type of the experiment like standard, graph, etc.')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
 parser.add_argument('--num-episodes', type=int, default=10, metavar='N',
                     help='Number of episodes for evaluation')
 parser.add_argument('--time-step', type=int, default=10999, metavar='N',
-                    help='Time step of the model')
+                    help='Which time-step of the saved model should be used')
 
 args = parser.parse_args()
 env_name = args.env_name
