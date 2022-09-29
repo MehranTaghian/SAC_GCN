@@ -1,7 +1,7 @@
 # Explainability of Deep Reinforcement Learning Algorithms in Robotic Domains by using Layer-wise Relevance Propagation
 
 ## Environments
-Our modified versions of robotic environments are under the `CustomGymEnvs` directory.
+Our modified versions of robotic environments are under the `./CustomGymEnvs` directory.
 In this directory, there is a `changed_envs` directory which contains the new `FetchReach-v1`
 environment called `FetchReach-v2` with changed action-space. The actions in the updated environment are torques (rather than
 the x, y, and z velocity of the end-effector). Under the `envs` directory, there are 
@@ -13,7 +13,7 @@ representation of the robots.
 For parsing the robot's `xml` model and converting the representation into a graph, the 
 `RobotGraphModel` package has been developed. Under this directory, there is a `model_parser.py`
 file which parses the `xml` model of the environment. The `robot_graph.py` first parses the model
-of the robot, identifying the nodes (body in the `xml`) and edges (joint in the `xml`) of the robot.
+of the robot, identifying the nodes (`<body>` in the `xml`) and edges (`<joint>` in the `xml`) of the robot.
 Two nested `<body>`'s are connected to each other through a `<joint>` that is defined in the inner body.
 For each environment, we have developed a class specific to that environment that has inherited from 
 the `RobotGraph` class withing the `robot_graph.py` file. Each of these subclasses define the
@@ -22,7 +22,7 @@ by the OpenAI Gym wrappers under the `CustomGymEnvs/graph_envs`.
 
 ## Algorithm
 Our algorithm is [Soft Actor-Critic](https://arxiv.org/abs/1812.05905). The one with graph representation is
-under `Graph_SAC` and the original one with fully-connected network is under `SAC`. For using
+under `./Graph_SAC` and the original one with fully-connected network is under `./SAC`. For using
 Graph Neural Network architecture, we use the implementation of 
 [torchgraph](https://github.com/baldassarreFe/torchgraphs.git) developed for the paper: 
 [Explainability Techniques for Graph Convolutional Networks](https://arxiv.org/abs/1905.13686).
@@ -166,7 +166,7 @@ the list of the `JOINT-NAME`s' are appeared in the following:
   - thigh_joint
 
 Note that these experiments use the original SAC algorithm with fully-connected networks
-under the `SAC` directory. For each environment, the resulting data is stored under the following
+under the `./SAC` directory. For each environment, the resulting data is stored under the following
 directories:
 - For the occlusion case: `./Data/{ENV-NAME}/{ENTITY-NAME}`
 - For the blockage case: `./Data/{BROKEN-ENV-NAME}/{JOINT-NAME}`
