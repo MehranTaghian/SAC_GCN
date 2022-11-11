@@ -115,6 +115,7 @@ def plot_performance_bar(ax, experiment_results, y_label, title, colors, labels,
 
     ax.set_ylabel(y_label)
     ax.set_title(title)
+    return performance
 
 
 def plot_action_importance(ax, action_rel, action_labels, pallet):
@@ -267,7 +268,7 @@ if __name__ == "__main__":
     eval_results = eval(exp_types, exp_path)
 
     # plot_learning_curve(ax[0, 1], eval_results, 'Average Return', title_curves, colors)
-    plot_performance_bar(ax[0, 1], eval_results, 'Average Return', title_curves, colors, entity_names, args.epsilon)
+    performance_occluded = plot_performance_bar(ax[0, 1], eval_results, 'Average Return', title_curves, colors, entity_names, args.epsilon)
     # _, labels = ax[0, 1].get_legend_handles_labels()
     labels = [' '.join(j.split('_')[:-1]).strip() if len(j.split('_')) > 1 else j for j in eval_results.keys()]
     p_values = significancy_test(eval_results)
@@ -287,7 +288,7 @@ if __name__ == "__main__":
     eval_results = eval(exp_types, exp_path)
 
     # plot_learning_curve(ax[1, 1], eval_results, 'Average Return', title_curves, colors)
-    plot_performance_bar(ax[1, 1], eval_results, 'Average Return', title_curves, colors, action_labels, args.epsilon)
+    performance_blocked = plot_performance_bar(ax[1, 1], eval_results, 'Average Return', title_curves, colors, action_labels, args.epsilon)
     ax[1, 1].set_xlabel("Number of Episodes")
 
     # _, labels = ax[1, 1].get_legend_handles_labels()
@@ -319,6 +320,10 @@ if __name__ == "__main__":
     ax[1, 1].set_xticklabels([])
     ax[1, 0].set_xlabel('Entities')
 
+    print('action_importance', action_importance)
+    print('joint_importance', joint_importance)
+    print('occluded', performance_occluded)
+    print('blocked', performance_blocked)
     # Adjust the scaling factor to fit your legend text completely outside the plot
     # (smaller value results in more space being made for the legend)
 
