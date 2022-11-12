@@ -320,13 +320,40 @@ if __name__ == "__main__":
     ax[1, 1].set_xticklabels([])
     ax[1, 0].set_xlabel('Entities')
 
-    print('action_importance', action_importance)
-    print('joint_importance', joint_importance)
-    print('occluded', performance_occluded)
-    print('blocked', performance_blocked)
+
     # Adjust the scaling factor to fit your legend text completely outside the plot
     # (smaller value results in more space being made for the legend)
 
     fig.suptitle(f"Evaluating importance scores for {args.env_name} environment")
     fig.tight_layout()
     fig.savefig(os.path.join(result_path, f'{args.env_name}.jpg'), dpi=300)
+
+    print('action_importance', action_importance)
+    print('joint_importance', joint_importance)
+    print('occluded', performance_occluded)
+    print('blocked', performance_blocked)
+
+    performance_occluded = performance_occluded[:-1]
+    performance_blocked = performance_blocked[:-1]
+
+    from scipy.stats import spearmanr, kendalltau
+
+    print('*' * 25, 'Spearmanr', '*' * 25)
+    coef, p = spearmanr(action_importance, performance_blocked)
+    print('blocked', coef, p)
+    coef, p = spearmanr(joint_importance, performance_occluded)
+    print('occluded', coef, p)
+
+    print('*' * 25, 'Kendall', '*' * 25)
+    coef, p = kendalltau(action_importance, performance_blocked)
+    print('blocked', coef, p)
+    coef, p = kendalltau(joint_importance, performance_occluded)
+    print('occluded', coef, p)
+    # interpret the significance
+    # alpha = 0.05
+    # if p > alpha:
+    #     print('Samples are uncorrelated (fail to reject H0) p=%.3f' % p)
+    # else:
+    #     print('Samples are correlated (reject H0) p=%.3f' % p)
+
+    
