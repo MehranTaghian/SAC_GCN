@@ -180,6 +180,8 @@ $ python $PLOT --env-name {ENV-NAME}
 where `$PLOT` is the absolute path to the `./Plots/plot.py` file.
 The result would be stored under `./Result/{ENV-NAME}.jpg`.
 
+For further information about the method and results, please refer to our paper:
+
 ```
 @article{taghian2024explainability,
   title={Explainability of deep reinforcement learning algorithms in robotic domains by using Layer-wise Relevance Propagation},
