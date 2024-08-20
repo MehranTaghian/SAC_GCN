@@ -179,3 +179,16 @@ $ python $PLOT --env-name {ENV-NAME}
 ```
 where `$PLOT` is the absolute path to the `./Plots/plot.py` file.
 The result would be stored under `./Result/{ENV-NAME}.jpg`.
+
+```
+@article{taghian2024explainability,
+  title={Explainability of deep reinforcement learning algorithms in robotic domains by using Layer-wise Relevance Propagation},
+  author={Taghian, Mehran and Miwa, Shotaro and Mitsuka, Yoshihiro and G{\"u}nther, Johannes and Golestan, Shadan and Zaiane, Osmar},
+  journal={Engineering Applications of Artificial Intelligence},
+  volume={137},
+  pages={109131},
+  year={2024},
+  publisher={Elsevier}
+}
+```
+
